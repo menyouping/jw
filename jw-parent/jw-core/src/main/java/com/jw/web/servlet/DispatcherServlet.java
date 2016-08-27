@@ -7,6 +7,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -94,6 +96,11 @@ public class DispatcherServlet extends HttpServlet {
                     if (returnUrl.split(":")[0].equals("redirect")) {
                         response.sendRedirect(returnUrl.split(":")[1]);
                     } else {
+                        // pass model to jsp page
+                        Map<String, Object> model = SessionContext.getModel().asMap();
+                        for(Entry<String, Object> entry : model.entrySet()) {
+                            request.setAttribute(entry.getKey(), entry.getValue());
+                        }
                         RequestDispatcher dispatcher = request
                                 .getRequestDispatcher(getPage(returnUrl + DEFAULT_EXTENSION));
                         dispatcher.forward(request, response);
