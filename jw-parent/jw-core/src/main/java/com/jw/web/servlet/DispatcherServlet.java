@@ -1,12 +1,16 @@
 package com.jw.web.servlet;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,12 +19,19 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.jw.ui.JwModel;
+import com.jw.ui.Model;
 import com.jw.util.ConfigUtils;
 import com.jw.util.FileUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.MimeUtils;
 import com.jw.util.SessionContext;
 import com.jw.util.StringUtils;
+import com.jw.web.bind.annotation.CookieValue;
+import com.jw.web.bind.annotation.ModelAttribute;
+import com.jw.web.bind.annotation.RequestHeader;
+import com.jw.web.bind.annotation.RequestMethod;
 import com.jw.web.bind.annotation.RequestParam;
 import com.jw.web.bind.annotation.ResponseBody;
 import com.jw.web.context.AppContext;
@@ -65,9 +76,18 @@ public class DispatcherServlet extends HttpServlet {
                 .set(SessionContext.SESSION, request.getSession());
 
         Method method = urlMapping.getMethod();
+        Object[] paras = null;
         try {
-            Object[] paras = autowireParameters(urlMapping);
             Object controller = AppContext.getBean(urlMapping.getClaze());
+
+            List<Method> modelAttributeMethods = findModelAttributeMethods(urlMapping.getClaze());
+            if (!JwUtils.isEmpty(modelAttributeMethods)) {
+                for (Method modelAttributeMethod : modelAttributeMethods) {
+                    paras = autowireParameters(modelAttributeMethod);
+                    modelAttributeMethod.invoke(controller, paras);
+                }
+            }
+            paras = autowireParameters(urlMapping.getMethod());
             if (method.getReturnType().equals(String.class)) {
                 String returnUrl = (String) method.invoke(controller, paras);
                 if (!StringUtils.isEmpty(returnUrl)) {
@@ -91,6 +111,19 @@ public class DispatcherServlet extends HttpServlet {
             showError(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
         }
+    }
+
+    public static List<Method> findModelAttributeMethods(Class<?> controller) {
+        Method[] methods = controller.getDeclaredMethods();
+        if (JwUtils.isEmpty(methods))
+            return null;
+        List<Method> list = JwUtils.newLinkedList();
+        for (Method method : methods) {
+            if (JwUtils.isAnnotated(method, ModelAttribute.class)) {
+                list.add(method);
+            }
+        }
+        return list;
     }
 
     public static String getPage(String fileName) {
@@ -130,10 +163,9 @@ public class DispatcherServlet extends HttpServlet {
         return false;
     }
 
-    protected static Object[] autowireParameters(UrlMapping urlMapping)
-            throws InstantiationException, IllegalAccessException {
-        Class<?>[] paramClazes = urlMapping.getMethod().getParameterTypes();
-        Annotation[][] paramAnnos = urlMapping.getMethod().getParameterAnnotations();
+    protected static Object[] autowireParameters(Method method) throws InstantiationException, IllegalAccessException {
+        Class<?>[] paramClazes = method.getParameterTypes();
+        Annotation[][] paramAnnos = method.getParameterAnnotations();
         int parameterCount = paramClazes.length;
 
         Object[] paras = new Object[parameterCount];
@@ -144,6 +176,7 @@ public class DispatcherServlet extends HttpServlet {
         return paras;
     }
 
+    @SuppressWarnings("unchecked")
     protected static Object autowireParameter(Class<?> paramClaze, Annotation[] paramAnnos)
             throws InstantiationException, IllegalAccessException {
         if (HttpServletRequest.class.isAssignableFrom(paramClaze)) {
@@ -155,14 +188,82 @@ public class DispatcherServlet extends HttpServlet {
         if (HttpSession.class.isAssignableFrom(paramClaze)) {
             return SessionContext.getSession();
         }
+        if (Model.class.isAssignableFrom(paramClaze)) {
+            if (!SessionContext.getContext().containsKey(SessionContext.MODEL)) {
+                SessionContext.getContext().put(SessionContext.MODEL, new JwModel());
+            }
+            return SessionContext.getModel();
+        }
 
+        String name = null, value = null;
         for (Annotation anno : paramAnnos) {
             if (RequestParam.class.isAssignableFrom(anno.annotationType())) {
-                RequestParam requestParam = (RequestParam) anno;
-                String paramValue = SessionContext.getRequest().getParameter(requestParam.value());
-                SessionContext.getRequest().setAttribute(requestParam.value(), paramValue);
-                return paramValue;
+                name = ((RequestParam) anno).value();
+                if (name.isEmpty())
+                    continue;
+                value = SessionContext.getRequest().getParameter(name);
+                SessionContext.getRequest().setAttribute(name, value);
+                return value;
             }
+            if (RequestHeader.class.isAssignableFrom(anno.annotationType())) {
+                name = ((RequestHeader) anno).value();
+                if (name.isEmpty())
+                    continue;
+                value = SessionContext.getRequest().getHeader(name);
+                SessionContext.getRequest().setAttribute(name, value);
+                return value;
+            }
+            if (CookieValue.class.isAssignableFrom(anno.annotationType())) {
+                name = ((CookieValue) anno).value();
+                if (name.isEmpty())
+                    continue;
+                Cookie[] cookies = SessionContext.getRequest().getCookies();
+                if (!JwUtils.isEmpty(cookies)) {
+                    for (Cookie cookie : cookies) {
+                        if (name.equals(cookie.getName())) {
+                            value = cookie.getValue();
+                            SessionContext.getRequest().setAttribute(name, value);
+                            return value;
+                        }
+                    }
+                }
+                return value;
+            }
+            if (ModelAttribute.class.isAssignableFrom(anno.annotationType())) {
+                HttpServletRequest request = SessionContext.getRequest();
+                Object dto = null;
+                if (RequestMethod.GET.name().equals(request.getMethod())
+                        || "application/x-www-form-urlencoded".equals(request.getContentType())) {
+                    request.getParameterMap();
+                    JSONObject json = new JSONObject();
+                    json.putAll(request.getParameterMap());
+                    dto = json.toJavaObject(paramClaze);
+                } else if ("application/json".equals(request.getContentType())) {
+                    InputStreamReader reader = null;
+                    try {
+                        reader = new InputStreamReader(request.getInputStream(), "UTF-8");
+                        BufferedReader bufferedReader = new BufferedReader(reader);
+                        StringBuilder sb = new StringBuilder();
+                        String line = null;
+                        while ((line = bufferedReader.readLine()) != null) {
+                            sb.append(line);
+                        }
+                        dto = JSON.parseObject(sb.toString()).toJavaObject(paramClaze);
+                    } catch (IOException e) {
+                        LOGGER.error("Error raised when parse the post body to dto.", e);
+                    } finally {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return dto;
+                } else {
+                    LOGGER.error("Not meet the required condition for @ModelAttribute");
+                }
+            }
+            return null;
         }
 
         HttpServletRequest request = SessionContext.getRequest();
@@ -189,12 +290,25 @@ public class DispatcherServlet extends HttpServlet {
                 }
             } else if (field.getType().equals(Double.TYPE) || field.getType().equals(Double.class)) {
                 if (request.getParameter(fieldName) == null) {
-                    field.set(dto, 0.0);
+                    field.set(dto, 0d);
                 } else {
                     field.set(dto, Double.valueOf(request.getParameter(fieldName)));
+                }
+            } else if (field.getType().equals(Float.TYPE) || field.getType().equals(Float.class)) {
+                if (request.getParameter(fieldName) == null) {
+                    field.set(dto, 0f);
+                } else {
+                    field.set(dto, Float.valueOf(request.getParameter(fieldName)));
+                }
+            } else if (field.getType().equals(Boolean.TYPE) || field.getType().equals(Boolean.class)) {
+                if (request.getParameter(fieldName) == null) {
+                    field.set(dto, false);
+                } else {
+                    field.set(dto, Boolean.valueOf(request.getParameter(fieldName)));
                 }
             }
         }
         return dto;
     }
+
 }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +75,10 @@ public class JwUtils {
 
     public static <T> List<T> newArrayList() {
         return new ArrayList<T>();
+    }
+
+    public static <T> List<T> newLinkedList() {
+        return new LinkedList<T>();
     }
 
     public static <T> List<T> newArrayList(int len) {

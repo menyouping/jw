@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.jw.ui.Model;
+
 /**
  * 
  * @author jay
@@ -19,6 +21,7 @@ public class SessionContext implements java.io.Serializable {
     public final static String REQUEST = "request";
     public final static String RESPONSE = "response";
     public final static String SESSION = "session";
+    public final static String MODEL = "model";
 
     private final static ThreadLocal<SessionContext> context = new ThreadLocal<SessionContext>();
 
@@ -28,7 +31,7 @@ public class SessionContext implements java.io.Serializable {
         context.set(new SessionContext());
         return context.get();
     }
-    
+
     public static void setContext(SessionContext ctx) {
         context.set(ctx);
     }
@@ -55,6 +58,14 @@ public class SessionContext implements java.io.Serializable {
 
     public static HttpSession getSession() {
         return (HttpSession) getContext().map.get(SESSION);
+    }
+
+    public static Model getModel() {
+        return (Model) getContext().map.get(MODEL);
+    }
+
+    public boolean containsKey(String key) {
+        return map.containsKey(key);
     }
 
     public void put(String key, Object value) {

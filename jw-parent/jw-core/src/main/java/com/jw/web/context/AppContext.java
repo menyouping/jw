@@ -118,6 +118,10 @@ public class AppContext {
             result = Long.valueOf(value);
         } else if (field.getType().equals(Double.TYPE) || field.getType().equals(Double.class)) {
             result = Double.valueOf(value);
+        } else if (field.getType().equals(Float.TYPE) || field.getType().equals(Float.class)) {
+            result = Float.valueOf(value);
+        } else if (field.getType().equals(Boolean.TYPE) || field.getType().equals(Boolean.class)) {
+            result = Boolean.valueOf(value);
         }
         if (result != null) {
             field.setAccessible(true);

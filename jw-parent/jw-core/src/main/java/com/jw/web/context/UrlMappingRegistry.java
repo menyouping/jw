@@ -52,8 +52,8 @@ public class UrlMappingRegistry {
 
         if (JwUtils.isAnnotated(controller, RequestMapping.class)) {
             urls = controller.getAnnotation(RequestMapping.class).value();
-            if (urls == null || urls.length == 0 || urls.length > 1) {
-                LOGGER.error(new Exception("RequestMapping on class " + controller.getSimpleName() + " is invalid."));
+            if (JwUtils.isEmpty(urls) || urls.length > 1) {
+                LOGGER.error(new Exception("RequestMapping on class " + controller.getName() + " is invalid."));
                 return;
             } else {
                 clazeUrl = urls[0];
@@ -67,18 +67,13 @@ public class UrlMappingRegistry {
         for (Method method : methods) {
             if (!JwUtils.isAnnotated(method, RequestMapping.class))
                 continue;
-            if (!method.isAccessible()) {
-                LOGGER.warn(
-                        String.format("The method %s in %s is not public.", method.getName(), controller.getName()));
-                continue;
-            }
+            method.setAccessible(true);
             urls = method.getAnnotation(RequestMapping.class).value();
-            urlMapping = new UrlMapping(controller, method);
+            urlMapping = new UrlMapping(method);
             flag = false;
             for (String url : urls) {
                 if (url.isEmpty()) {
-                    LOGGER.warn(String.format("The @RequestMapping value of %s in %s is invalid.", method.getName(),
-                            controller.getName()));
+                    LOGGER.warn(String.format("The @RequestMapping value of %s in %s is invalid.", method.getName(), controller.getName()));
                     continue;
                 }
                 urlMap.put(clazeUrl + url, urlMapping);
