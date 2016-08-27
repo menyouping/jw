@@ -15,7 +15,7 @@ import java.util.Properties;
 public class ConfigUtils {
     private static Properties config = new Properties();
 
-    public static void init() {
+    static {
         List<File> files = FileUtils.findFiles(".properties");
         Properties prop = null;
         for (File file : files) {
@@ -27,6 +27,10 @@ public class ConfigUtils {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void init() {
+
     }
 
     public static Properties getProperties() {

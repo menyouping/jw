@@ -13,21 +13,31 @@ import java.util.Map;
 public class JwUtils {
 
     private final static String EDITOR_FORM_NAME = "content";
-    
+
     public static boolean isBindKey(String key) {
         return key.startsWith("${") && key.endsWith("}");
     }
+
     /**
      * ${key} -> key
+     * 
      * @param key
      * @return
      */
     public static String getBindKey(String key) {
-        return key.substring(2, key.length() -1);
+        return key.substring(2, key.length() - 1);
     }
 
     public static boolean isEditorField(String fieldName) {
         return EDITOR_FORM_NAME.equals(fieldName);
+    }
+
+    public static <T> boolean isEmpty(Collection<T> c) {
+        return c == null || c.isEmpty();
+    }
+
+    public static <T> boolean isEmpty(T[] arr) {
+        return arr == null || arr.length == 0;
     }
 
     public static String repeat(char ch, int count) {
@@ -108,7 +118,7 @@ public class JwUtils {
     public static <A extends Annotation> boolean isAnnotated(Field field, Class<A> annoClaze) {
         return field.getAnnotation(annoClaze) != null;
     }
-    
+
     public static <A extends Annotation> boolean isAnnotated(Method method, Class<A> annoClaze) {
         return method.getAnnotation(annoClaze) != null;
     }

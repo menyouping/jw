@@ -2,27 +2,28 @@ package com.jw.web.context;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.jw.util.ConfigUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.PkgUtils;
 import com.jw.web.bind.annotation.Controller;
 import com.jw.web.bind.annotation.RequestMapping;
+import com.jw.web.bind.annotation.RequestMethod;
 
 public class UrlMappingRegistry {
 
     private static final Logger LOGGER = Logger.getLogger(UrlMappingRegistry.class);
-    private static final Map<String, UrlMapping> urlMap = new ConcurrentHashMap<String, UrlMapping>();
+    private static final Multimap<String, UrlMapping> urlMap = ArrayListMultimap.create();
 
     private UrlMappingRegistry() {
     }
-    
-    public static void init() {
+
+    static {
         Set<Class<?>> clazes = null;
 
         try {
@@ -31,6 +32,10 @@ public class UrlMappingRegistry {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void init() {
+
     }
 
     public static void register(Collection<Class<?>> controllers) {
@@ -57,23 +62,59 @@ public class UrlMappingRegistry {
 
         Method[] methods = controller.getMethods();
         UrlMapping urlMapping = null;
+
+        boolean flag = false;
         for (Method method : methods) {
             if (!JwUtils.isAnnotated(method, RequestMapping.class))
                 continue;
+            if (!method.isAccessible()) {
+                LOGGER.warn(
+                        String.format("The method %s in %s is not public.", method.getName(), controller.getName()));
+                continue;
+            }
             urls = method.getAnnotation(RequestMapping.class).value();
             urlMapping = new UrlMapping(controller, method);
+            flag = false;
             for (String url : urls) {
+                if (url.isEmpty()) {
+                    LOGGER.warn(String.format("The @RequestMapping value of %s in %s is invalid.", method.getName(),
+                            controller.getName()));
+                    continue;
+                }
                 urlMap.put(clazeUrl + url, urlMapping);
+                flag = true;
+            }
+            if (!flag) {
+                urlMap.put(clazeUrl + method.getName(), urlMapping);
             }
         }
     }
 
-    public static UrlMapping match(String path) {
-        int index = path.indexOf("?");
-        if (index > -1) {
-            path = path.substring(0, index);
-        }
+    /**
+     * 
+     * @param requestMethod
+     *            GET,POST,PUT,DELETE, ...
+     * @param path
+     * @return
+     */
+    public static UrlMapping match(String requestMethod, String path) {
+        Collection<UrlMapping> urlMappings = urlMap.get(path);
+        if (JwUtils.isEmpty(urlMappings))
+            return null;
 
-        return urlMap.get(path);
+        RequestMethod[] allowedActions;
+        for (UrlMapping urlMapping : urlMappings) {
+            allowedActions = urlMapping.getMethod().getAnnotation(RequestMapping.class).method();
+
+            if (JwUtils.isEmpty(allowedActions))
+                return urlMapping;
+
+            for (RequestMethod allowedAction : allowedActions) {
+                if (allowedAction.name().equals(requestMethod)) {
+                    return urlMapping;
+                }
+            }
+        }
+        return null;
     }
 }

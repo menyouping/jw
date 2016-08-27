@@ -21,8 +21,6 @@ import com.jw.util.JwUtils;
 import com.jw.util.MimeUtils;
 import com.jw.util.SessionContext;
 import com.jw.util.StringUtils;
-import com.jw.web.bind.annotation.RequestMapping;
-import com.jw.web.bind.annotation.RequestMethod;
 import com.jw.web.bind.annotation.RequestParam;
 import com.jw.web.bind.annotation.ResponseBody;
 import com.jw.web.context.AppContext;
@@ -38,8 +36,8 @@ public class DispatcherServlet extends HttpServlet {
 
     private static final String RESOURCES = ConfigUtils.getProperty("web.resources.folder") + "/";
 
-    private static final String RESOURCE_EXTS = ConfigUtils.getProperty("web.resources.ext");
-    
+    private static final String RESOURCE_EXTS = ConfigUtils.getProperty("web.resources.extension");
+
     private static final String DEFAULT_EXTENSION = ConfigUtils.getProperty("web.page.default.extension");
 
     public DispatcherServlet() {
@@ -50,46 +48,23 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        StringBuffer url = request.getRequestURL();
-        String path = request.getRequestURI();
-
-        if (url.indexOf("localhost") > -1 || url.indexOf("127.0.0.1") > -1 || url.indexOf("0.0.0.0") > -1) {
-            path = path.substring(path.indexOf("/", 1));
-        }
+        String appName = request.getSession().getServletContext().getContextPath();
+        String path = request.getRequestURI().substring(appName.length());
 
         if (isStaticResource(response, path))
             return;
 
-
-        UrlMapping urlMapping = UrlMappingRegistry.match(path);
+        UrlMapping urlMapping = UrlMappingRegistry.match(request.getMethod(), path);
         if (urlMapping == null) {
             showError(request, response, HttpServletResponse.SC_NOT_FOUND);
             return;
         }
         LOGGER.info("Request " + request.getRequestURI() + " is mathched:" + urlMapping);
 
-        Method method = urlMapping.getMethod();
-
-        RequestMethod[] allowActions = method.getAnnotation(RequestMapping.class).method();
-        if (allowActions.length > 0) {
-            boolean isAllowVisit = false;
-            String action = request.getMethod();
-            for (RequestMethod allowAction : allowActions) {
-                if (allowAction.name().equals(action)) {
-                    isAllowVisit = true;
-                    break;
-                }
-            }
-            if (!isAllowVisit) {
-                showError(request, response, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-                return;
-            }
-        }
-
-        SessionContext.buildContext().set(SessionContext.REQUEST, request)
-                .set(SessionContext.RESPONSE, response)
+        SessionContext.buildContext().set(SessionContext.REQUEST, request).set(SessionContext.RESPONSE, response)
                 .set(SessionContext.SESSION, request.getSession());
 
+        Method method = urlMapping.getMethod();
         try {
             Object[] paras = autowireParameters(urlMapping);
             Object controller = AppContext.getBean(urlMapping.getClaze());
@@ -99,7 +74,8 @@ public class DispatcherServlet extends HttpServlet {
                     if (returnUrl.split(":")[0].equals("redirect")) {
                         response.sendRedirect(returnUrl.split(":")[1]);
                     } else {
-                        RequestDispatcher dispatcher = request.getRequestDispatcher(getPage(returnUrl + DEFAULT_EXTENSION));
+                        RequestDispatcher dispatcher = request
+                                .getRequestDispatcher(getPage(returnUrl + DEFAULT_EXTENSION));
                         dispatcher.forward(request, response);
                     }
                 }

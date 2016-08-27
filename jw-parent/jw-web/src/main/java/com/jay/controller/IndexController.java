@@ -23,5 +23,23 @@ public class IndexController {
         result.put("message","SUCCESS");
         return result;
     }
+    
+    @RequestMapping()
+    @ResponseBody
+    public Object healthCheck2() {
+        Map<String, Object> result = JwUtils.newHashMap();
+        result.put("status", 200);
+        result.put("message","SUCCESS");
+        return result;
+    }
+    
+    @RequestMapping({"","/h2"})
+    @ResponseBody
+    public Object healthCheck3() {
+        Map<String, Object> result = JwUtils.newHashMap();
+        result.put("status", 200);
+        result.put("message","SUCCESS");
+        return result;
+    }
 
 }

@@ -18,7 +18,7 @@ public class AppContext {
 
     private static final Map<String, Object> beanMap = new ConcurrentHashMap<String, Object>();
 
-    public static void init() {
+    static {
         Set<Class<?>> clazes = null;
 
         try {
@@ -31,14 +31,18 @@ public class AppContext {
         }
     }
 
+    public static void init() {
+
+    }
+
     private AppContext() {
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T getBean(String beanId) {
-        if(beanMap.containsKey(beanId))
+        if (beanMap.containsKey(beanId))
             return (T) beanMap.get(beanId);
-        
+
         String clazeName = clazeMap.get(beanId);
         Class<T> claze = null;
 
@@ -55,9 +59,9 @@ public class AppContext {
     @SuppressWarnings("unchecked")
     public static <T> T getBean(Class<T> claze) {
         String clazeName = StringUtils.lowerFirst(claze.getSimpleName());
-        if(beanMap.containsKey(clazeName))
+        if (beanMap.containsKey(clazeName))
             return (T) beanMap.get(clazeName);
-        
+
         try {
             T entity = autowireClaze(claze);
             beanMap.put(clazeName, entity);
