@@ -35,6 +35,10 @@
             <artifactId>servlet-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>

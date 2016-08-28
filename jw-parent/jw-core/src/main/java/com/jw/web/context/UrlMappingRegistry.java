@@ -1,7 +1,10 @@
 package com.jw.web.context;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -11,14 +14,24 @@ import com.google.common.collect.Multimap;
 import com.jw.util.ConfigUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.PkgUtils;
+import com.jw.util.StringUtils;
 import com.jw.web.bind.annotation.Controller;
+import com.jw.web.bind.annotation.PathVariable;
 import com.jw.web.bind.annotation.RequestMapping;
 import com.jw.web.bind.annotation.RequestMethod;
 
 public class UrlMappingRegistry {
 
     private static final Logger LOGGER = Logger.getLogger(UrlMappingRegistry.class);
+
+    /**
+     * store common url
+     */
     private static final Multimap<String, UrlMapping> urlMap = ArrayListMultimap.create();
+    /**
+     * Store url with path variable
+     */
+    private static final List<UrlMapping> pathUrls = JwUtils.newArrayList();
 
     private UrlMappingRegistry() {
     }
@@ -73,8 +86,52 @@ public class UrlMappingRegistry {
             flag = false;
             for (String url : urls) {
                 if (url.isEmpty()) {
-                    LOGGER.warn(String.format("The @RequestMapping value of %s in %s is invalid.", method.getName(), controller.getName()));
+                    LOGGER.warn(String.format("The @RequestMapping value of %s in %s is invalid.", method.getName(),
+                            controller.getName()));
                     continue;
+                }
+                url = StringUtils.replaceConfig(url);
+
+                Map<String, Integer> pathVariableMap = JwUtils.newHashMap();
+                if (StringUtils.PATTERN_PATH_VARIABLE.matcher(url).find()) {
+                    Annotation[][] methodParamAnnos = method.getParameterAnnotations();
+                    if (!JwUtils.isEmpty(methodParamAnnos)) {
+                        Annotation[] paramAnnos = null;
+                        Class<?>[] paramTypes = method.getParameterTypes();
+                        Class<?> paramType;
+                        int index = 1;// the regex index in url
+                        String key, exp = null;
+                        String urlExpression = url;
+                        for (int i = 0; i < methodParamAnnos.length; i++) {
+                            paramAnnos = methodParamAnnos[i];
+                            for (Annotation anno : paramAnnos) {
+                                if (PathVariable.class.equals(anno.annotationType())) {
+                                    paramType = paramTypes[i];
+                                    key = ((PathVariable) anno).value();
+                                    pathVariableMap.put(key, index);
+                                    if (String.class.equals(paramType)) {
+                                        exp = "(\\w+)";
+                                    } else if (Integer.TYPE.equals(paramType) || Integer.class.equals(paramType)
+                                            || Long.TYPE.equals(paramType) || Long.class.equals(paramType)) {
+                                        exp = "([-+]?\\d+)";
+                                    } else if (Double.TYPE.equals(paramType) || Double.class.equals(paramType)
+                                            || Float.TYPE.equals(paramType) || Float.class.equals(paramType)) {
+                                        exp = "([-+]?\\d+(\\.\\d+)?)";
+                                        index++;
+                                    } else if (Boolean.TYPE.equals(paramType) || Boolean.class.equals(paramType)) {
+                                        exp = "(true|false|y|n|yes|no)";
+                                    }
+                                    index++;
+                                    urlExpression = urlExpression.replace("{" + key + "}", exp);
+                                    break;
+                                }
+                            }
+                        }
+                        urlMapping.setUrl(clazeUrl + url);
+                        urlMapping.setUrlExpression("^" + urlExpression + "$");
+                        urlMapping.setPathVariableMap(pathVariableMap);
+                        pathUrls.add(urlMapping);
+                    }
                 }
                 urlMap.put(clazeUrl + url, urlMapping);
                 flag = true;
@@ -94,9 +151,19 @@ public class UrlMappingRegistry {
      */
     public static UrlMapping match(String requestMethod, String path) {
         Collection<UrlMapping> urlMappings = urlMap.get(path);
-        if (JwUtils.isEmpty(urlMappings))
+        if (JwUtils.isEmpty(urlMappings)) {
+            if (!JwUtils.isEmpty(pathUrls)) {
+                for (UrlMapping urlMapping : pathUrls) {
+                    if (urlMapping.getUrlPattern().matcher(path).find()) {
+                        urlMappings = urlMap.get(urlMapping.getUrl());
+                        break;
+                    }
+                }
+            }
+        }
+        if (JwUtils.isEmpty(urlMappings)) {
             return null;
-
+        }
         RequestMethod[] allowedActions;
         for (UrlMapping urlMapping : urlMappings) {
             allowedActions = urlMapping.getMethod().getAnnotation(RequestMapping.class).method();
@@ -110,6 +177,7 @@ public class UrlMappingRegistry {
                 }
             }
         }
+
         return null;
     }
 }

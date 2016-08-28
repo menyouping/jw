@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class ConfigUtils {
@@ -46,6 +47,14 @@ public class ConfigUtils {
             }
         }
         return p;
+    }
+
+    public static Object put(String key, Object value) {
+        return config.put(key, value);
+    }
+
+    public void putAll(Map<String, ? extends Object> map) {
+        config.putAll(map);
     }
 
     public static String getProperty(String key) {

@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,7 @@ import com.jw.util.SessionContext;
 import com.jw.util.StringUtils;
 import com.jw.web.bind.annotation.CookieValue;
 import com.jw.web.bind.annotation.ModelAttribute;
+import com.jw.web.bind.annotation.PathVariable;
 import com.jw.web.bind.annotation.RequestHeader;
 import com.jw.web.bind.annotation.RequestMethod;
 import com.jw.web.bind.annotation.RequestParam;
@@ -45,27 +45,32 @@ public class DispatcherServlet extends HttpServlet {
 
     private static final long serialVersionUID = -3874308705324703315L;
 
-    private static final String PAGES = "WEB-INF/" + ConfigUtils.getProperty("web.page.folder") + "/";
+    private static final String PAGE_FOLDER = "WEB-INF/" + ConfigUtils.getProperty("web.page.folder") + "/";
 
-    private static final String RESOURCES = ConfigUtils.getProperty("web.resources.folder") + "/";
+    private static final String RESOURCE_FOLDER = ConfigUtils.getProperty("web.resources.folder") + "/";
 
-    private static final String RESOURCE_EXTS = ConfigUtils.getProperty("web.resources.extension");
+    private static final String RESOURCES_EXTENSION = ConfigUtils.getProperty("web.resources.extension");
 
-    private static final String DEFAULT_EXTENSION = ConfigUtils.getProperty("web.page.default.extension");
+    private static final String PAGE_DEFAULT_EXTENSION = ConfigUtils.getProperty("web.page.default.extension");
 
     public DispatcherServlet() {
     }
 
     public void init() {
-
     }
 
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String appName = request.getSession().getServletContext().getContextPath();
+        request.setAttribute("root", appName);
+
         String path = request.getRequestURI().substring(appName.length());
 
         if (isStaticResource(response, path))
             return;
+
+        if (path.length() > 1 && path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
 
         UrlMapping urlMapping = UrlMappingRegistry.match(request.getMethod(), path);
         if (urlMapping == null) {
@@ -75,7 +80,7 @@ public class DispatcherServlet extends HttpServlet {
         LOGGER.info("Request " + request.getRequestURI() + " is mathched:" + urlMapping);
 
         SessionContext.buildContext().set(SessionContext.REQUEST, request).set(SessionContext.RESPONSE, response)
-                .set(SessionContext.SESSION, request.getSession());
+                .set(SessionContext.SESSION, request.getSession()).set("requestUrl", path);
 
         Method method = urlMapping.getMethod();
         Object[] paras = null;
@@ -85,31 +90,34 @@ public class DispatcherServlet extends HttpServlet {
             List<Method> modelAttributeMethods = findModelAttributeMethods(urlMapping.getClaze());
             if (!JwUtils.isEmpty(modelAttributeMethods)) {
                 for (Method modelAttributeMethod : modelAttributeMethods) {
-                    paras = autowireParameters(modelAttributeMethod);
+                    paras = autowireParameters(null, modelAttributeMethod);
                     modelAttributeMethod.invoke(controller, paras);
                 }
             }
-            paras = autowireParameters(urlMapping.getMethod());
-            if (method.getReturnType().equals(String.class)) {
+            paras = autowireParameters(urlMapping, urlMapping.getMethod());
+            if (JwUtils.isAnnotated(method, ResponseBody.class)) {
+                Object result = method.invoke(controller, paras);
+                response.setHeader("Content-type", "application/json;charset=UTF-8");
+                response.getWriter().write(JSON.toJSONString(result));
+            } else if (String.class.equals(method.getReturnType())) {
                 String returnUrl = (String) method.invoke(controller, paras);
                 if (!StringUtils.isEmpty(returnUrl)) {
                     if (returnUrl.split(":")[0].equals("redirect")) {
                         response.sendRedirect(returnUrl.split(":")[1]);
                     } else {
                         // pass model to jsp page
-                        Map<String, Object> model = SessionContext.getModel().asMap();
-                        for(Entry<String, Object> entry : model.entrySet()) {
-                            request.setAttribute(entry.getKey(), entry.getValue());
+                        Model model = SessionContext.getModel();
+                        if (model != null) {
+                            Map<String, Object> map = SessionContext.getModel().asMap();
+                            for (Entry<String, Object> entry : map.entrySet()) {
+                                request.setAttribute(entry.getKey(), entry.getValue());
+                            }
                         }
                         RequestDispatcher dispatcher = request
-                                .getRequestDispatcher(getPage(returnUrl + DEFAULT_EXTENSION));
+                                .getRequestDispatcher("/" + getPage(returnUrl + "." + PAGE_DEFAULT_EXTENSION));
                         dispatcher.forward(request, response);
                     }
                 }
-            } else if (JwUtils.isAnnotated(method, ResponseBody.class)) {
-                Object result = method.invoke(controller, paras);
-                response.setHeader("Content-type", "application/json;charset=UTF-8");
-                response.getWriter().write(JSON.toJSONString(result));
             } else {
                 method.invoke(controller, paras);
             }
@@ -134,26 +142,32 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     public static String getPage(String fileName) {
-        return PAGES + (fileName.startsWith("/") ? fileName.substring(1) : fileName);
+        return PAGE_FOLDER + (fileName.startsWith("/") ? fileName.substring(1) : fileName);
     }
 
     public static String getResource(String fileName) {
-        return RESOURCES + (fileName.startsWith("/") ? fileName.substring(1) : fileName);
+        return RESOURCE_FOLDER + (fileName.startsWith("/") ? fileName.substring(1) : fileName);
     }
 
     protected void showError(HttpServletRequest request, HttpServletResponse response, int status)
             throws ServletException, IOException {
         response.setStatus(status);
-        response.setHeader("Content-type", "text/html;charset=UTF-8");
-        String page = this.getServletContext().getRealPath(getPage(status + ".html"));
-        FileUtils.copy(page, response.getOutputStream());
+        if ("jsp".equals(PAGE_DEFAULT_EXTENSION)) {
+            String page = "/" + getPage(status + "." + PAGE_DEFAULT_EXTENSION);
+            RequestDispatcher dispatcher = request.getRequestDispatcher(page);
+            dispatcher.forward(request, response);
+        } else {
+            response.setHeader("Content-type", "text/html;charset=UTF-8");
+            String page = this.getServletContext().getRealPath(getPage(status + "." + PAGE_DEFAULT_EXTENSION));
+            FileUtils.copy(page, response.getOutputStream());
+        }
     }
 
     protected boolean isStaticResource(HttpServletResponse response, String path) throws IOException {
         int index = path.lastIndexOf(".");
-        if (index > -1 || index < path.length() - 1) {
+        if (index > -1 && index < path.length() - 1) {
             String ext = path.substring(index + 1).toLowerCase();
-            if (RESOURCE_EXTS.contains(ext)) {
+            if (RESOURCES_EXTENSION.contains(ext)) {
                 response.setHeader("Content-type", MimeUtils.getMimeType(ext) + ";charset=UTF-8");
                 String page = this.getServletContext().getRealPath(getResource(path));
                 FileUtils.copy(page, response.getOutputStream());
@@ -170,7 +184,8 @@ public class DispatcherServlet extends HttpServlet {
         return false;
     }
 
-    protected static Object[] autowireParameters(Method method) throws InstantiationException, IllegalAccessException {
+    protected static Object[] autowireParameters(UrlMapping urlMapping, Method method)
+            throws InstantiationException, IllegalAccessException {
         Class<?>[] paramClazes = method.getParameterTypes();
         Annotation[][] paramAnnos = method.getParameterAnnotations();
         int parameterCount = paramClazes.length;
@@ -178,13 +193,13 @@ public class DispatcherServlet extends HttpServlet {
         Object[] paras = new Object[parameterCount];
 
         for (int p = 0; p < parameterCount; p++) {
-            paras[p] = autowireParameter(paramClazes[p], paramAnnos[p]);
+            paras[p] = autowireParameter(urlMapping, paramClazes[p], paramAnnos[p]);
         }
         return paras;
     }
 
     @SuppressWarnings("unchecked")
-    protected static Object autowireParameter(Class<?> paramClaze, Annotation[] paramAnnos)
+    protected static Object autowireParameter(UrlMapping urlMapping, Class<?> paramClaze, Annotation[] paramAnnos)
             throws InstantiationException, IllegalAccessException {
         if (HttpServletRequest.class.isAssignableFrom(paramClaze)) {
             return SessionContext.getRequest();
@@ -204,7 +219,16 @@ public class DispatcherServlet extends HttpServlet {
 
         String name = null, value = null;
         for (Annotation anno : paramAnnos) {
-            if (RequestParam.class.isAssignableFrom(anno.annotationType())) {
+            if (PathVariable.class.equals(anno.annotationType())) {
+                name = ((PathVariable) anno).value();
+                if (name.isEmpty())
+                    continue;
+                String pathVariable = urlMapping.getPathVariable(SessionContext.getContext().getString("requestUrl"),
+                        name);
+                Object targetValue = JwUtils.convert(paramClaze, pathVariable);
+                return targetValue;
+            }
+            if (RequestParam.class.equals(anno.annotationType())) {
                 name = ((RequestParam) anno).value();
                 if (name.isEmpty())
                     continue;
@@ -212,7 +236,7 @@ public class DispatcherServlet extends HttpServlet {
                 SessionContext.getRequest().setAttribute(name, value);
                 return value;
             }
-            if (RequestHeader.class.isAssignableFrom(anno.annotationType())) {
+            if (RequestHeader.class.equals(anno.annotationType())) {
                 name = ((RequestHeader) anno).value();
                 if (name.isEmpty())
                     continue;
@@ -220,7 +244,7 @@ public class DispatcherServlet extends HttpServlet {
                 SessionContext.getRequest().setAttribute(name, value);
                 return value;
             }
-            if (CookieValue.class.isAssignableFrom(anno.annotationType())) {
+            if (CookieValue.class.equals(anno.annotationType())) {
                 name = ((CookieValue) anno).value();
                 if (name.isEmpty())
                     continue;
@@ -236,7 +260,7 @@ public class DispatcherServlet extends HttpServlet {
                 }
                 return value;
             }
-            if (ModelAttribute.class.isAssignableFrom(anno.annotationType())) {
+            if (ModelAttribute.class.equals(anno.annotationType())) {
                 HttpServletRequest request = SessionContext.getRequest();
                 Object dto = null;
                 if (RequestMethod.GET.name().equals(request.getMethod())
@@ -266,56 +290,15 @@ public class DispatcherServlet extends HttpServlet {
                         }
                     }
                     return dto;
+                } else if ("multipart/form-data".equals(request.getContentType())) {
+                    LOGGER.error("File upload");
                 } else {
                     LOGGER.error("Not meet the required condition for @ModelAttribute");
                 }
             }
-            return null;
         }
 
-        HttpServletRequest request = SessionContext.getRequest();
-        Object dto = paramClaze.newInstance();
-        Field[] fields = paramClaze.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            String fieldName = field.getName();
-            if (field.getType().equals(String.class)) {
-                field.set(dto, request.getParameter(fieldName));
-                continue;
-            }
-            if (field.getType().equals(Integer.TYPE) || field.getType().equals(Integer.class)) {
-                if (request.getParameter(fieldName) == null) {
-                    field.set(dto, 0);
-                } else {
-                    field.set(dto, Integer.valueOf(request.getParameter(fieldName)));
-                }
-            } else if (field.getType().equals(Long.TYPE) || field.getType().equals(Long.class)) {
-                if (request.getParameter(fieldName) == null) {
-                    field.set(dto, 0L);
-                } else {
-                    field.set(dto, Long.valueOf(request.getParameter(fieldName)));
-                }
-            } else if (field.getType().equals(Double.TYPE) || field.getType().equals(Double.class)) {
-                if (request.getParameter(fieldName) == null) {
-                    field.set(dto, 0d);
-                } else {
-                    field.set(dto, Double.valueOf(request.getParameter(fieldName)));
-                }
-            } else if (field.getType().equals(Float.TYPE) || field.getType().equals(Float.class)) {
-                if (request.getParameter(fieldName) == null) {
-                    field.set(dto, 0f);
-                } else {
-                    field.set(dto, Float.valueOf(request.getParameter(fieldName)));
-                }
-            } else if (field.getType().equals(Boolean.TYPE) || field.getType().equals(Boolean.class)) {
-                if (request.getParameter(fieldName) == null) {
-                    field.set(dto, false);
-                } else {
-                    field.set(dto, Boolean.valueOf(request.getParameter(fieldName)));
-                }
-            }
-        }
-        return dto;
+        return null;
     }
 
 }

@@ -1,6 +1,13 @@
 package com.jw.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class StringUtils {
+
+    public static final Pattern PATTERN_CONFIG = Pattern.compile("(\\$\\{([^}]+)\\})");
+
+    public static final Pattern PATTERN_PATH_VARIABLE = Pattern.compile("(\\{([^}]+)\\})");
 
     public static boolean isEmpty(String str) {
         return str == null || str.isEmpty();
@@ -58,7 +65,7 @@ public class StringUtils {
         }
         return sb.toString();
     }
-    
+
     /**
      * 首字母大写
      * 
@@ -95,6 +102,30 @@ public class StringUtils {
         char[] cs = str.toCharArray();
         cs[0] = Character.toLowerCase(ch);
         return String.valueOf(cs);
+    }
+
+    /**
+     * replace the config <br>
+     * e.g./hello/${jw.abc}
+     * 
+     * @param url
+     * @return
+     */
+    public static String replaceConfig(String url) {
+        Matcher m = PATTERN_CONFIG.matcher(url);
+        if (!m.find())
+            return url;
+        String key, value;
+        int start = 0, offset = 0;
+        StringBuilder sb = new StringBuilder(url);
+        while (m.find(start)) {
+            key = m.group(2);
+            value = ConfigUtils.getString(key);
+            sb.replace(m.start() + offset, m.end() + offset, value);
+            offset += value.length() - (key.length() + 3);// 3 = "${}".length
+            start = m.end();
+        }
+        return sb.toString();
     }
 
     public static void main(String[] args) {

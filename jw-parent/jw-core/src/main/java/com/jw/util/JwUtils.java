@@ -37,6 +37,10 @@ public class JwUtils {
         return c == null || c.isEmpty();
     }
 
+    public static <K, V> boolean isEmpty(Map<K, V> map) {
+        return map == null || map.isEmpty();
+    }
+
     public static <T> boolean isEmpty(T[] arr) {
         return arr == null || arr.length == 0;
     }
@@ -126,6 +130,48 @@ public class JwUtils {
 
     public static <A extends Annotation> boolean isAnnotated(Method method, Class<A> annoClaze) {
         return method.getAnnotation(annoClaze) != null;
+    }
+
+    public static Object convert(Class<?> targetClaze, String value) {
+        if (String.class.equals(targetClaze)) {
+            return value;
+        }
+        if (Integer.TYPE.equals(targetClaze) || Integer.class.equals(targetClaze)) {
+            if (value == null) {
+                return 0;
+            } else {
+                return Integer.valueOf(value);
+            }
+        } else if (Long.TYPE.equals(targetClaze) || Long.class.equals(targetClaze)) {
+            if (value == null) {
+                return 0;
+            } else {
+                return Long.valueOf(value);
+            }
+        } else if (Double.TYPE.equals(targetClaze) || Double.class.equals(targetClaze)) {
+            if (value == null) {
+                return 0;
+            } else {
+                return Double.valueOf(value);
+            }
+        } else if (Float.TYPE.equals(targetClaze) || Float.class.equals(targetClaze)) {
+            if (value == null) {
+                return 0;
+            } else {
+                return Float.valueOf(value);
+            }
+        } else if (Boolean.TYPE.equals(targetClaze) || Boolean.class.equals(targetClaze)) {
+            if (value == null) {
+                return false;
+            } else {
+                if ("y".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value))
+                    return true;
+                if ("n".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value))
+                    return true;
+                return Boolean.valueOf(value);
+            }
+        }
+        return null;
     }
 
     public static void main(String[] args) {

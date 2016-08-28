@@ -106,27 +106,11 @@ public class AppContext {
         if (JwUtils.isBindKey(key)) {
             value = ConfigUtils.getProperty(JwUtils.getBindKey(key));
         }
-        if (field.getType().equals(String.class)) {
+        Object targetValue = JwUtils.convert(field.getType(), value);
+        if (targetValue != null) {
             field.setAccessible(true);
-            field.set(entity, value);
-            return value;
-        }
-        Object result = null;
-        if (field.getType().equals(Integer.TYPE) || field.getType().equals(Integer.class)) {
-            result = Integer.valueOf(value);
-        } else if (field.getType().equals(Long.TYPE) || field.getType().equals(Long.class)) {
-            result = Long.valueOf(value);
-        } else if (field.getType().equals(Double.TYPE) || field.getType().equals(Double.class)) {
-            result = Double.valueOf(value);
-        } else if (field.getType().equals(Float.TYPE) || field.getType().equals(Float.class)) {
-            result = Float.valueOf(value);
-        } else if (field.getType().equals(Boolean.TYPE) || field.getType().equals(Boolean.class)) {
-            result = Boolean.valueOf(value);
-        }
-        if (result != null) {
-            field.setAccessible(true);
-            field.set(entity, result);
-            return result;
+            field.set(entity, targetValue);
+            return targetValue;
         }
         throw new Exception(String.format("Field %s in %s is not support autowired.", field.getName(),
                 entity.getClass().getName()));

@@ -18,6 +18,8 @@ public class PkgUtils {
     @SuppressWarnings({ "rawtypes" })
     public static <A extends Annotation> Set<Class<?>> findClazesByAnnotation(String pkgName, Class<A> annoClaze)
             throws Exception {
+        if(StringUtils.isEmpty(pkgName))
+            return null;
         Set<Class<?>> list = new LinkedHashSet<Class<?>>();
         Set<Class<?>> clazes = getClazes(pkgName);
         for (Class claze : clazes) {

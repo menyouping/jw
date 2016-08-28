@@ -17,6 +17,8 @@ public class FileUtils {
         List<File> files = new LinkedList<File>();
         try {
             URL url = FileUtils.class.getClassLoader().getResource("/");
+            if (url == null)
+                return files;
             String protocol = url.getProtocol();
             if ("file".equals(protocol)) {// 如果是以文件的形式保存在服务器上
                 String filePath = URLDecoder.decode(url.getFile(), "UTF-8");// 获取包的物理路径
