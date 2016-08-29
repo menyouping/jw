@@ -82,7 +82,6 @@ public class UrlMappingRegistry {
                 continue;
             method.setAccessible(true);
             urls = method.getAnnotation(RequestMapping.class).value();
-            urlMapping = new UrlMapping(method);
             flag = false;
             for (String url : urls) {
                 if (url.isEmpty()) {
@@ -90,56 +89,67 @@ public class UrlMappingRegistry {
                             controller.getName()));
                     continue;
                 }
-                url = StringUtils.replaceConfig(url);
-
-                Map<String, Integer> pathVariableMap = JwUtils.newHashMap();
-                if (StringUtils.PATTERN_PATH_VARIABLE.matcher(url).find()) {
-                    Annotation[][] methodParamAnnos = method.getParameterAnnotations();
-                    if (!JwUtils.isEmpty(methodParamAnnos)) {
-                        Annotation[] paramAnnos = null;
-                        Class<?>[] paramTypes = method.getParameterTypes();
-                        Class<?> paramType;
-                        int index = 1;// the regex index in url
-                        String key, exp = null;
-                        String urlExpression = url;
-                        for (int i = 0; i < methodParamAnnos.length; i++) {
-                            paramAnnos = methodParamAnnos[i];
-                            for (Annotation anno : paramAnnos) {
-                                if (PathVariable.class.equals(anno.annotationType())) {
-                                    paramType = paramTypes[i];
-                                    key = ((PathVariable) anno).value();
-                                    pathVariableMap.put(key, index);
-                                    if (String.class.equals(paramType)) {
-                                        exp = "(\\w+)";
-                                    } else if (Integer.TYPE.equals(paramType) || Integer.class.equals(paramType)
-                                            || Long.TYPE.equals(paramType) || Long.class.equals(paramType)) {
-                                        exp = "([-+]?\\d+)";
-                                    } else if (Double.TYPE.equals(paramType) || Double.class.equals(paramType)
-                                            || Float.TYPE.equals(paramType) || Float.class.equals(paramType)) {
-                                        exp = "([-+]?\\d+(\\.\\d+)?)";
-                                        index++;
-                                    } else if (Boolean.TYPE.equals(paramType) || Boolean.class.equals(paramType)) {
-                                        exp = "(true|false|y|n|yes|no)";
-                                    }
-                                    index++;
-                                    urlExpression = urlExpression.replace("{" + key + "}", exp);
-                                    break;
-                                }
-                            }
-                        }
-                        urlMapping.setUrl(clazeUrl + url);
-                        urlMapping.setUrlExpression("^" + urlExpression + "$");
-                        urlMapping.setPathVariableMap(pathVariableMap);
-                        pathUrls.add(urlMapping);
-                    }
+                try {
+                    urlMapping = buildUrlMapping(method, clazeUrl, url);
+                    urlMap.put(clazeUrl + url, urlMapping);
+                    flag = true;
+                } catch (Exception e) {
+                    LOGGER.error("Error raised when building urlMapping, url is " + url, e);
                 }
-                urlMap.put(clazeUrl + url, urlMapping);
-                flag = true;
             }
             if (!flag) {
+                urlMapping = new UrlMapping(method);
                 urlMap.put(clazeUrl + method.getName(), urlMapping);
             }
         }
+    }
+
+    public static UrlMapping buildUrlMapping(Method method, String clazeUrl, String url) {
+        UrlMapping urlMapping = new UrlMapping(method);
+
+        url = StringUtils.replaceConfig(url);
+        if (StringUtils.PATTERN_PATH_VARIABLE.matcher(url).find()) {
+            Annotation[][] methodParamAnnos = method.getParameterAnnotations();
+            if (!JwUtils.isEmpty(methodParamAnnos)) {
+                Map<String, Integer> pathVariableMap = JwUtils.newHashMap();
+                Annotation[] paramAnnos = null;
+                Class<?>[] paramTypes = method.getParameterTypes();
+                Class<?> paramType;
+                int index = 1;// the regex index in url
+                String key, exp = null;
+                String urlExpression = url;
+                for (int i = 0; i < methodParamAnnos.length; i++) {
+                    paramAnnos = methodParamAnnos[i];
+                    for (Annotation anno : paramAnnos) {
+                        if (PathVariable.class.equals(anno.annotationType())) {
+                            paramType = paramTypes[i];
+                            key = ((PathVariable) anno).value();
+                            pathVariableMap.put(key, index);
+                            if (String.class.equals(paramType)) {
+                                exp = "([^/]+)";
+                            } else if (Integer.TYPE.equals(paramType) || Integer.class.equals(paramType)
+                                    || Long.TYPE.equals(paramType) || Long.class.equals(paramType)) {
+                                exp = "([-+]?\\d+)";
+                            } else if (Double.TYPE.equals(paramType) || Double.class.equals(paramType)
+                                    || Float.TYPE.equals(paramType) || Float.class.equals(paramType)) {
+                                exp = "([-+]?\\d+(\\.\\d+)?)";
+                                index++;
+                            } else if (Boolean.TYPE.equals(paramType) || Boolean.class.equals(paramType)) {
+                                exp = "(true|false|y|n|yes|no|1|0)";
+                            }
+                            index++;
+                            urlExpression = urlExpression.replace("{" + key + "}", exp);
+                            break;
+                        }
+                    }
+                }
+                urlMapping.setUrl(clazeUrl + url);
+                urlMapping.setUrlExpression("^" + urlExpression + "$");
+                urlMapping.setPathVariableMap(pathVariableMap);
+                pathUrls.add(urlMapping);
+            }
+        }
+        return urlMapping;
     }
 
     /**

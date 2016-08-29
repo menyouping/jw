@@ -164,9 +164,9 @@ public class JwUtils {
             if (value == null) {
                 return false;
             } else {
-                if ("y".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value))
+                if ("y".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || "1".equals(value))
                     return true;
-                if ("n".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value))
+                if ("n".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || "0".equals(value))
                     return true;
                 return Boolean.valueOf(value);
             }

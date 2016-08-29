@@ -265,10 +265,17 @@ public class DispatcherServlet extends HttpServlet {
                 Object dto = null;
                 if (RequestMethod.GET.name().equals(request.getMethod())
                         || "application/x-www-form-urlencoded".equals(request.getContentType())) {
-                    request.getParameterMap();
                     JSONObject json = new JSONObject();
                     json.putAll(request.getParameterMap());
+                    String[] values = null;
+                    for(Entry<String, Object> entry : json.entrySet()) {
+                        values = (String[]) entry.getValue();
+                        if(values != null && values.length == 1) {
+                            entry.setValue(values[0]);
+                        }
+                    }
                     dto = json.toJavaObject(paramClaze);
+                    return dto;
                 } else if ("application/json".equals(request.getContentType())) {
                     InputStreamReader reader = null;
                     try {

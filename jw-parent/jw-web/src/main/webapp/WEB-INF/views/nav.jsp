@@ -13,7 +13,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html">SB Admin</a>
+                <a class="navbar-brand" href="${root}/index">SB Admin</a>
             </div>
             <!-- Top Menu Items -->
             <ul class="nav navbar-right top-nav">
@@ -123,22 +123,22 @@
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
                     <li>
-                        <a href="index.html"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
+                        <a href="${root}/index"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
                     </li>
                     <li>
-                        <a href="charts.html"><i class="fa fa-fw fa-bar-chart-o"></i> Charts</a>
+                        <a href="${root}/charts"><i class="fa fa-fw fa-bar-chart-o"></i> Charts</a>
                     </li>
                     <li>
-                        <a href="tables.html"><i class="fa fa-fw fa-table"></i> Tables</a>
+                        <a href="${root}/tables"><i class="fa fa-fw fa-table"></i> Tables</a>
                     </li>
                     <li>
-                        <a href="forms.html"><i class="fa fa-fw fa-edit"></i> Forms</a>
+                        <a href="${root}/forms"><i class="fa fa-fw fa-edit"></i> Forms</a>
                     </li>
                     <li>
-                        <a href="bootstrap-elements.html"><i class="fa fa-fw fa-desktop"></i> Bootstrap Elements</a>
+                        <a href="${root}/bootstrap-elements"><i class="fa fa-fw fa-desktop"></i> Bootstrap Elements</a>
                     </li>
                     <li>
-                        <a href="bootstrap-grid.html"><i class="fa fa-fw fa-wrench"></i> Bootstrap Grid</a>
+                        <a href="${root}/bootstrap-grid"><i class="fa fa-fw fa-wrench"></i> Bootstrap Grid</a>
                     </li>
                     <li>
                         <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> Dropdown <i class="fa fa-fw fa-caret-down"></i></a>
@@ -152,10 +152,10 @@
                         </ul>
                     </li>
                     <li class="active">
-                        <a href="blank-page.html"><i class="fa fa-fw fa-file"></i> Blank Page</a>
+                        <a href="${root}/blank-page"><i class="fa fa-fw fa-file"></i> Blank Page</a>
                     </li>
                     <li>
-                        <a href="index-rtl.html"><i class="fa fa-fw fa-dashboard"></i> RTL Dashboard</a>
+                        <a href="${root}/index-rtl"><i class="fa fa-fw fa-dashboard"></i> RTL Dashboard</a>
                     </li>
                 </ul>
             </div>
