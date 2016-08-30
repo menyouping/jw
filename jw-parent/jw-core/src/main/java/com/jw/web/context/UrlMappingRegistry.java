@@ -153,7 +153,7 @@ public class UrlMappingRegistry {
     }
 
     /**
-     * 
+     * 根据用户请求的路径，查找对应的Java class和method
      * @param requestMethod
      *            GET,POST,PUT,DELETE, ...
      * @param path

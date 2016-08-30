@@ -21,6 +21,7 @@ public class SessionContext implements java.io.Serializable {
     public final static String REQUEST = "request";
     public final static String RESPONSE = "response";
     public final static String SESSION = "session";
+    public final static String FILE_UPLOAD_PARAMETERS = "fileUploadParameters";
     public final static String MODEL = "model";
 
     private final static ThreadLocal<SessionContext> context = new ThreadLocal<SessionContext>();
@@ -77,6 +78,10 @@ public class SessionContext implements java.io.Serializable {
         return this;
     }
 
+    public Object get(String key) {
+        return map.get(key);
+    }
+    
     public Object get(String key, Object defaultValue) {
         if (map.containsKey(key))
             return map.get(key);

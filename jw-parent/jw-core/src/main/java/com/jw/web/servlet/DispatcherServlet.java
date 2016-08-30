@@ -1,8 +1,8 @@
 package com.jw.web.servlet;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSON;
@@ -64,24 +65,29 @@ public class DispatcherServlet extends HttpServlet {
         request.setAttribute("root", appName);
 
         String path = request.getRequestURI().substring(appName.length());
-
+        //handle static resource, e.g. css, js, html...
         if (isStaticResource(response, path))
             return;
-
+        //remove the last /
         if (path.length() > 1 && path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
-
+        // find matched method
         UrlMapping urlMapping = UrlMappingRegistry.match(request.getMethod(), path);
         if (urlMapping == null) {
             showError(request, response, HttpServletResponse.SC_NOT_FOUND);
             return;
         }
         LOGGER.info("Request " + request.getRequestURI() + " is mathched:" + urlMapping);
-
+        // build context
         SessionContext.buildContext().set(SessionContext.REQUEST, request).set(SessionContext.RESPONSE, response)
                 .set(SessionContext.SESSION, request.getSession()).set("requestUrl", path);
-
+        // upload file
+        if (ServletFileUpload.isMultipartContent(request)) {
+            SessionContext.getContext().set(SessionContext.FILE_UPLOAD_PARAMETERS,
+                    FileUtils.uploadFiles(this, request));
+        }
+        // invork method
         Method method = urlMapping.getMethod();
         Object[] paras = null;
         try {
@@ -268,43 +274,56 @@ public class DispatcherServlet extends HttpServlet {
                     JSONObject json = new JSONObject();
                     json.putAll(request.getParameterMap());
                     String[] values = null;
-                    for(Entry<String, Object> entry : json.entrySet()) {
+                    for (Entry<String, Object> entry : json.entrySet()) {
                         values = (String[]) entry.getValue();
-                        if(values != null && values.length == 1) {
+                        if (values != null && values.length == 1) {
                             entry.setValue(values[0]);
                         }
                     }
                     dto = json.toJavaObject(paramClaze);
                     return dto;
                 } else if ("application/json".equals(request.getContentType())) {
-                    InputStreamReader reader = null;
-                    try {
-                        reader = new InputStreamReader(request.getInputStream(), "UTF-8");
-                        BufferedReader bufferedReader = new BufferedReader(reader);
-                        StringBuilder sb = new StringBuilder();
-                        String line = null;
-                        while ((line = bufferedReader.readLine()) != null) {
-                            sb.append(line);
-                        }
-                        dto = JSON.parseObject(sb.toString()).toJavaObject(paramClaze);
-                    } catch (IOException e) {
-                        LOGGER.error("Error raised when parse the post body to dto.", e);
-                    } finally {
-                        try {
-                            reader.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    String content = readText(request);
+                    if (!StringUtils.isEmpty(content)) {
+                        dto = JSON.parseObject(content).toJavaObject(paramClaze);
                     }
                     return dto;
-                } else if ("multipart/form-data".equals(request.getContentType())) {
-                    LOGGER.error("File upload");
+                } else if (ServletFileUpload.isMultipartContent(request)) {
+                    Map<String, Object> map = (Map<String, Object>) SessionContext.getContext()
+                            .get(SessionContext.FILE_UPLOAD_PARAMETERS);
+                    JSONObject json = new JSONObject();
+                    json.putAll(map);
+                    dto = json.toJavaObject(paramClaze);
+                    return dto;
                 } else {
                     LOGGER.error("Not meet the required condition for @ModelAttribute");
                 }
             }
         }
 
+        return null;
+    }
+
+    protected static String readText(HttpServletRequest request) {
+        Reader reader = null;
+        try {
+            reader = new InputStreamReader(request.getInputStream(), "UTF-8");
+            StringBuilder sb = new StringBuilder();
+            char[] buffer = new char[256];
+            int read = 0;
+            while ((read = reader.read(buffer)) != -1) {
+                sb.append(buffer, 0, read);
+            }
+            return sb.toString();
+        } catch (IOException e) {
+            LOGGER.error("Error raised when parse the post body to dto.", e);
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return null;
     }
 

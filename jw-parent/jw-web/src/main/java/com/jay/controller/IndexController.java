@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jw.domain.annotation.Value;
 import com.jw.ui.Model;
 import com.jw.util.JwUtils;
+import com.jw.util.SessionContext;
 import com.jw.web.bind.annotation.Controller;
 import com.jw.web.bind.annotation.ModelAttribute;
 import com.jw.web.bind.annotation.PathVariable;
@@ -42,6 +43,16 @@ public class IndexController {
         return "list";
     }
 
+    @RequestMapping("/upload-file")
+    @ResponseBody
+    public Object uploadFile() {
+        Map<String, Object> result = JwUtils.newHashMap();
+        result.put("status", 200);
+        result.put("message", "SUCCESS");
+        result.put("body", SessionContext.getContext().get(SessionContext.FILE_UPLOAD_PARAMETERS));
+        return result;
+    }
+    
     @RequestMapping("/health-check")
     @ResponseBody
     public Object healthCheck(@RequestParam("maxConn") int maxConn) {
