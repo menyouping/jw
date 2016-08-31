@@ -44,6 +44,7 @@ public class SQLUtils {
                     ps.setObject(i, params[i]);
                 } catch (SQLException e) {
                     LOGGER.error("Error raised when set value in PreparedStatement", e);
+                    return 0;
                 }
             }
         }
