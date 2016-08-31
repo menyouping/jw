@@ -7,9 +7,9 @@ import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
-public class DBUtils {
+public class SQLUtils {
 
-    private static final Logger LOGGER = Logger.getLogger(DBUtils.class);
+    private static final Logger LOGGER = Logger.getLogger(SQLUtils.class);
 
     public static int executeUpdate(String dbName, String sql, Object... params) {
         Connection conn = DBManager.getDB(dbName).getConnection();
