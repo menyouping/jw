@@ -14,9 +14,9 @@ import org.apache.log4j.Logger;
  * 
  * @author shijin
  */
-public class Database {
+public class DB {
 
-    private static final Logger LOGGER = Logger.getLogger(Database.class);
+    private static final Logger LOGGER = Logger.getLogger(DB.class);
 
     private int activeNum = 0;
     private int maxConn = 20;
@@ -26,7 +26,7 @@ public class Database {
     private String pwd = null;
     private List<Connection> connections = null;
 
-    public Database(String dbName, String url, String user, String pwd, int maxConn) {
+    public DB(String dbName, String url, String user, String pwd, int maxConn) {
         super();
         this.dbName = dbName;
         this.url = url;

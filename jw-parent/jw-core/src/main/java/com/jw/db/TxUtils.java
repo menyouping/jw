@@ -15,15 +15,15 @@ public class TxUtils {
     private static Logger LOGGER = Logger.getLogger(TxUtils.class);
 
     public static <T> T call(TxCallable<T> callable) {
-        return call(callable, DatabaseManager.getDefaultDBName());
+        return call(callable, DBManager.getDefaultDBName());
     }
 
     public static <T> T call(TxCallable<T> callable, String dbName) {
         T result = null;
-        Database db = null;
+        DB db = null;
         Connection connection = null;
         try {
-            db = DatabaseManager.getDB(dbName);
+            db = DBManager.getDB(dbName);
             connection = db.getConnection();
             connection.setAutoCommit(false);
             result = callable.call(connection);
@@ -43,14 +43,14 @@ public class TxUtils {
     }
 
     public static <T> void run(TxRunnable runnable) {
-        run(runnable, DatabaseManager.getDefaultDBName());
+        run(runnable, DBManager.getDefaultDBName());
     }
 
     public static <T> void run(TxRunnable runnable, String dbName) {
-        Database db = null;
+        DB db = null;
         Connection connection = null;
         try {
-            db = DatabaseManager.getDB(dbName);
+            db = DBManager.getDB(dbName);
             connection = db.getConnection();
             connection.setAutoCommit(false);
             runnable.run(connection);

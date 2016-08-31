@@ -13,20 +13,20 @@ import org.apache.log4j.Logger;
 import com.jw.util.ConfigUtils;
 import com.jw.util.StringUtils;
 
-public class DatabaseManager {
-    private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
+public class DBManager {
+    private static final Logger LOGGER = Logger.getLogger(DBManager.class);
 
     private static Properties config = ConfigUtils.getProperties("db");
     
     public static final String DEFAULT_DB = "defaultDb";
 
-    private static final DatabaseManager manager = new DatabaseManager();
+    private static final DBManager manager = new DBManager();
 
-    private Map<String, Database> dbPools = new Hashtable<String, Database>();
+    private Map<String, DB> dbPools = new Hashtable<String, DB>();
 
-    private DatabaseManager() {
+    private DBManager() {
         registerDrivers();
-        connectDatabases();
+        connectDBs();
     }
 
     private void registerDrivers() {
@@ -46,7 +46,7 @@ public class DatabaseManager {
         }
     }
 
-    private void connectDatabases() {
+    private void connectDBs() {
         Set<String> props = config.stringPropertyNames();
         for (String prop : props) {
             if (!prop.endsWith("url"))
@@ -66,7 +66,7 @@ public class DatabaseManager {
             if(StringUtils.isEmpty(dbName)) {
                 dbName = DEFAULT_DB;
             }
-            Database db = new Database(dbName, url, user, pwd, maxConn);
+            DB db = new DB(dbName, url, user, pwd, maxConn);
             dbPools.put(dbName, db);
             LOGGER.info("Successfully to create the db connection to " + dbName);
         }
@@ -76,12 +76,12 @@ public class DatabaseManager {
         return DEFAULT_DB;
     }
     
-    public static Database getDefaultDB() {
+    public static DB getDefaultDB() {
         return manager.dbPools.values().iterator().next();
     }
 
-    public static Database getDB(String dbName) {
-        return StringUtils.isEmpty(dbName) ? DatabaseManager.getDefaultDB() : manager.dbPools.get(dbName);
+    public static DB getDB(String dbName) {
+        return StringUtils.isEmpty(dbName) ? DBManager.getDefaultDB() : manager.dbPools.get(dbName);
     }
 
     private static String getProperty(String dbName, String key) {

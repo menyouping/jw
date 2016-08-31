@@ -12,16 +12,16 @@ public class DBUtils {
     private static final Logger LOGGER = Logger.getLogger(DBUtils.class);
 
     public static int executeUpdate(String dbName, String sql, Object... params) {
-        Connection conn = DatabaseManager.getDB(dbName).getConnection();
+        Connection conn = DBManager.getDB(dbName).getConnection();
         return executeUpdate(dbName, conn, sql, params);
     }
 
     public static int executeUpdate(String sql, Object... params) {
-        Database db = DatabaseManager.getDefaultDB();
+        DB db = DBManager.getDefaultDB();
         return executeUpdate(db, sql, params);
     }
 
-    protected static int executeUpdate(Database db, String sql, Object... params) {
+    protected static int executeUpdate(DB db, String sql, Object... params) {
         PreparedStatement ps = null;
         Connection conn = null;
         try {
@@ -55,16 +55,16 @@ public class DBUtils {
     }
 
     public static ResultSet executeQuery(String dbName, String sql, Object... params) {
-        Database db = DatabaseManager.getDB(dbName);
+        DB db = DBManager.getDB(dbName);
         return executeQuery(dbName, db, sql, params);
     }
 
     public static ResultSet executeQuery(String sql, Object... params) {
-        Database db = DatabaseManager.getDefaultDB();
+        DB db = DBManager.getDefaultDB();
         return executeQuery(db, sql, params);
     }
 
-    protected static ResultSet executeQuery(Database db, String sql, Object... params) {
+    protected static ResultSet executeQuery(DB db, String sql, Object... params) {
         PreparedStatement ps = null;
         Connection conn = null;
         try {
