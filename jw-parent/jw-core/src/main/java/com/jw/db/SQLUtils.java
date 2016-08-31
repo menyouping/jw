@@ -12,8 +12,8 @@ public class SQLUtils {
     private static final Logger LOGGER = Logger.getLogger(SQLUtils.class);
 
     public static int executeUpdate(String dbName, String sql, Object... params) {
-        Connection conn = DBManager.getDB(dbName).getConnection();
-        return executeUpdate(dbName, conn, sql, params);
+        DB db = DBManager.getDB(dbName);
+        return executeUpdate(db, sql, params);
     }
 
     public static int executeUpdate(String sql, Object... params) {
@@ -21,14 +21,18 @@ public class SQLUtils {
         return executeUpdate(db, sql, params);
     }
 
-    protected static int executeUpdate(DB db, String sql, Object... params) {
+    public static int executeUpdate(DB db, String sql, Object... params) {
+        Connection conn = db.getConnection();
+        int result = executeUpdate(conn, sql, params);
+        db.releaseConnection(conn);
+        return result;
+    }
+
+    public static int executeUpdate(Connection conn, String sql, Object... params) {
         PreparedStatement ps = null;
-        Connection conn = null;
         try {
-            conn = db.getConnection();
             ps = conn.prepareStatement(sql);
         } catch (SQLException e) {
-            db.releaseConnection(conn);
             LOGGER.error("Prepare statement failed", e);
             return 0;
         }
@@ -39,7 +43,6 @@ public class SQLUtils {
                 try {
                     ps.setObject(i, params[i]);
                 } catch (SQLException e) {
-                    db.releaseConnection(conn);
                     LOGGER.error("Error raised when set value in PreparedStatement", e);
                 }
             }
@@ -48,7 +51,6 @@ public class SQLUtils {
         try {
             i = ps.executeUpdate();
         } catch (SQLException e) {
-            db.releaseConnection(conn);
             LOGGER.error("Error raised when execute sql : " + sql, e);
         }
         return i;
@@ -64,14 +66,18 @@ public class SQLUtils {
         return executeQuery(db, sql, params);
     }
 
-    protected static ResultSet executeQuery(DB db, String sql, Object... params) {
+    public static ResultSet executeQuery(DB db, String sql, Object... params) {
+        Connection conn = db.getConnection();
+        ResultSet rs = executeQuery(conn, sql, params);
+        db.releaseConnection(conn);
+        return rs;
+    }
+
+    public static ResultSet executeQuery(Connection conn, String sql, Object... params) {
         PreparedStatement ps = null;
-        Connection conn = null;
         try {
-            conn = db.getConnection();
             ps = conn.prepareStatement(sql);
         } catch (Exception e) {
-            db.releaseConnection(conn);
             LOGGER.error("Prepare statement failed", e);
             return null;
         }
@@ -82,7 +88,6 @@ public class SQLUtils {
                 try {
                     ps.setObject(i, params[i]);
                 } catch (SQLException e) {
-                    db.releaseConnection(conn);
                     LOGGER.error("Error raised when set value in PreparedStatement", e);
                     return null;
                 }
@@ -92,7 +97,6 @@ public class SQLUtils {
         try {
             rs = ps.executeQuery();
         } catch (SQLException e) {
-            db.releaseConnection(conn);
             LOGGER.error("Error raised when querying with sql : " + sql, e);
             return null;
         }
