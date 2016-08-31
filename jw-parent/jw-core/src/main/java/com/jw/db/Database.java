@@ -3,37 +3,37 @@ package com.jw.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-
-import com.jw.util.JwUtils;
 
 /**
  * 此内部类定义了一个连接池. 它能够获取数据库连接,直到预定的最 大连接数为止 在返回连接给客户程序之前,它能够验证连接的有效性
  * 
  * @author shijin
  */
-public class DBConnectionPool {
+public class Database {
 
-    private static final Logger LOGGER = Logger.getLogger(DBConnectionPool.class);
+    private static final Logger LOGGER = Logger.getLogger(Database.class);
 
     private int activeNum = 0;
     private int maxConn = 20;
     private String url = null;
-    private String poolName = null;
+    private String dbName = null;
     private String user = null;
     private String pwd = null;
     private List<Connection> connections = null;
 
-    public DBConnectionPool(String poolName, String url, String user, String pwd, int maxConn) {
+    public Database(String dbName, String url, String user, String pwd, int maxConn) {
         super();
-        this.poolName = poolName;
+        this.dbName = dbName;
         this.url = url;
         this.user = user;
         this.pwd = pwd;
         this.maxConn = maxConn;
-        this.connections = JwUtils.newArrayList(maxConn);
+        this.connections = Collections.synchronizedList(new ArrayList<Connection>(maxConn));
     }
 
     @SuppressWarnings("resource")
@@ -43,11 +43,11 @@ public class DBConnectionPool {
             conn = connections.remove(0);
             try {
                 if (conn.isClosed()) {
-                    LOGGER.info("The connection peeked from " + poolName + " is closed, try again.");
+                    LOGGER.info("The connection peeked from " + dbName + " is closed, try again.");
                     conn = getConnection();
                 }
             } catch (SQLException e) {
-                LOGGER.info("Error raised when peeking connection from " + poolName, e);
+                LOGGER.info("Error raised when peeking connection from " + dbName, e);
                 conn = getConnection();
             }
         } else if (activeNum < maxConn) {
@@ -74,7 +74,7 @@ public class DBConnectionPool {
             } else {
                 conn = DriverManager.getConnection(url, user, pwd);
             }
-            LOGGER.info("Create a new database connection in " + poolName);
+            LOGGER.info("Create a new database connection in " + dbName);
         } catch (SQLException e) {
             LOGGER.error("Failed to create database connection from \"" + url + "\"", e);
         }
@@ -84,7 +84,8 @@ public class DBConnectionPool {
     /**
      * 获得一个可用连接，超过最大连接数时线程等待，直到有有连接释放时返回一个可用连接或者超时返回null
      * 
-     * @param timeout 等待连接的超时时间，单位为秒
+     * @param timeout
+     *            等待连接的超时时间，单位为秒
      * @return
      */
     public synchronized Connection getConnection(int timeout) {
@@ -110,24 +111,12 @@ public class DBConnectionPool {
      * @param conn
      *            释放的连接
      */
-    public synchronized void freeConnection(Connection conn) {
+    public synchronized void releaseConnection(Connection conn) {
+        if(conn == null)
+            return;
         connections.add(conn);
         activeNum--;
         notifyAll();// 通知正在由于达到最大连接数限制而wait的线程获取连接
     }
 
-    /**
-     * 关闭空闲连接池中的所有连接
-     */
-    public synchronized void releaseAll() {
-        for (Connection conn : connections) {
-            try {
-                conn.close();
-                LOGGER.info("Close the idle database connection in " + poolName);
-            } catch (SQLException e) {
-                LOGGER.info("Error raised when closing the idle database connection in " + poolName, e);
-            }
-        }
-        connections.clear();
-    }
 }
