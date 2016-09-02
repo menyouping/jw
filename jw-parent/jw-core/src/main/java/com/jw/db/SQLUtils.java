@@ -4,6 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -11,24 +16,62 @@ public class SQLUtils {
 
     private static final Logger LOGGER = Logger.getLogger(SQLUtils.class);
 
-    public static int executeUpdate(String dbName, String sql, Object[] params) {
+    private static final Pattern PATTERN_NAMED_PARAMETER = Pattern.compile(":([A-Za-z0-9_]+)");
+
+    public static int update(String dbName, String sql, Map<String, Object> params) {
         DB db = DBManager.getDB(dbName);
-        return executeUpdate(db, sql, params);
+        return update(db, sql, params);
     }
 
-    public static int executeUpdate(String sql, Object[] params) {
+    public static int update(String dbName, String sql, Object[] params) {
+        DB db = DBManager.getDB(dbName);
+        return update(db, sql, params);
+    }
+
+    public static int update(String sql, Map<String, Object> params) {
         DB db = DBManager.getDefaultDB();
-        return executeUpdate(db, sql, params);
+        return update(db, sql, params);
     }
 
-    public static int executeUpdate(DB db, String sql, Object[] params) {
+    public static int update(String sql, Object[] params) {
+        DB db = DBManager.getDefaultDB();
+        return update(db, sql, params);
+    }
+
+    public static int update(DB db, String sql, Map<String, Object> params) {
         Connection conn = db.getConnection();
-        int result = executeUpdate(conn, sql, params);
+        int result = update(conn, sql, params);
         db.releaseConnection(conn);
         return result;
     }
 
-    public static int executeUpdate(Connection conn, String sql, Object[] params) {
+    public static int update(DB db, String sql, Object[] params) {
+        Connection conn = db.getConnection();
+        int result = update(conn, sql, params);
+        db.releaseConnection(conn);
+        return result;
+    }
+
+    public static int update(Connection conn, String sql, Map<String, Object> params) {
+        List<Object> list = new LinkedList<Object>();
+        Matcher m = PATTERN_NAMED_PARAMETER.matcher(sql);
+        if (m.find()) {
+            StringBuilder sb = new StringBuilder(sql);
+            int start = 0, end = 0, offset = 0;
+            while (m.find(start)) {
+                start = m.start();
+                end = m.end();
+                sb.replace(start + offset, end + offset, "?");
+                list.add(params.get(m.group(1)));
+                offset = 1 - (end - start);
+                start = end;
+            }
+            return update(conn, sb.toString(), list.toArray());
+        }
+        return update(conn, sql, (Object[]) null);
+    }
+
+    public static int update(Connection conn, String sql, Object[] params) {
         PreparedStatement ps = null;
         try {
             ps = conn.prepareStatement(sql);
@@ -57,24 +100,60 @@ public class SQLUtils {
         return i;
     }
 
-    public static ResultSet executeQuery(String dbName, String sql, Object[] params) {
+    public static ResultSet query(String dbName, String sql, Map<String, Object> params) {
         DB db = DBManager.getDB(dbName);
-        return executeQuery(db, sql, params);
+        return query(db, sql, params);
     }
 
-    public static ResultSet executeQuery(String sql, Object[] params) {
+    public static ResultSet query(String dbName, String sql, Object[] params) {
+        DB db = DBManager.getDB(dbName);
+        return query(db, sql, params);
+    }
+
+    public static ResultSet query(String sql, Map<String, Object> params) {
         DB db = DBManager.getDefaultDB();
-        return executeQuery(db, sql, params);
+        return query(db, sql, params);
     }
 
-    public static ResultSet executeQuery(DB db, String sql, Object[] params) {
+    public static ResultSet query(String sql, Object[] params) {
+        DB db = DBManager.getDefaultDB();
+        return query(db, sql, params);
+    }
+
+    public static ResultSet query(DB db, String sql, Map<String, Object> params) {
         Connection conn = db.getConnection();
-        ResultSet rs = executeQuery(conn, sql, params);
+        ResultSet rs = query(conn, sql, params);
         db.releaseConnection(conn);
         return rs;
     }
 
-    public static ResultSet executeQuery(Connection conn, String sql, Object[] params) {
+    public static ResultSet query(DB db, String sql, Object[] params) {
+        Connection conn = db.getConnection();
+        ResultSet rs = query(conn, sql, params);
+        db.releaseConnection(conn);
+        return rs;
+    }
+
+    public static ResultSet query(Connection conn, String sql, Map<String, Object> params) {
+        List<Object> list = new LinkedList<Object>();
+        Matcher m = PATTERN_NAMED_PARAMETER.matcher(sql);
+        if (m.find()) {
+            StringBuilder sb = new StringBuilder(sql);
+            int start = 0, end = 0, offset = 0;
+            while (m.find(start)) {
+                start = m.start();
+                end = m.end();
+                sb.replace(start + offset, end + offset, "?");
+                list.add(params.get(m.group(1)));
+                offset = 1 - (end - start);
+                start = end;
+            }
+            return query(conn, sb.toString(), list.toArray());
+        }
+        return query(conn, sql, (Object[]) null);
+    }
+
+    public static ResultSet query(Connection conn, String sql, Object[] params) {
         PreparedStatement ps = null;
         try {
             ps = conn.prepareStatement(sql);
@@ -109,7 +188,7 @@ public class SQLUtils {
             try {
                 rs.close();
             } catch (SQLException e) {
-                System.out.println("Error raised when close rs.");
+                LOGGER.error("Error raised when close rs.");
                 return;
             }
         }

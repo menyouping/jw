@@ -17,10 +17,10 @@ public class TxUtils {
     private static Logger LOGGER = LoggerFactory.getLogger(TxUtils.class);
 
     public static <T> T call(TxCallable<T> callable) {
-        return call(callable, DBManager.getDefaultDBName());
+        return call(DBManager.getDefaultDBName(), callable);
     }
 
-    public static <T> T call(TxCallable<T> callable, String dbName) {
+    public static <T> T call(String dbName, TxCallable<T> callable) {
         T result = null;
         DB db = null;
         Connection connection = null;
@@ -45,10 +45,10 @@ public class TxUtils {
     }
 
     public static <T> void run(TxRunnable runnable) {
-        run(runnable, DBManager.getDefaultDBName());
+        run(DBManager.getDefaultDBName(), runnable);
     }
 
-    public static <T> void run(TxRunnable runnable, String dbName) {
+    public static <T> void run(String dbName, TxRunnable runnable) {
         DB db = null;
         Connection connection = null;
         try {

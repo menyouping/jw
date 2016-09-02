@@ -47,7 +47,7 @@ public class EntityUtils {
 
         String sql = String.format(INSERT_SQL, getTableName(entity), JwUtils.join(map.keySet()),
                 JwUtils.repeat('?', ',', map.size()));
-        SQLUtils.executeUpdate(sql, map.values().toArray());
+        SQLUtils.update(sql, map.values().toArray());
     }
 
     public static final String DELETE_SQL = "DELETE FROM %s WHERE %s = ?";
@@ -55,17 +55,17 @@ public class EntityUtils {
     public static void delete(Object entity) {
         Pair pair = getPrimaryKey(entity);
         String sql = String.format(DELETE_SQL, getTableName(entity), pair.getKey());
-        SQLUtils.executeUpdate(sql, new Object[] { pair.getValue() });
+        SQLUtils.update(sql, new Object[] { pair.getValue() });
     }
 
     public void delete(Class<?> claze, int id) {
         String sql = String.format(DELETE_SQL, getTableName(claze), "id");
-        SQLUtils.executeUpdate(sql, new Object[] { id });
+        SQLUtils.update(sql, new Object[] { id });
     }
 
     public void delete(Class<?> claze, String uuid) {
         String sql = String.format(DELETE_SQL, getTableName(claze), "uuid");
-        SQLUtils.executeUpdate(sql, new Object[] { uuid });
+        SQLUtils.update(sql, new Object[] { uuid });
     }
 
     public static final String UPDATE_SQL = "UPDATE %s SET %s WHERE %s = ?";
@@ -81,14 +81,14 @@ public class EntityUtils {
 
         List<Object> values = new ArrayList<Object>(map.values());
         values.add(pair.getValue());
-        SQLUtils.executeUpdate(sql, values.toArray());
+        SQLUtils.update(sql, values.toArray());
     }
 
     public static final String FETCH_SQL = "SELECT * FROM %s WHERE %s = ?";
 
     public static <T> T load(Class<T> claze, int id) {
         String sql = String.format(FETCH_SQL, getTableName(claze), "id");
-        ResultSet rs = SQLUtils.executeQuery(sql, new Object[] { id });
+        ResultSet rs = SQLUtils.query(sql, new Object[] { id });
         List<T> list = toList(rs, claze);
 
         return list.isEmpty() ? null : list.get(0);
@@ -96,7 +96,7 @@ public class EntityUtils {
 
     public static <T> T load(Class<T> claze, String uuid) {
         String sql = String.format(FETCH_SQL, getTableName(claze), "uuid");
-        ResultSet rs = SQLUtils.executeQuery(sql, new Object[] { uuid });
+        ResultSet rs = SQLUtils.query(sql, new Object[] { uuid });
         List<T> list = toList(rs, claze);
 
         return list.isEmpty() ? null : list.get(0);
@@ -106,7 +106,7 @@ public class EntityUtils {
 
     public static <T> int count(Class<T> claze) {
         String sql = String.format(COUNT_SQL, getTableName(claze));
-        ResultSet rs = SQLUtils.executeQuery(sql, new Object[0]);
+        ResultSet rs = SQLUtils.query(sql, new Object[0]);
         int count = 0;
         try {
             if (rs.next()) {
@@ -168,18 +168,18 @@ public class EntityUtils {
 
     public static <T> List<T> findAll(Class<T> claze) {
         String sql = String.format(FETCH_ALL_SQL, getTableName(claze));
-        ResultSet rs = SQLUtils.executeQuery(sql, new Object[0]);
+        ResultSet rs = SQLUtils.query(sql, new Object[0]);
         return toList(rs, claze);
     }
 
     public static <T> List<T> find(Class<T> claze, String sql, Object... params) {
-        ResultSet rs = SQLUtils.executeQuery(sql, params);
+        ResultSet rs = SQLUtils.query(sql, params);
         return toList(rs, claze);
     }
 
     public static <T> List<T> findByPage(Class<T> claze, String sql, int pageNo, int pageSize, Object... params) {
         sql = sql + " LIMIT " + (pageNo - 1) * pageSize + "," + pageSize;
-        ResultSet rs = SQLUtils.executeQuery(sql, params);
+        ResultSet rs = SQLUtils.query(sql, params);
         return toList(rs, claze);
     }
 

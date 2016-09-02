@@ -71,6 +71,9 @@ public class DBManager {
             dbPools.put(dbName, db);
             LOGGER.info("Successfully to create the db connection to {}", dbName);
         }
+        if(ConfigUtils.containsKey("db.default")) {
+            dbPools.put(DEFAULT_DB, dbPools.get(ConfigUtils.getProperty("db.default")));
+        }
     }
 
     public static String getDefaultDBName() {

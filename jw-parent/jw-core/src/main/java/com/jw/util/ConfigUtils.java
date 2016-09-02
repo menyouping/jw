@@ -37,6 +37,10 @@ public class ConfigUtils {
     public static Properties getProperties() {
         return config;
     }
+    
+    public static boolean containsKey(String key) {
+        return config.containsKey(key);
+    }
 
     public static Properties getProperties(String nameSpace) {
         Properties p = new Properties();
