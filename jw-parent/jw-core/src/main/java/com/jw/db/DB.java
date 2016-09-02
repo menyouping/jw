@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 此内部类定义了一个连接池. 它能够获取数据库连接,直到预定的最 大连接数为止 在返回连接给客户程序之前,它能够验证连接的有效性
@@ -16,7 +17,7 @@ import org.apache.log4j.Logger;
  */
 public class DB {
 
-    private static final Logger LOGGER = Logger.getLogger(DB.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DB.class);
 
     private int activeNum = 0;
     private int maxConn = 20;
@@ -43,11 +44,11 @@ public class DB {
             conn = connections.remove(0);
             try {
                 if (conn.isClosed()) {
-                    LOGGER.info("The connection peeked from " + dbName + " is closed, try again.");
+                    LOGGER.info("The connection peeked from {} is closed, try again.", dbName);
                     conn = getConnection();
                 }
             } catch (SQLException e) {
-                LOGGER.info("Error raised when peeking connection from " + dbName, e);
+                LOGGER.error("Error raised when peeking connection from " + dbName, e);
                 conn = getConnection();
             }
         } else if (activeNum < maxConn) {
@@ -74,7 +75,7 @@ public class DB {
             } else {
                 conn = DriverManager.getConnection(url, user, pwd);
             }
-            LOGGER.info("Create a new database connection in " + dbName);
+            LOGGER.info("Create a new database connection in {}", dbName);
         } catch (SQLException e) {
             LOGGER.error("Failed to create database connection from \"" + url + "\"", e);
         }

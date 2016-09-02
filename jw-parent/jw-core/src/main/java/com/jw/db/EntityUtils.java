@@ -194,16 +194,16 @@ public class EntityUtils {
 
     public static <T> String getPrimaryKey(Class<T> claze) {
         Field[] fields = claze.getFields();
-        if (fields == null || fields.length == 0)
+        if (JwUtils.isEmpty(fields))
             return null;
 
         for (Field field : fields) {
-            if (field.getAnnotation(Id.class) != null) {
-                try {
-                    return StringUtils.toColumnName(field.getName());
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                }
+            if (!JwUtils.isAnnotated(field, Id.class))
+                continue;
+            try {
+                return StringUtils.toColumnName(field.getName());
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
             }
         }
 
@@ -214,17 +214,17 @@ public class EntityUtils {
         Class<?> claze = entity.getClass();
 
         Field[] fields = claze.getFields();
-        if (fields == null || fields.length == 0)
+        if (JwUtils.isEmpty(fields))
             return null;
 
         for (Field field : fields) {
-            if (field.getAnnotation(Id.class) != null) {
-                try {
-                    field.setAccessible(true);
-                    return new Pair(StringUtils.toColumnName(field.getName()), field.get(entity));
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+            if (!JwUtils.isAnnotated(field, Id.class))
+                continue;
+            try {
+                field.setAccessible(true);
+                return new Pair(StringUtils.toColumnName(field.getName()), field.get(entity));
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                e.printStackTrace();
             }
         }
 

@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -22,7 +23,7 @@ import com.jw.web.bind.annotation.RequestMethod;
 
 public class UrlMappingRegistry {
 
-    private static final Logger LOGGER = Logger.getLogger(UrlMappingRegistry.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UrlMappingRegistry.class);
 
     /**
      * store common url
@@ -66,7 +67,7 @@ public class UrlMappingRegistry {
         if (JwUtils.isAnnotated(controller, RequestMapping.class)) {
             urls = controller.getAnnotation(RequestMapping.class).value();
             if (JwUtils.isEmpty(urls) || urls.length > 1) {
-                LOGGER.error(new Exception("RequestMapping on class " + controller.getName() + " is invalid."));
+                LOGGER.error("RequestMapping on class {} is invalid.", controller.getName());
                 return;
             } else {
                 clazeUrl = urls[0];
@@ -85,8 +86,8 @@ public class UrlMappingRegistry {
             flag = false;
             for (String url : urls) {
                 if (url.isEmpty()) {
-                    LOGGER.warn(String.format("The @RequestMapping value of %s in %s is invalid.", method.getName(),
-                            controller.getName()));
+                    LOGGER.warn("The @RequestMapping value of {} in {} is invalid.", method.getName(),
+                            controller.getName());
                     continue;
                 }
                 try {
@@ -154,6 +155,7 @@ public class UrlMappingRegistry {
 
     /**
      * 根据用户请求的路径，查找对应的Java class和method
+     * 
      * @param requestMethod
      *            GET,POST,PUT,DELETE, ...
      * @param path

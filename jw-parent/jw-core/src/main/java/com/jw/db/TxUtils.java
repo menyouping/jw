@@ -3,7 +3,9 @@ package com.jw.db;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Transaction Util
@@ -12,7 +14,7 @@ import org.apache.log4j.Logger;
  * 
  */
 public class TxUtils {
-    private static Logger LOGGER = Logger.getLogger(TxUtils.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(TxUtils.class);
 
     public static <T> T call(TxCallable<T> callable) {
         return call(callable, DBManager.getDefaultDBName());

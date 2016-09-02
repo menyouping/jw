@@ -20,11 +20,12 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletRequestContext;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileUtils {
 
-    private static final Logger LOGGER = Logger.getLogger(FileUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
     public static List<File> findFiles(final String fileExtension) {
         List<File> files = new LinkedList<File>();
@@ -116,7 +117,7 @@ public class FileUtils {
                     if (index > -1 && index < fileName.length() - 1) {
                         String extension = fileName.substring(index + 1).toLowerCase();
                         if (!ConfigUtils.getString("web.files.upload.extension").contains(extension)) {
-                            LOGGER.warn("The file " + fileName + " is not allowed to upload.");
+                            LOGGER.warn("The file {} is not allowed to upload.", fileName);
                             continue;
                         }
                     }

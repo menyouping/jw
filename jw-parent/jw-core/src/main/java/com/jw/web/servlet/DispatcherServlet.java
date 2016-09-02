@@ -18,7 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -42,7 +43,7 @@ import com.jw.web.context.UrlMapping;
 import com.jw.web.context.UrlMappingRegistry;
 
 public class DispatcherServlet extends HttpServlet {
-    private static final Logger LOGGER = Logger.getLogger(DispatcherServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DispatcherServlet.class);
 
     private static final long serialVersionUID = -3874308705324703315L;
 
@@ -78,7 +79,7 @@ public class DispatcherServlet extends HttpServlet {
             showError(request, response, HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        LOGGER.info("Request " + request.getRequestURI() + " is mathched:" + urlMapping);
+        LOGGER.info("Request {} is mathched:{}", request.getRequestURI(), urlMapping);
         // build context
         SessionContext.buildContext().set(SessionContext.REQUEST, request).set(SessionContext.RESPONSE, response)
                 .set(SessionContext.SESSION, request.getSession()).set("requestUrl", path);

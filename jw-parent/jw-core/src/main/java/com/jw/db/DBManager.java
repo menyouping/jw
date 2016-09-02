@@ -8,13 +8,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jw.util.ConfigUtils;
 import com.jw.util.StringUtils;
 
 public class DBManager {
-    private static final Logger LOGGER = Logger.getLogger(DBManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DBManager.class);
 
     private static Properties config = ConfigUtils.getProperties("db");
     
@@ -35,7 +36,7 @@ public class DBManager {
             try {
                 Driver driver = (Driver) Class.forName(driverName).newInstance();
                 DriverManager.registerDriver(driver);
-                LOGGER.info("Successfully loaded the db driver of " + driverName);
+                LOGGER.info("Successfully loaded the db driver of {}", driverName);
             } catch (InstantiationException | IllegalAccessException e) {
                 LOGGER.error("Error raised when loading db driver of " + driverName + ", pls check the properties.", e);
             } catch (ClassNotFoundException e) {
@@ -60,7 +61,7 @@ public class DBManager {
             try {
                 maxConn = Integer.valueOf(str_max);
             } catch (NumberFormatException e) {
-                LOGGER.error("The max db connection amount of " + dbName + " is invalid，set to default value 20.");
+                LOGGER.error("The max db connection amount of {} is invalid，set to default value 20.", dbName);
                 maxConn = 20;
             }
             if(StringUtils.isEmpty(dbName)) {
@@ -68,7 +69,7 @@ public class DBManager {
             }
             DB db = new DB(dbName, url, user, pwd, maxConn);
             dbPools.put(dbName, db);
-            LOGGER.info("Successfully to create the db connection to " + dbName);
+            LOGGER.info("Successfully to create the db connection to {}", dbName);
         }
     }
 
