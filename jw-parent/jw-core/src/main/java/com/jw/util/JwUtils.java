@@ -90,16 +90,28 @@ public class JwUtils {
     }
 
     public static <T> String join(Collection<T> c) {
-        return join(c, ",");
+        if (c == null || c.isEmpty())
+            return "";
+        return join(c.toArray(), ",");
     }
 
     public static <T> String join(Collection<T> c, String split) {
-        if (c == null || c.isEmpty()) {
+        if (c == null || c.isEmpty())
+            return "";
+        return join(c.toArray(), split);
+    }
+
+    public static <T extends Object> String join(T[] a) {
+        return join(a, ",");
+    }
+
+    public static <T extends Object> String join(T[] a, String split) {
+        if (a == null || a.length == 0) {
             return "";
         }
         StringBuilder sb = new StringBuilder();
         boolean flag = false;
-        for (T t : c) {
+        for (T t : a) {
             if (flag) {
                 sb.append(split);
             } else {
