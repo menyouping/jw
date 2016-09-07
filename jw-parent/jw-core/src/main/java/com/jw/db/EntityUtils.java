@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.jw.domain.annotation.Id;
+import com.jw.domain.annotation.PostPersist;
+import com.jw.domain.annotation.PostRemove;
+import com.jw.domain.annotation.PostUpdate;
+import com.jw.domain.annotation.PrePersist;
+import com.jw.domain.annotation.PreRemove;
+import com.jw.domain.annotation.PreUpdate;
 import com.jw.domain.annotation.Table;
 import com.jw.util.JwUtils;
 import com.jw.util.Pair;
@@ -21,9 +27,15 @@ public class EntityUtils {
 
     public static final String INSERT_SQL = "INSERT INTO %s(%s) VALUES(%s)";
 
-    public static void create(Object entity) {
+    public static Object create(Object entity) {
+        Class<?> claze = entity.getClass();
+        JwUtils.runMethodWithAnnotation(claze, entity, PrePersist.class);
+
         Map<String, Object> map = convert2Map(entity);
-        create(entity.getClass(), map);
+        create(claze, map);
+
+        JwUtils.runMethodWithAnnotation(claze, entity, PostPersist.class);
+        return entity;
     }
 
     public static void create(Class<?> claze, Map<String, Object> params) {
@@ -35,9 +47,14 @@ public class EntityUtils {
     public static final String DELETE_SQL = "DELETE FROM %s WHERE %s = ?";
 
     public static void delete(Object entity) {
+        Class<?> claze = entity.getClass();
+        JwUtils.runMethodWithAnnotation(claze, entity, PreRemove.class);
+
         Pair pair = getPrimaryKey(entity);
         String sql = String.format(DELETE_SQL, getTableName(entity), pair.getKey());
         SQLUtils.update(sql, new Object[] { pair.getValue() });
+
+        JwUtils.runMethodWithAnnotation(claze, entity, PostRemove.class);
     }
 
     public static void delete(Class<?> claze, Map<String, Object> params) {
@@ -64,8 +81,13 @@ public class EntityUtils {
     public static final String UPDATE_SQL = "UPDATE %s SET %s WHERE %s = ?";
 
     public void update(Object entity) {
+        Class<?> claze = entity.getClass();
+        JwUtils.runMethodWithAnnotation(claze, entity, PreUpdate.class);
+        
         Map<String, Object> map = convert2Map(entity);
         update(entity.getClass(), map);
+        
+        JwUtils.runMethodWithAnnotation(claze, entity, PostUpdate.class);
     }
 
     public void update(Class<?> claze, Map<String, Object> params) {

@@ -94,7 +94,7 @@ public class DispatcherServlet extends HttpServlet {
         try {
             Object controller = AppContext.getBean(urlMapping.getClaze());
 
-            List<Method> modelAttributeMethods = findModelAttributeMethods(urlMapping.getClaze());
+            List<Method> modelAttributeMethods = JwUtils.findMethods(urlMapping.getClaze(), ModelAttribute.class);
             if (!JwUtils.isEmpty(modelAttributeMethods)) {
                 for (Method modelAttributeMethod : modelAttributeMethods) {
                     paras = autowireParameters(null, modelAttributeMethod);
@@ -133,19 +133,6 @@ public class DispatcherServlet extends HttpServlet {
             showError(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
         }
-    }
-
-    public static List<Method> findModelAttributeMethods(Class<?> controller) {
-        Method[] methods = controller.getDeclaredMethods();
-        if (JwUtils.isEmpty(methods))
-            return null;
-        List<Method> list = JwUtils.newLinkedList();
-        for (Method method : methods) {
-            if (JwUtils.isAnnotated(method, ModelAttribute.class)) {
-                list.add(method);
-            }
-        }
-        return list;
     }
 
     public static String getPage(String fileName) {

@@ -11,7 +11,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jw.domain.annotation.Entity;
+
 public class JwUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JwUtils.class);
 
     private final static String EDITOR_FORM_NAME = "content";
 
@@ -182,6 +189,48 @@ public class JwUtils {
                     return true;
                 return Boolean.valueOf(value);
             }
+        }
+        return null;
+    }
+
+    public static <A extends Annotation> List<Method> findMethods(Class<?> claze, Class<A> annoClaze) {
+        Method[] methods = claze.getDeclaredMethods();
+        if (JwUtils.isEmpty(methods))
+            return null;
+        List<Method> list = JwUtils.newLinkedList();
+        for (Method method : methods) {
+            if (JwUtils.isAnnotated(method, annoClaze)) {
+                list.add(method);
+            }
+        }
+        return list;
+    }
+
+    public static void runMethod(Method md, Object obj, Object... args) {
+        try {
+            md.invoke(obj, args);
+        } catch (Exception e) {
+            LOGGER.error("Error raised when run method " + md, e);
+        }
+    }
+
+    public static <A extends Annotation> void runMethodWithAnnotation(Class<?> claze, Object entity,
+            Class<A> annoClaze) {
+        if (JwUtils.isAnnotated(claze, Entity.class)) {
+            List<Method> mds = JwUtils.findMethods(claze, annoClaze);
+            if (!JwUtils.isEmpty(mds)) {
+                for (Method md : mds) {
+                    JwUtils.runMethod(md, entity);
+                }
+            }
+        }
+    }
+
+    public static Object callMethod(Method md, Object obj, Object... args) {
+        try {
+            return md.invoke(obj, args);
+        } catch (Exception e) {
+            LOGGER.error("Error raised when call method " + md, e);
         }
         return null;
     }
