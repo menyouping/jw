@@ -1,4 +1,4 @@
-package com.jay.controller;
+package com.jay.mvc.controller;
 
 public class UserDto {
 

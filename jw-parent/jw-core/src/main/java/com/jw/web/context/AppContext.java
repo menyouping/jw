@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.jw.aop.JwProxyFactory;
 import com.jw.domain.annotation.Autowired;
 import com.jw.domain.annotation.Value;
 import com.jw.util.ConfigUtils;
@@ -17,6 +18,11 @@ public class AppContext {
     private static final Map<String, String> clazeMap = new ConcurrentHashMap<String, String>();
 
     private static final Map<String, Object> beanMap = new ConcurrentHashMap<String, Object>();
+
+    /**
+     * 是否开启了AOP
+     */
+    private static final boolean IS_AOP_ENABLE = ConfigUtils.getBoolean("aop.enable", false);
 
     static {
         Set<Class<?>> clazes = null;
@@ -73,7 +79,7 @@ public class AppContext {
     }
 
     private static <T> T autowireClaze(Class<T> claze) throws Exception {
-        T entity = claze.newInstance();
+        T entity = IS_AOP_ENABLE ? JwProxyFactory.getProxyInstance(claze) : claze.newInstance();
         if (JwUtils.isAnnotated(claze, Component.class)) {
             Field[] fields = claze.getDeclaredFields();
 

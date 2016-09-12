@@ -1,9 +1,10 @@
-package com.jay.controller;
+package com.jay.mvc.controller;
 
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.jay.aop.annotation.Log;
 import com.jw.domain.annotation.Value;
 import com.jw.ui.Model;
 import com.jw.util.JwUtils;
@@ -93,6 +94,7 @@ public class IndexController {
         return result;
     }
 
+    @Log
     @RequestMapping(value = "/model")
     @ResponseBody
     public Object model(@ModelAttribute("dto") UserDto userDto) {

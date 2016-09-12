@@ -208,6 +208,7 @@ public class JwUtils {
 
     public static void runMethod(Method md, Object obj, Object... args) {
         try {
+            md.setAccessible(true);
             md.invoke(obj, args);
         } catch (Exception e) {
             LOGGER.error("Error raised when run method " + md, e);
@@ -228,6 +229,7 @@ public class JwUtils {
 
     public static Object callMethod(Method md, Object obj, Object... args) {
         try {
+            md.setAccessible(true);
             return md.invoke(obj, args);
         } catch (Exception e) {
             LOGGER.error("Error raised when call method " + md, e);
