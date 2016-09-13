@@ -6,7 +6,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import com.jw.aop.JwHttpServletRequest;
+import com.jw.aop.JwHttpServletResponse;
+import com.jw.aop.JwHttpSession;
 import com.jw.aop.JwProxyFactory;
 import com.jw.domain.annotation.Autowired;
 import com.jw.domain.annotation.Value;
@@ -35,6 +39,13 @@ public class AppContext {
                 clazeMap.put(StringUtils.lowerFirst(claze.getSimpleName()), claze.getName());
             }
             clazeMap.put("httpServletRequest", HttpServletRequest.class.getName());
+            beanMap.put("httpServletRequest", new JwHttpServletRequest());
+
+            clazeMap.put("httpServletResponse", HttpServletResponse.class.getName());
+            beanMap.put("httpServletResponse", new JwHttpServletResponse());
+
+            clazeMap.put("httpSession", HttpServletResponse.class.getName());
+            beanMap.put("httpSession", new JwHttpSession());
         } catch (Exception e) {
             e.printStackTrace();
         }
