@@ -16,9 +16,9 @@ import javax.servlet.http.HttpSession;
 
 import com.jw.util.SessionContext;
 
-public class JwRequest implements HttpServletRequest {
+public class JwHttpServletRequest implements HttpServletRequest {
 
-    public JwRequest() {
+    public JwHttpServletRequest() {
     }
 
     @Override

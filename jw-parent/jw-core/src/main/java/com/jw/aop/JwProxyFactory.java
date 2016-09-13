@@ -12,7 +12,7 @@ public class JwProxyFactory {
     @SuppressWarnings("unchecked")
     public static <T> T getProxyInstance(Class<T> claze) {
         if (HttpServletRequest.class.isAssignableFrom(claze)) {
-            return (T) JwProxyFactory.getCglibProxy(JwRequest.class, proxy);
+            return (T) JwProxyFactory.getCglibProxy(JwHttpServletRequest.class, proxy);
         }
         return JwProxyFactory.getCglibProxy(claze, proxy);
     }
