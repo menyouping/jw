@@ -7,32 +7,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jw.util.JwUtils;
+import com.jw.web.bind.annotation.Component;
 
-import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 public class JwProxy implements MethodInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwProxy.class);
 
-    public Enhancer enhancer = new Enhancer();
-
-    public JwProxy() {
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(Class<T> claze) {
-        enhancer.setSuperclass(claze);
-        enhancer.setCallback(this);
-        return (T) enhancer.create();
-    }
-
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
         LOGGER.info("Visit method：" + method.getName());
 
         Object result = null;
-        List<JoinPoint> jps = JwProxyRegistry.findMatchedAspects(method);
+        List<JoinPoint> jps = null;
+        if (JwUtils.isAnnotated(method.getDeclaringClass(), Component.class)) {
+            jps = JwProxyRegistry.findMatchedAspects(method);
+        }
         if (JwUtils.isEmpty(jps)) {
             result = proxy.invokeSuper(obj, args);
         } else {

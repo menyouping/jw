@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.jw.aop.JwProxyFactory;
 import com.jw.domain.annotation.Autowired;
 import com.jw.domain.annotation.Value;
@@ -32,6 +34,7 @@ public class AppContext {
             for (Class<?> claze : clazes) {
                 clazeMap.put(StringUtils.lowerFirst(claze.getSimpleName()), claze.getName());
             }
+            clazeMap.put("httpServletRequest", HttpServletRequest.class.getName());
         } catch (Exception e) {
             e.printStackTrace();
         }

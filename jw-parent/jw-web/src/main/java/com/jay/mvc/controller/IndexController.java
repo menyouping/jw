@@ -2,9 +2,12 @@ package com.jay.mvc.controller;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jay.aop.annotation.Log;
+import com.jw.domain.annotation.Autowired;
 import com.jw.domain.annotation.Value;
 import com.jw.ui.Model;
 import com.jw.util.JwUtils;
@@ -22,6 +25,9 @@ public class IndexController {
 
     @Value("${db.max.connection}")
     int maxConn;
+
+    @Autowired
+    HttpServletRequest request;
 
     @ModelAttribute
     public void init(Model model) {
@@ -53,7 +59,7 @@ public class IndexController {
         result.put("body", SessionContext.getContext().get(SessionContext.FILE_UPLOAD_PARAMETERS));
         return result;
     }
-    
+
     @RequestMapping("/health-check")
     @ResponseBody
     public Object healthCheck(@RequestParam("maxConn") int maxConn) {
@@ -104,7 +110,7 @@ public class IndexController {
         result.put("body", JSONObject.parse(JSON.toJSONString(userDto)));
         return result;
     }
-    
+
     @RequestMapping(value = "/form", method = RequestMethod.POST)
     @ResponseBody
     public Object form(@ModelAttribute("dto") UserDto userDto) {
@@ -112,6 +118,16 @@ public class IndexController {
         result.put("status", 200);
         result.put("message", "SUCCESS");
         result.put("body", JSONObject.parse(JSON.toJSONString(userDto)));
+        return result;
+    }
+    
+    @RequestMapping(value = "/request")
+    @ResponseBody
+    public Object doRequest() {
+        Map<String, Object> result = JwUtils.newHashMap();
+        result.put("status", 200);
+        result.put("message", "SUCCESS");
+        result.put("body", request.getServletPath());
         return result;
     }
 
