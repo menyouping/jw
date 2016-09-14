@@ -15,18 +15,32 @@ import java.util.jar.JarFile;
 
 public class PkgUtils {
 
+    /**
+     * 
+     * @param pkgName 支持多folder, 以";"分隔
+     * @param annoClaze
+     * @return
+     * @throws Exception
+     */
     @SuppressWarnings({ "rawtypes" })
     public static <A extends Annotation> Set<Class<?>> findClazesByAnnotation(String pkgName, Class<A> annoClaze)
             throws Exception {
         if(StringUtils.isEmpty(pkgName))
             return null;
         Set<Class<?>> list = new LinkedHashSet<Class<?>>();
-        Set<Class<?>> clazes = getClazes(pkgName);
-        for (Class claze : clazes) {
-            if (claze.isAnnotation())
+        
+        Set<Class<?>> clazes = null;
+        String[] pkgs = pkgName.split("\\s*;\\s*");
+        for(String pkg : pkgs) {
+            if(pkg.isEmpty())
                 continue;
-            if (JwUtils.isAnnotated(claze, annoClaze)) {
-                list.add(claze);
+            clazes = getClazes(pkg);
+            for (Class claze : clazes) {
+                if (claze.isAnnotation())
+                    continue;
+                if (JwUtils.isAnnotated(claze, annoClaze)) {
+                    list.add(claze);
+                }
             }
         }
         return list;

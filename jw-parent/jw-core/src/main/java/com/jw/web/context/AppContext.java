@@ -93,8 +93,9 @@ public class AppContext {
     }
 
     private static <T> T autowireClaze(Class<T> claze) throws Exception {
-        T entity = IS_AOP_ENABLE ? JwProxyFactory.getProxyInstance(claze) : claze.newInstance();
-        if (JwUtils.isAnnotated(claze, Component.class)) {
+        boolean isComponent = JwUtils.isAnnotated(claze, Component.class);
+        T entity = IS_AOP_ENABLE && isComponent ? JwProxyFactory.getProxyInstance(claze) : claze.newInstance();
+        if (isComponent) {
             Field[] fields = claze.getDeclaredFields();
 
             for (Field field : fields) {
