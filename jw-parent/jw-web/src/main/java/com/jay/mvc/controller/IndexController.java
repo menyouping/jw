@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jay.aop.annotation.Log;
-import com.jw.db.ConnectionHolder;
+import com.jw.db.JwConnection;
 import com.jw.domain.annotation.Autowired;
 import com.jw.domain.annotation.Value;
 import com.jw.ui.Model;
@@ -141,7 +141,7 @@ public class IndexController {
         Map<String, Object> result = JwUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
-        result.put("body", service.find(ConnectionHolder.create(), 1));
+        result.put("body", service.find(JwConnection.create(), 1));
         return result;
     }
 

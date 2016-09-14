@@ -3,7 +3,7 @@ package com.jay.mvc.controller;
 import java.sql.ResultSet;
 import java.util.Map;
 
-import com.jw.db.ConnectionHolder;
+import com.jw.db.JwConnection;
 import com.jw.db.SQLUtils;
 import com.jw.util.JwUtils;
 import com.jw.web.bind.annotation.Repository;
@@ -11,7 +11,7 @@ import com.jw.web.bind.annotation.Repository;
 @Repository
 public class UserRepository {
 
-    public ResultSet find(ConnectionHolder conn, int i) {
+    public ResultSet find(JwConnection conn, int i) {
         Map<String, Object> params = JwUtils.newHashMap();
         params.put("id", 1);
         

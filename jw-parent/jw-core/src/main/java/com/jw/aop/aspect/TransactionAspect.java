@@ -11,7 +11,7 @@ import com.jw.aop.annotation.Around;
 import com.jw.aop.annotation.Aspect;
 import com.jw.aop.annotation.Pointcut;
 import com.jw.aop.annotation.Transaction;
-import com.jw.db.ConnectionHolder;
+import com.jw.db.JwConnection;
 import com.jw.db.DBManager;
 import com.jw.db.TxCallable;
 import com.jw.db.TxRunnable;
@@ -74,8 +74,8 @@ public class TransactionAspect {
             Object arg = null;
             for (int i = 0; i < args.length; i++) {
                 arg = args[i];
-                if (arg != null && arg instanceof ConnectionHolder) {
-                    ((ConnectionHolder) arg).setConnection(connection);
+                if (arg != null && arg instanceof JwConnection) {
+                    ((JwConnection) arg).setConnection(connection);
                     break;
                 }
             }

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jw.aop.annotation.Transaction;
-import com.jw.db.ConnectionHolder;
+import com.jw.db.JwConnection;
 import com.jw.db.EntityUtils;
 import com.jw.domain.annotation.Autowired;
 import com.jw.web.bind.annotation.Service;
@@ -17,7 +17,7 @@ public class UserService {
     UserRepository repository;
     
     @Transaction
-    public Object find(ConnectionHolder conn, int i) {
+    public Object find(JwConnection conn, int i) {
         ResultSet rs = repository.find(conn, i);
         List<Map<String, Object>> list = EntityUtils.toMaps(rs);
         return list;
