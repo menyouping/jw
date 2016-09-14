@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jay.aop.annotation.Log;
+import com.jw.db.ConnectionHolder;
 import com.jw.domain.annotation.Autowired;
 import com.jw.domain.annotation.Value;
 import com.jw.ui.Model;
@@ -28,6 +29,9 @@ public class IndexController {
 
     @Autowired
     HttpServletRequest request;
+
+    @Autowired
+    UserService service;
 
     @ModelAttribute
     public void init(Model model) {
@@ -120,7 +124,7 @@ public class IndexController {
         result.put("body", JSONObject.parse(JSON.toJSONString(userDto)));
         return result;
     }
-    
+
     @RequestMapping(value = "/request")
     @ResponseBody
     public Object doRequest() {
@@ -128,6 +132,16 @@ public class IndexController {
         result.put("status", 200);
         result.put("message", "SUCCESS");
         result.put("body", request.getServletPath());
+        return result;
+    }
+
+    @RequestMapping(value = "/tx")
+    @ResponseBody
+    public Object tx() {
+        Map<String, Object> result = JwUtils.newHashMap();
+        result.put("status", 200);
+        result.put("message", "SUCCESS");
+        result.put("body", service.find(ConnectionHolder.create(), 1));
         return result;
     }
 

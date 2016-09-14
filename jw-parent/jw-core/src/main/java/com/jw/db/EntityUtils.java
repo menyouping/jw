@@ -298,7 +298,7 @@ public class EntityUtils {
         return colNames;
     }
 
-    protected static List<Map<String, Object>> toMaps(ResultSet rs) {
+    public static List<Map<String, Object>> toMaps(ResultSet rs) {
         List<Map<String, Object>> list = JwUtils.newLinkedList();
 
         try {
@@ -323,7 +323,7 @@ public class EntityUtils {
         return list;
     }
 
-    protected static <T> List<T> toList(ResultSet rs, Class<T> claze) {
+    public static <T> List<T> toList(ResultSet rs, Class<T> claze) {
         List<T> list = new ArrayList<T>();
 
         try {

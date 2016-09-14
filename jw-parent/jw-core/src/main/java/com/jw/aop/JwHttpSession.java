@@ -41,7 +41,6 @@ public class JwHttpSession implements HttpSession {
         return SessionContext.getSession().getMaxInactiveInterval();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public HttpSessionContext getSessionContext() {
         return SessionContext.getSession().getSessionContext();
@@ -52,7 +51,6 @@ public class JwHttpSession implements HttpSession {
         return SessionContext.getSession().getAttribute(name);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public Object getValue(String name) {
         return SessionContext.getSession().getValue(name);
@@ -64,7 +62,6 @@ public class JwHttpSession implements HttpSession {
         return SessionContext.getSession().getAttributeNames();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public String[] getValueNames() {
         return SessionContext.getSession().getValueNames();
@@ -75,7 +72,6 @@ public class JwHttpSession implements HttpSession {
         SessionContext.getSession().setAttribute(name, value);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void putValue(String name, Object value) {
         SessionContext.getSession().putValue(name, value);
@@ -86,7 +82,6 @@ public class JwHttpSession implements HttpSession {
         SessionContext.getSession().removeAttribute(name);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void removeValue(String name) {
         SessionContext.getSession().removeValue(name);

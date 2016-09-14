@@ -84,7 +84,7 @@ public class SQLUtils {
             int len = params.length;
             for (int i = 1; i <= len; i++) {
                 try {
-                    ps.setObject(i, params[i]);
+                    ps.setObject(i, params[i-1]);
                 } catch (SQLException e) {
                     LOGGER.error("Error raised when set value in PreparedStatement", e);
                     return 0;
@@ -166,7 +166,7 @@ public class SQLUtils {
             int len = params.length;
             for (int i = 1; i <= len; i++) {
                 try {
-                    ps.setObject(i, params[i]);
+                    ps.setObject(i, params[i-1]);
                 } catch (SQLException e) {
                     LOGGER.error("Error raised when set value in PreparedStatement", e);
                     return null;
