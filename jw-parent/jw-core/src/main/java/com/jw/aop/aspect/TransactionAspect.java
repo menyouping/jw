@@ -25,11 +25,11 @@ public class TransactionAspect {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionAspect.class);
 
     @Pointcut("@annotation(com.jw.aop.annotation.Transaction)")
-    public void txgPointcut() {
+    public void txPointcut() {
 
     }
 
-    @Around("txgPointcut()")
+    @Around("txPointcut()")
     public Object aroundTxHold(JoinPoint jp, final JointPointParameter parameter) {
         String dbName = parameter.getMethod().getAnnotation(Transaction.class).value();
         if (StringUtils.isEmpty(dbName)) {

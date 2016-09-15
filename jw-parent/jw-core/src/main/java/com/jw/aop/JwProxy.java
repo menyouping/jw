@@ -17,8 +17,6 @@ public class JwProxy implements MethodInterceptor {
 
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        LOGGER.info("Visit method：" + method.getName());
-
         Object result = null;
         List<JoinPoint> jps = null;
         if (JwUtils.isAnnotated(method.getDeclaringClass(), Component.class)) {

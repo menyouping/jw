@@ -40,6 +40,14 @@ public class JwUtils {
         return EDITOR_FORM_NAME.equals(fieldName);
     }
 
+    public static <T> T first(Collection<T> c) {
+        return isEmpty(c) ? null : c.iterator().next();
+    }
+
+    public static <T> T first(T[] arr) {
+        return isEmpty(arr) ? null : arr[0];
+    }
+
     public static <T> boolean isEmpty(Collection<T> c) {
         return c == null || c.isEmpty();
     }

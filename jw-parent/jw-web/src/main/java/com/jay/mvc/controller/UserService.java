@@ -22,4 +22,8 @@ public class UserService {
         List<Map<String, Object>> list = EntityUtils.toMaps(rs);
         return list;
     }
+    
+    public List<UserDto> findById(int i) {
+        return repository.findById(i);
+    }
 }
