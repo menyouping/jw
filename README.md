@@ -7,7 +7,7 @@ jw，全称java web， 模仿spring框架， 实现一个简单可用的java web
 
 动手做难免有拿来主义之嫌，很多Spring的类名和Annotation名字直接拿来，如DispatcherServlet，@Controller, @Service,@Repository,@RequestMapping,@Autowired,@Transaction,@Before,@Around,@After，@ModelAttribute等等。经过3周的努力，提供了一个web框架所需的基本功能：MVC，IOC，Dao，AOP，事务，JPA，文件上传等。很多使用经验可直接根据Spring的用法来推断，只有些许差异。还有很多功能待完善，例如@Valid数据验证支持，等等！
 
-喜欢本框架的同学，欢迎一起造轮子。造轮子不是为了取代Spring，而是为了掌握Java Web技术，并给自己带来成就感！
+喜欢本框架的同学，欢迎一起造轮子。造轮子不是为了取代Spring，而是为了磨砺Java Web技术，并给自己带来成就感！
 
 熟悉的配方，不一样的味道! jw, 你值得一试！
 
