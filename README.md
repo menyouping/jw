@@ -7,6 +7,7 @@ jw，全称java web， 模仿spring框架， 实现一个简单可用的java web
 #MVC
 #IOC
 #Dao
+#AOP
 #事务
 #JPA
 #文件上传等功能
