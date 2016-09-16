@@ -30,7 +30,7 @@ public class FileUtils {
     public static List<File> findFiles(final String fileExtension) {
         List<File> files = new LinkedList<File>();
         try {
-            URL url = FileUtils.class.getClassLoader().getResource("/");
+            URL url = FileUtils.class.getResource("/");
             if (url == null)
                 return files;
             String protocol = url.getProtocol();
