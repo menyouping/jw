@@ -39,13 +39,13 @@ public class FileUtils {
                 File dir = new File(filePath);
                 if (!dir.exists() || !dir.isDirectory())
                     return files;
-                File[] dirfiles = dir.listFiles(new FileFilter() {
+                File[] targetFiles = dir.listFiles(new FileFilter() {
                     public boolean accept(File file) {
                         return file.getName().endsWith(fileExtension);
                     }
                 });
-                if (dirfiles != null && dirfiles.length > 0) {
-                    files.addAll(Arrays.asList(dirfiles));
+                if (!JwUtils.isEmpty(targetFiles)) {
+                    files.addAll(Arrays.asList(targetFiles));
                 }
             }
         } catch (IOException e) {
