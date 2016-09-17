@@ -11,7 +11,7 @@ jw，全称java web， 模仿spring框架， 实现一个简单可用的java web
 
 熟悉的配方，不一样的味道! jw, 你值得一试！
 
-现着手写一个教程，可移步这里查看http://blog.csdn.net/beautiful5200/。
+现着手写一个教程，可移步这里查看http://blog.csdn.net/beautiful5200/
 
 Jay Zhang
 
