@@ -144,7 +144,7 @@ public class IndexController {
         result.put("body", service.find(JwConnection.create(), 1));
         return result;
     }
-    
+
     @RequestMapping(value = "/query")
     @ResponseBody
     public Object query() {
@@ -152,6 +152,15 @@ public class IndexController {
         result.put("status", 200);
         result.put("message", "SUCCESS");
         result.put("body", service.findById(1));
+        return result;
+    }
+
+    @RequestMapping(value = "/save")
+    @ResponseBody
+    public Object save() {
+        Map<String, Object> result = JwUtils.newHashMap();
+        result.put("status", 200);
+        result.put("message", "SUCCESS");
         return result;
     }
 

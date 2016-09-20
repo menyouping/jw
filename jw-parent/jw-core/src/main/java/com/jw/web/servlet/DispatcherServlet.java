@@ -79,7 +79,7 @@ public class DispatcherServlet extends HttpServlet {
             showError(request, response, HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        LOGGER.info("Request {} is mathched:{}", request.getRequestURI(), urlMapping);
+        LOGGER.info("Request {} is matched:{}", request.getRequestURI(), urlMapping);
         // build context
         SessionContext.buildContext().set(SessionContext.REQUEST, request).set(SessionContext.RESPONSE, response)
                 .set(SessionContext.SESSION, request.getSession()).set("requestUrl", path);

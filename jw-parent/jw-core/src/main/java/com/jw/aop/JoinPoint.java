@@ -1,10 +1,7 @@
 package com.jw.aop;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,13 +10,13 @@ import com.jw.aop.annotation.After;
 import com.jw.aop.annotation.Around;
 import com.jw.aop.annotation.Before;
 import com.jw.aop.annotation.Pointcut;
+import com.jw.aop.rule.JwRule;
+import com.jw.aop.rule.JwRuleFactory;
 import com.jw.util.JwUtils;
 import com.jw.util.StringUtils;
 
 public class JoinPoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(JoinPoint.class);
-
-    private static final Pattern ANNOTATION_PATTERN = Pattern.compile("@annotation\\(([^)]+)\\)");
 
     private Class<?> aspectClaze = null;
 
@@ -33,7 +30,7 @@ public class JoinPoint {
 
     private Method afterMethod = null;
 
-    private String rule = null;
+    private JwRule rule = null;
 
     public JoinPoint(Class<?> aspectClaze) {
         List<Method> pointcutMethods = JwUtils.findMethods(aspectClaze, Pointcut.class);
@@ -56,7 +53,10 @@ public class JoinPoint {
         Pointcut ann;
         ann = pointcutMethod.getAnnotation(Pointcut.class);
         if (!StringUtils.isEmpty(ann.value())) {
-            rule = ann.value();
+            rule = JwRuleFactory.parse(ann.value());
+            if (rule == null) {
+                throw new IllegalArgumentException("The value of Pointcut.class is invalid!");
+            }
         } else {
             throw new IllegalArgumentException("The value of Pointcut.class is empty!");
         }
@@ -82,17 +82,7 @@ public class JoinPoint {
     }
 
     public boolean match(Method targetMethod) {
-        Matcher m = ANNOTATION_PATTERN.matcher(rule);
-        if (m.find()) {
-            String annName = m.group(1);
-            Annotation[] anns = targetMethod.getAnnotations();
-            for (Annotation ann : anns) {
-                if (annName.equals(ann.annotationType().getName())) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return rule.match(targetMethod);
     }
 
     public void proceedBefore(JointPointParameter parameter) {
@@ -181,12 +171,8 @@ public class JoinPoint {
         this.afterMethod = afterMethod;
     }
 
-    public String getRule() {
+    public JwRule getRule() {
         return rule;
-    }
-
-    public void setRule(String rule) {
-        this.rule = rule;
     }
 
     public boolean hasBeforeMethod() {
