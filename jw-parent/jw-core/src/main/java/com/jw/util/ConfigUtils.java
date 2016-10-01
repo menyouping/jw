@@ -52,6 +52,17 @@ public class ConfigUtils {
         }
         return p;
     }
+    
+    public static Properties getProperties(Properties properties, String nameSpace) {
+        Properties p = new Properties();
+        String prefix = nameSpace + ".";
+        for (String key : properties.stringPropertyNames()) {
+            if (key.startsWith(prefix)) {
+                p.put(key.substring(prefix.length()), properties.get(key));
+            }
+        }
+        return p;
+    }
 
     public static Object put(String key, Object value) {
         return config.put(key, value);

@@ -59,9 +59,27 @@ public class AppContext {
     }
 
     @SuppressWarnings("unchecked")
+    public static <T> T setBean(T entity) {
+        String clazeName = StringUtils.lowerFirst(entity.getClass().getSimpleName());
+        T result = (T) beanMap.get(clazeName);
+
+        beanMap.put(clazeName, entity);
+        return result;
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    public static <T> T setBean(String id, T entity) {
+        T result = (T) beanMap.get(id);
+
+        beanMap.put(id, entity);
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
     public static <T> T getBean(String beanId) {
-        if (beanMap.containsKey(beanId))
+        if (beanMap.containsKey(beanId)) {
             return (T) beanMap.get(beanId);
+        }
 
         String clazeName = clazeMap.get(beanId);
         Class<T> claze = null;
@@ -127,7 +145,7 @@ public class AppContext {
         if (JwUtils.isBindKey(key)) {
             value = ConfigUtils.getProperty(JwUtils.getBindKey(key));
         }
-        Object targetValue = JwUtils.convert(field.getType(), value);
+        Object targetValue = JwUtils.convert(value, field.getType());
         if (targetValue != null) {
             field.setAccessible(true);
             field.set(entity, targetValue);

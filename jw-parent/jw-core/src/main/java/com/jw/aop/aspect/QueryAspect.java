@@ -15,12 +15,12 @@ import com.jw.aop.annotation.Around;
 import com.jw.aop.annotation.Aspect;
 import com.jw.aop.annotation.Pointcut;
 import com.jw.aop.annotation.Query;
-import com.jw.db.DBManager;
+import com.jw.db.DbManagerFactory;
 import com.jw.db.EntityUtils;
+import com.jw.db.JwCallable;
+import com.jw.db.JwRunnable;
+import com.jw.db.JwTx;
 import com.jw.db.SQLUtils;
-import com.jw.db.TxCallable;
-import com.jw.db.TxRunnable;
-import com.jw.db.TxUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.StringUtils;
 
@@ -40,15 +40,15 @@ public class QueryAspect {
         final String sql = ann.value();
         String dbName = ann.db();
         if (StringUtils.isEmpty(dbName)) {
-            dbName = DBManager.getDefaultDBName();
+            dbName = DbManagerFactory.getManager().getDefaultDBName();
         }
 
         if (parameter.getMethod().getReturnType() == Void.TYPE) {
             if (StringUtils.isEmpty(sql))
                 return Void.TYPE;
-            
+
             LOGGER.info("Sql execute: {}", sql);
-            TxUtils.run(dbName, new TxRunnable() {
+            JwTx.run(dbName, new JwRunnable() {
 
                 @Override
                 public void run(Connection connection) throws Exception {
@@ -62,24 +62,25 @@ public class QueryAspect {
             if (StringUtils.isEmpty(sql))
                 return null;
             LOGGER.info("Sql query: {}", sql);
-            return TxUtils.call(dbName, new TxCallable<Object>() {
+            return JwTx.call(dbName, new JwCallable<Object>() {
 
                 @Override
                 public Object call(Connection connection) throws Exception {
                     if ("SELECT".equalsIgnoreCase(sql.trim().substring(0, "SELECT".length()))) {
                         ResultSet rs = SQLUtils.query(connection, sql, parameter.getArgs());
                         Class<?> targetClaze = parameter.getMethod().getReturnType();
-                        if(targetClaze == ResultSet.class)
+                        if (targetClaze == ResultSet.class)
                             return rs;
-                        if(targetClaze.isAssignableFrom(List.class)) {
-                            ParameterizedType parameterizedType = (ParameterizedType) parameter.getMethod().getGenericReturnType();
+                        if (targetClaze.isAssignableFrom(List.class)) {
+                            ParameterizedType parameterizedType = (ParameterizedType) parameter.getMethod()
+                                    .getGenericReturnType();
                             Class<?> modelClaze = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                            if(modelClaze.isAssignableFrom(Map.class)) {
+                            if (modelClaze.isAssignableFrom(Map.class)) {
                                 return EntityUtils.toMaps(rs);
                             }
                             return EntityUtils.toList(rs, modelClaze);
                         }
-                        if(targetClaze.isAssignableFrom(Map.class)) {
+                        if (targetClaze.isAssignableFrom(Map.class)) {
                             return JwUtils.first(EntityUtils.toMaps(rs));
                         }
                         return JwUtils.first(EntityUtils.toList(rs, targetClaze));

@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jw.web.context.AppContext;
 
 /**
  * Transaction Util
@@ -13,19 +14,21 @@ import org.slf4j.LoggerFactory;
  * @author Jay Zhang
  * 
  */
-public class TxUtils {
-    private static Logger LOGGER = LoggerFactory.getLogger(TxUtils.class);
+public class JwTx {
+    private static Logger LOGGER = LoggerFactory.getLogger(JwTx.class);
 
-    public static <T> T call(TxCallable<T> callable) {
-        return call(DBManager.getDefaultDBName(), callable);
+    private static final DBManager manager = AppContext.getBean("dbManager");
+
+    public static <T> T call(JwCallable<T> callable) {
+        return call(manager.getDefaultDBName(), callable);
     }
 
-    public static <T> T call(String dbName, TxCallable<T> callable) {
+    public static <T> T call(String dbName, JwCallable<T> callable) {
         T result = null;
         DB db = null;
         Connection connection = null;
         try {
-            db = DBManager.getDB(dbName);
+            db = manager.getDB(dbName);
             connection = db.getConnection();
             connection.setAutoCommit(false);
             result = callable.call(connection);
@@ -44,15 +47,15 @@ public class TxUtils {
         return result;
     }
 
-    public static <T> void run(TxRunnable runnable) {
-        run(DBManager.getDefaultDBName(), runnable);
+    public static <T> void run(JwRunnable runnable) {
+        run(manager.getDefaultDBName(), runnable);
     }
 
-    public static <T> void run(String dbName, TxRunnable runnable) {
+    public static <T> void run(String dbName, JwRunnable runnable) {
         DB db = null;
         Connection connection = null;
         try {
-            db = DBManager.getDB(dbName);
+            db = manager.getDB(dbName);
             connection = db.getConnection();
             connection.setAutoCommit(false);
             runnable.run(connection);

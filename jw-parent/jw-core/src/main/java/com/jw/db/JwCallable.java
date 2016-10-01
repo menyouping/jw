@@ -7,6 +7,6 @@ import java.sql.Connection;
  * @author Jay Zhang
  * 
  */
-public interface TxCallable<T> {
+public interface JwCallable<T> {
 	public T call(Connection connection) throws Exception;
 }

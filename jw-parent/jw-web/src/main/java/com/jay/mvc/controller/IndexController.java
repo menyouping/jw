@@ -164,4 +164,34 @@ public class IndexController {
         return result;
     }
 
+    @RequestMapping(value = "/cache")
+    @ResponseBody
+    public Object cache() {
+        Map<String, Object> result = JwUtils.newHashMap();
+        result.put("status", 200);
+        result.put("message", "SUCCESS");
+        result.put("body", service.findUser(1));
+        return result;
+    }
+
+    @RequestMapping(value = "/cache2")
+    @ResponseBody
+    public Object cache2() {
+        Map<String, Object> result = JwUtils.newHashMap();
+        result.put("status", 200);
+        result.put("message", "SUCCESS");
+        result.put("body", service.findUser("jay",30));
+        return result;
+    }
+    
+    @RequestMapping(value = "/clearCache")
+    @ResponseBody
+    public Object clearCache() {
+        Map<String, Object> result = JwUtils.newHashMap();
+        result.put("status", 200);
+        result.put("message", "SUCCESS");
+        service.deleteUser(1);
+        return result;
+    }
+
 }

@@ -219,7 +219,7 @@ public class DispatcherServlet extends HttpServlet {
                     continue;
                 String pathVariable = urlMapping.getPathVariable(SessionContext.getContext().getString("requestUrl"),
                         name);
-                Object targetValue = JwUtils.convert(paramClaze, pathVariable);
+                Object targetValue = JwUtils.convert(pathVariable, paramClaze);
                 return targetValue;
             }
             if (RequestParam.class.equals(anno.annotationType())) {

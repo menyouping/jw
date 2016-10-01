@@ -11,11 +11,11 @@ import com.jw.aop.annotation.Around;
 import com.jw.aop.annotation.Aspect;
 import com.jw.aop.annotation.Pointcut;
 import com.jw.aop.annotation.Transaction;
+import com.jw.db.DbManagerFactory;
+import com.jw.db.JwCallable;
 import com.jw.db.JwConnection;
-import com.jw.db.DBManager;
-import com.jw.db.TxCallable;
-import com.jw.db.TxRunnable;
-import com.jw.db.TxUtils;
+import com.jw.db.JwRunnable;
+import com.jw.db.JwTx;
 import com.jw.util.JwUtils;
 import com.jw.util.StringUtils;
 
@@ -33,11 +33,11 @@ public class TransactionAspect {
     public Object aroundTxHold(JoinPoint jp, final JointPointParameter parameter) {
         String dbName = parameter.getMethod().getAnnotation(Transaction.class).value();
         if (StringUtils.isEmpty(dbName)) {
-            dbName = DBManager.getDefaultDBName();
+            dbName = DbManagerFactory.getManager().getDefaultDBName();
         }
 
         if (parameter.getMethod().getReturnType() == Void.TYPE) {
-            TxUtils.run(dbName, new TxRunnable() {
+            JwTx.run(dbName, new JwRunnable() {
 
                 @Override
                 public void run(Connection connection) throws Exception {
@@ -52,7 +52,7 @@ public class TransactionAspect {
             });
             return Void.TYPE;
         } else {
-            return TxUtils.call(dbName, new TxCallable<Object>() {
+            return JwTx.call(dbName, new JwCallable<Object>() {
 
                 @Override
                 public Object call(Connection connection) throws Exception {

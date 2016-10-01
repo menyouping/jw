@@ -7,6 +7,6 @@ import java.sql.Connection;
  * @author Jay Zhang
  * 
  */
-public interface TxRunnable {
+public interface JwRunnable {
 	public void run(Connection connection) throws Exception;
 }

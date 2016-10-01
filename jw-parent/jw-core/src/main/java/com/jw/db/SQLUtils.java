@@ -19,22 +19,22 @@ public class SQLUtils {
     private static final Pattern PATTERN_NAMED_PARAMETER = Pattern.compile(":([A-Za-z0-9_]+)");
 
     public static int update(String dbName, String sql, Map<String, Object> params) {
-        DB db = DBManager.getDB(dbName);
+        DB db = DbManagerFactory.getManager().getDB(dbName);
         return update(db, sql, params);
     }
 
     public static int update(String dbName, String sql, Object[] params) {
-        DB db = DBManager.getDB(dbName);
+        DB db = DbManagerFactory.getManager().getDB(dbName);
         return update(db, sql, params);
     }
 
     public static int update(String sql, Map<String, Object> params) {
-        DB db = DBManager.getDefaultDB();
+        DB db = DbManagerFactory.getManager().getDefaultDB();
         return update(db, sql, params);
     }
 
     public static int update(String sql, Object[] params) {
-        DB db = DBManager.getDefaultDB();
+        DB db = DbManagerFactory.getManager().getDefaultDB();
         return update(db, sql, params);
     }
 
@@ -84,7 +84,7 @@ public class SQLUtils {
             int len = params.length;
             for (int i = 1; i <= len; i++) {
                 try {
-                    ps.setObject(i, params[i-1]);
+                    ps.setObject(i, params[i - 1]);
                 } catch (SQLException e) {
                     LOGGER.error("Error raised when set value in PreparedStatement", e);
                     return 0;
@@ -101,22 +101,22 @@ public class SQLUtils {
     }
 
     public static ResultSet query(String dbName, String sql, Map<String, Object> params) {
-        DB db = DBManager.getDB(dbName);
+        DB db = DbManagerFactory.getManager().getDB(dbName);
         return query(db, sql, params);
     }
 
     public static ResultSet query(String dbName, String sql, Object[] params) {
-        DB db = DBManager.getDB(dbName);
+        DB db = DbManagerFactory.getManager().getDB(dbName);
         return query(db, sql, params);
     }
 
     public static ResultSet query(String sql, Map<String, Object> params) {
-        DB db = DBManager.getDefaultDB();
+        DB db = DbManagerFactory.getManager().getDefaultDB();
         return query(db, sql, params);
     }
 
     public static ResultSet query(String sql, Object[] params) {
-        DB db = DBManager.getDefaultDB();
+        DB db = DbManagerFactory.getManager().getDefaultDB();
         return query(db, sql, params);
     }
 
@@ -166,7 +166,7 @@ public class SQLUtils {
             int len = params.length;
             for (int i = 1; i <= len; i++) {
                 try {
-                    ps.setObject(i, params[i-1]);
+                    ps.setObject(i, params[i - 1]);
                 } catch (SQLException e) {
                     LOGGER.error("Error raised when set value in PreparedStatement", e);
                     return null;

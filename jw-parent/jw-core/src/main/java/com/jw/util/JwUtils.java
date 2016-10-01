@@ -14,6 +14,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jw.cache.ValueWrapper;
 import com.jw.domain.annotation.Entity;
 
 public class JwUtils {
@@ -46,6 +47,14 @@ public class JwUtils {
 
     public static <T> T first(T[] arr) {
         return isEmpty(arr) ? null : arr[0];
+    }
+
+    public static <T> int count(Collection<T> c) {
+        return isEmpty(c) ? 0 : c.size();
+    }
+
+    public static <T> int count(T[] arr) {
+        return isEmpty(arr) ? 0 : arr.length;
     }
 
     public static <T> boolean isEmpty(Collection<T> c) {
@@ -159,7 +168,7 @@ public class JwUtils {
         return method.getAnnotation(annoClaze) != null;
     }
 
-    public static Object convert(Class<?> targetClaze, String value) {
+    public static Object convert(String value, Class<?> targetClaze) {
         if (String.class.equals(targetClaze)) {
             return value;
         }
@@ -243,6 +252,10 @@ public class JwUtils {
             LOGGER.error("Error raised when call method " + md, e);
         }
         return null;
+    }
+
+    public static boolean isValid(ValueWrapper wrapper) {
+        return wrapper.getValidTime() == 0 || wrapper.getValidTime() > System.currentTimeMillis();
     }
 
     public static void main(String[] args) {
