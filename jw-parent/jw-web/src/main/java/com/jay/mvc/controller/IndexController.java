@@ -13,6 +13,7 @@ import com.jw.domain.annotation.Value;
 import com.jw.ui.Model;
 import com.jw.util.JwUtils;
 import com.jw.util.SessionContext;
+import com.jw.validation.ValidErrors;
 import com.jw.web.bind.annotation.Controller;
 import com.jw.web.bind.annotation.ModelAttribute;
 import com.jw.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import com.jw.web.bind.annotation.RequestMapping;
 import com.jw.web.bind.annotation.RequestMethod;
 import com.jw.web.bind.annotation.RequestParam;
 import com.jw.web.bind.annotation.ResponseBody;
+import com.jw.web.bind.annotation.Valid;
 
 @Controller
 public class IndexController {
@@ -180,10 +182,10 @@ public class IndexController {
         Map<String, Object> result = JwUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
-        result.put("body", service.findUser("jay",30));
+        result.put("body", service.findUser("jay", 30));
         return result;
     }
-    
+
     @RequestMapping(value = "/clearCache")
     @ResponseBody
     public Object clearCache() {
@@ -191,6 +193,20 @@ public class IndexController {
         result.put("status", 200);
         result.put("message", "SUCCESS");
         service.deleteUser(1);
+        return result;
+    }
+
+    @RequestMapping(value = "/valid")
+    @ResponseBody
+    public Object valid(@Valid @ModelAttribute("dto") UserDto dto, ValidErrors error) {
+        Map<String, Object> result = JwUtils.newHashMap();
+        result.put("status", 200);
+        if (error == null) {
+            result.put("message", "SUCCESS");
+        } else {
+            result.put("message", "FAILED");
+            result.put("body", error.toString());
+        }
         return result;
     }
 

@@ -23,6 +23,8 @@ public class SessionContext implements java.io.Serializable {
     public final static String SESSION = "session";
     public final static String FILE_UPLOAD_PARAMETERS = "fileUploadParameters";
     public final static String MODEL = "model";
+    public final static String VALID_ERRORS = "validErrors";
+    public final static String REQUEST_URL = "requestUrl";
 
     private final static ThreadLocal<SessionContext> context = new ThreadLocal<SessionContext>();
 

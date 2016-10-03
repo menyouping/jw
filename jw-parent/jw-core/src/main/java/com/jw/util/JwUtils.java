@@ -168,6 +168,15 @@ public class JwUtils {
         return method.getAnnotation(annoClaze) != null;
     }
 
+    public static boolean contains(Annotation[] annos, Class<? extends Annotation> annoClaze) {
+        for (Annotation a : annos) {
+            if (a.annotationType() == annoClaze) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static Object convert(String value, Class<?> targetClaze) {
         if (String.class.equals(targetClaze)) {
             return value;

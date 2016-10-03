@@ -1,8 +1,12 @@
 package com.jay.mvc.controller;
 
+import com.jw.validation.constraints.annotation.Between;
+
 public class UserDto {
 
     private String name;
+
+    @Between(min = 1, max = 120, message = "年龄必须在1-120之间")
     private int age;
     private boolean sex;
 

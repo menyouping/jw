@@ -31,6 +31,8 @@ import com.jw.util.JwUtils;
 import com.jw.util.MimeUtils;
 import com.jw.util.SessionContext;
 import com.jw.util.StringUtils;
+import com.jw.validation.ConstraintValidatorManager;
+import com.jw.validation.ValidErrors;
 import com.jw.web.bind.annotation.CookieValue;
 import com.jw.web.bind.annotation.ModelAttribute;
 import com.jw.web.bind.annotation.PathVariable;
@@ -38,6 +40,7 @@ import com.jw.web.bind.annotation.RequestHeader;
 import com.jw.web.bind.annotation.RequestMethod;
 import com.jw.web.bind.annotation.RequestParam;
 import com.jw.web.bind.annotation.ResponseBody;
+import com.jw.web.bind.annotation.Valid;
 import com.jw.web.context.AppContext;
 import com.jw.web.context.UrlMapping;
 import com.jw.web.context.UrlMappingRegistry;
@@ -179,7 +182,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     protected static Object[] autowireParameters(UrlMapping urlMapping, Method method)
-            throws InstantiationException, IllegalAccessException {
+            throws Exception {
         Class<?>[] paramClazes = method.getParameterTypes();
         Annotation[][] paramAnnos = method.getParameterAnnotations();
         int parameterCount = paramClazes.length;
@@ -194,7 +197,7 @@ public class DispatcherServlet extends HttpServlet {
 
     @SuppressWarnings("unchecked")
     protected static Object autowireParameter(UrlMapping urlMapping, Class<?> paramClaze, Annotation[] paramAnnos)
-            throws InstantiationException, IllegalAccessException {
+            throws Exception {
         if (HttpServletRequest.class.isAssignableFrom(paramClaze)) {
             return SessionContext.getRequest();
         }
@@ -210,6 +213,9 @@ public class DispatcherServlet extends HttpServlet {
             }
             return SessionContext.getModel();
         }
+        if(ValidErrors.class.isAssignableFrom(paramClaze)) {
+            return SessionContext.getContext().get(SessionContext.VALID_ERRORS);
+        }
 
         String name = null, value = null;
         for (Annotation anno : paramAnnos) {
@@ -217,7 +223,7 @@ public class DispatcherServlet extends HttpServlet {
                 name = ((PathVariable) anno).value();
                 if (name.isEmpty())
                     continue;
-                String pathVariable = urlMapping.getPathVariable(SessionContext.getContext().getString("requestUrl"),
+                String pathVariable = urlMapping.getPathVariable(SessionContext.getContext().getString(SessionContext.REQUEST_URL),
                         name);
                 Object targetValue = JwUtils.convert(pathVariable, paramClaze);
                 return targetValue;
@@ -269,6 +275,13 @@ public class DispatcherServlet extends HttpServlet {
                         }
                     }
                     dto = json.toJavaObject(paramClaze);
+                    // validation
+                    if(JwUtils.contains(paramAnnos, Valid.class)) {
+                        ValidErrors errors = ConstraintValidatorManager.validate(dto);
+                        if(errors != null) {
+                            SessionContext.getContext().set(SessionContext.VALID_ERRORS, errors);
+                        }
+                    }
                     return dto;
                 } else if ("application/json".equals(request.getContentType())) {
                     String content = readText(request);
