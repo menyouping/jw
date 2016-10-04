@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -69,10 +72,10 @@ public class DispatcherServlet extends HttpServlet {
         request.setAttribute("root", appName);
 
         String path = request.getRequestURI().substring(appName.length());
-        //handle static resource, e.g. css, js, html...
+        // handle static resource, e.g. css, js, html...
         if (isStaticResource(response, path))
             return;
-        //remove the last /
+        // remove the last /
         if (path.length() > 1 && path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
@@ -181,8 +184,7 @@ public class DispatcherServlet extends HttpServlet {
         return false;
     }
 
-    protected static Object[] autowireParameters(UrlMapping urlMapping, Method method)
-            throws Exception {
+    protected static Object[] autowireParameters(UrlMapping urlMapping, Method method) throws Exception {
         Class<?>[] paramClazes = method.getParameterTypes();
         Annotation[][] paramAnnos = method.getParameterAnnotations();
         int parameterCount = paramClazes.length;
@@ -213,7 +215,7 @@ public class DispatcherServlet extends HttpServlet {
             }
             return SessionContext.getModel();
         }
-        if(ValidErrors.class.isAssignableFrom(paramClaze)) {
+        if (ValidErrors.class.isAssignableFrom(paramClaze)) {
             return SessionContext.getContext().get(SessionContext.VALID_ERRORS);
         }
 
@@ -223,8 +225,8 @@ public class DispatcherServlet extends HttpServlet {
                 name = ((PathVariable) anno).value();
                 if (name.isEmpty())
                     continue;
-                String pathVariable = urlMapping.getPathVariable(SessionContext.getContext().getString(SessionContext.REQUEST_URL),
-                        name);
+                String pathVariable = urlMapping
+                        .getPathVariable(SessionContext.getContext().getString(SessionContext.REQUEST_URL), name);
                 Object targetValue = JwUtils.convert(pathVariable, paramClaze);
                 return targetValue;
             }
@@ -268,17 +270,29 @@ public class DispatcherServlet extends HttpServlet {
                     JSONObject json = new JSONObject();
                     json.putAll(request.getParameterMap());
                     String[] values = null;
+                    Field field = null;
                     for (Entry<String, Object> entry : json.entrySet()) {
                         values = (String[]) entry.getValue();
                         if (values != null && values.length == 1) {
-                            entry.setValue(values[0]);
+                            field = paramClaze.getDeclaredField(entry.getKey());
+                            if (field != null) {
+                                if (field.getType().isArray()) {
+                                    // pass
+                                } else if (Collection.class.isAssignableFrom(field.getType())) {
+                                    entry.setValue(Arrays.asList(values));
+                                } else {
+                                    entry.setValue(values[0]);
+                                }
+                            } else {
+                                entry.setValue(values[0]);
+                            }
                         }
                     }
                     dto = json.toJavaObject(paramClaze);
                     // validation
-                    if(JwUtils.contains(paramAnnos, Valid.class)) {
+                    if (JwUtils.contains(paramAnnos, Valid.class)) {
                         ValidErrors errors = ConstraintValidatorManager.validate(dto);
-                        if(errors != null) {
+                        if (errors != null) {
                             SessionContext.getContext().set(SessionContext.VALID_ERRORS, errors);
                         }
                     }
@@ -322,7 +336,7 @@ public class DispatcherServlet extends HttpServlet {
             try {
                 reader.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Error raised when release the reader.", e);
             }
         }
         return null;

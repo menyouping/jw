@@ -8,7 +8,9 @@ public class UserDto {
 
     @Between(min = 1, max = 120, message = "年龄必须在1-120之间")
     private int age;
-    private boolean sex;
+    private Gender gender = Gender.UNKNOWN;
+
+    private String[] hobbies;
 
     public UserDto() {
 
@@ -30,11 +32,20 @@ public class UserDto {
         this.age = age;
     }
 
-    public boolean isSex() {
-        return sex;
+    public Gender getGender() {
+        return gender;
     }
 
-    public void setSex(boolean sex) {
-        this.sex = sex;
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
+
+    public String[] getHobbies() {
+        return hobbies;
+    }
+
+    public void setHobbies(String[] hobbies) {
+        this.hobbies = hobbies;
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.jay.mvc.controller;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,6 @@ import com.jw.aop.annotation.Transaction;
 import com.jw.cache.annotation.CacheEvict;
 import com.jw.cache.annotation.CacheKey;
 import com.jw.cache.annotation.Cacheable;
-import com.jw.db.JwConnection;
 import com.jw.db.EntityUtils;
 import com.jw.domain.annotation.Autowired;
 import com.jw.web.bind.annotation.Service;
@@ -20,7 +20,7 @@ public class UserService {
     UserRepository repository;
 
     @Transaction
-    public Object find(JwConnection conn, int i) {
+    public Object find(Connection conn, int i) {
         ResultSet rs = repository.find(conn, i);
         List<Map<String, Object>> list = EntityUtils.toMaps(rs);
         return list;
@@ -35,7 +35,7 @@ public class UserService {
         UserDto user = new UserDto();
         user.setName("jay");
         user.setAge(30);
-        user.setSex(true);
+        user.setGender(Gender.MALE);
         return user;
     }
 
@@ -44,7 +44,7 @@ public class UserService {
         UserDto user = new UserDto();
         user.setName("jay");
         user.setAge(30);
-        user.setSex(true);
+        user.setGender(Gender.MALE);
         return user;
     }
 
