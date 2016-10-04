@@ -34,18 +34,14 @@ public class JwCache implements Cache {
 
     public void put(Object key, Object value) {
         if (capacity > 0 && map.size() >= capacity) {
-            // clear out date cache
-            synchronized (map) {
-                if (capacity > 0 && map.size() >= capacity) {
-                    Set<Entry<Object, ValueWrapper>> entries = map.entrySet();
-                    Iterator<Entry<Object, ValueWrapper>> iter = entries.iterator();
-                    Entry<Object, ValueWrapper> entry;
-                    while (iter.hasNext()) {
-                        entry = iter.next();
-                        if (!JwUtils.isValid(entry.getValue())) {
-                            iter.remove();
-                        }
-                    }
+            Set<Entry<Object, ValueWrapper>> entries = map.entrySet();
+            Iterator<Entry<Object, ValueWrapper>> iter = entries.iterator();
+            Entry<Object, ValueWrapper> entry;
+            while (iter.hasNext()) {
+                entry = iter.next();
+                if (!JwUtils.isValid(entry.getValue())) {
+                    // will lock segment, insteads of whole map
+                    map.remove(entry.getKey());
                 }
             }
         }
