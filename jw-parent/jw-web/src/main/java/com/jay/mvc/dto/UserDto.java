@@ -1,5 +1,6 @@
-package com.jay.mvc.controller;
+package com.jay.mvc.dto;
 
+import com.jay.mvc.domain.enums.Gender;
 import com.jw.validation.constraints.annotation.Between;
 
 public class UserDto {

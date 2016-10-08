@@ -18,7 +18,7 @@ public class JwTx {
     private static Logger LOGGER = LoggerFactory.getLogger(JwTx.class);
 
     private static final DBManager manager = AppContext.getBean("dbManager");
-
+    
     public static <T> T call(JwCallable<T> callable) {
         return call(manager.getDefaultDBName(), callable);
     }

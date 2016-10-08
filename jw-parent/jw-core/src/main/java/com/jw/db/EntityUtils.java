@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.jw.db.transformer.ResultSetTransformer;
+import com.jw.db.transformer.ResultSetTransformerFactory;
 import com.jw.domain.annotation.Id;
 import com.jw.domain.annotation.PostPersist;
 import com.jw.domain.annotation.PostRemove;
@@ -83,10 +85,10 @@ public class EntityUtils {
     public void update(Object entity) {
         Class<?> claze = entity.getClass();
         JwUtils.runMethodWithAnnotation(claze, entity, PreUpdate.class);
-        
+
         Map<String, Object> map = convert2Map(entity);
         update(entity.getClass(), map);
-        
+
         JwUtils.runMethodWithAnnotation(claze, entity, PostUpdate.class);
     }
 
@@ -340,6 +342,47 @@ public class EntityUtils {
                     }
                 }
 
+                list.add(t);
+            }
+
+            SQLUtils.release(rs);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public static List<String> toStrings(ResultSet rs) {
+        return toList(rs, ResultSetTransformerFactory.getStringTransformer());
+    }
+
+    public static List<String> toInts(ResultSet rs) {
+        return toList(rs, ResultSetTransformerFactory.getIntegerTransformer());
+    }
+
+    public static List<String> toLongs(ResultSet rs) {
+        return toList(rs, ResultSetTransformerFactory.getLongTransformer());
+    }
+
+    public static List<String> toDoubles(ResultSet rs) {
+        return toList(rs, ResultSetTransformerFactory.getDoubleTransformer());
+    }
+
+    public static List<String> toFloats(ResultSet rs) {
+        return toList(rs, ResultSetTransformerFactory.getFloatTransformer());
+    }
+
+    public static List<String> toDates(ResultSet rs) {
+        return toList(rs, ResultSetTransformerFactory.getDateTransformer());
+    }
+
+    public static <T> List<T> toList(ResultSet rs, ResultSetTransformer transformer) {
+        List<T> list = new ArrayList<T>();
+
+        try {
+            while (rs.next()) {
+                T t = transformer.execute(rs);
                 list.add(t);
             }
 

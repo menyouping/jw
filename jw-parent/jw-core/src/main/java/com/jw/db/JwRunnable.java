@@ -8,5 +8,5 @@ import java.sql.Connection;
  * 
  */
 public interface JwRunnable {
-	public void run(Connection connection) throws Exception;
+    public void run(Connection connection) throws Exception;
 }

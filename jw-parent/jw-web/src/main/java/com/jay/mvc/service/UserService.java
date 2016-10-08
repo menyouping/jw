@@ -1,11 +1,14 @@
-package com.jay.mvc.controller;
+package com.jay.mvc.service;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.List;
 import java.util.Map;
 
-import com.jw.aop.annotation.Transaction;
+import com.jay.mvc.domain.enums.Gender;
+import com.jay.mvc.dto.UserDto;
+import com.jay.mvc.repository.UserRepository;
+import com.jw.aop.annotation.Transactional;
 import com.jw.cache.annotation.CacheEvict;
 import com.jw.cache.annotation.CacheKey;
 import com.jw.cache.annotation.Cacheable;
@@ -19,7 +22,7 @@ public class UserService {
     @Autowired
     UserRepository repository;
 
-    @Transaction
+    @Transactional
     public Object find(Connection conn, int i) {
         ResultSet rs = repository.find(conn, i);
         List<Map<String, Object>> list = EntityUtils.toMaps(rs);

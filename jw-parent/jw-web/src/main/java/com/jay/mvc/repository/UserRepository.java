@@ -1,10 +1,11 @@
-package com.jay.mvc.controller;
+package com.jay.mvc.repository;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.List;
 import java.util.Map;
 
+import com.jay.mvc.dto.UserDto;
 import com.jw.aop.annotation.Query;
 import com.jw.db.SQLUtils;
 import com.jw.util.JwUtils;

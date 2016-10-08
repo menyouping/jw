@@ -10,7 +10,7 @@ import com.jw.aop.JointPointParameter;
 import com.jw.aop.annotation.Around;
 import com.jw.aop.annotation.Aspect;
 import com.jw.aop.annotation.Pointcut;
-import com.jw.aop.annotation.Transaction;
+import com.jw.aop.annotation.Transactional;
 import com.jw.db.DbManagerFactory;
 import com.jw.db.JwCallable;
 import com.jw.db.JwConnection;
@@ -24,14 +24,14 @@ public class TransactionAspect {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionAspect.class);
 
-    @Pointcut("@annotation(com.jw.aop.annotation.Transaction)")
+    @Pointcut("@annotation(com.jw.aop.annotation.Transactional)")
     public void txPointcut() {
 
     }
 
     @Around("txPointcut()")
     public Object aroundTxHold(JoinPoint jp, final JointPointParameter parameter) {
-        String dbName = parameter.getMethod().getAnnotation(Transaction.class).value();
+        String dbName = parameter.getMethod().getAnnotation(Transactional.class).value();
         if (StringUtils.isEmpty(dbName)) {
             dbName = DbManagerFactory.getManager().getDefaultDBName();
         }
