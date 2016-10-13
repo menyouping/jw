@@ -13,7 +13,11 @@ public class WordService {
     WordRepository repository;
 
     public List<String> find(String keyword) {
-        return repository.find(keyword);
+        return repository.find(0, keyword + "%");
+    }
+
+    public List<String> findWords(String keyword) {
+        return repository.find(1, keyword + "%");
     }
 
 }

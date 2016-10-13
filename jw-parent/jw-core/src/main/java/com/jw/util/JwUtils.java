@@ -187,25 +187,29 @@ public class JwUtils {
             } else {
                 return Integer.valueOf(value);
             }
-        } else if (Long.TYPE.equals(targetClaze) || Long.class.equals(targetClaze)) {
+        }
+        if (Long.TYPE.equals(targetClaze) || Long.class.equals(targetClaze)) {
             if (value == null) {
                 return 0;
             } else {
                 return Long.valueOf(value);
             }
-        } else if (Double.TYPE.equals(targetClaze) || Double.class.equals(targetClaze)) {
+        }
+        if (Double.TYPE.equals(targetClaze) || Double.class.equals(targetClaze)) {
             if (value == null) {
                 return 0;
             } else {
                 return Double.valueOf(value);
             }
-        } else if (Float.TYPE.equals(targetClaze) || Float.class.equals(targetClaze)) {
+        }
+        if (Float.TYPE.equals(targetClaze) || Float.class.equals(targetClaze)) {
             if (value == null) {
                 return 0;
             } else {
                 return Float.valueOf(value);
             }
-        } else if (Boolean.TYPE.equals(targetClaze) || Boolean.class.equals(targetClaze)) {
+        }
+        if (Boolean.TYPE.equals(targetClaze) || Boolean.class.equals(targetClaze)) {
             if (value == null) {
                 return false;
             } else {

@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jw.util.StringUtils;
 
 public class UrlMapping {
 
@@ -84,7 +85,7 @@ public class UrlMapping {
         Matcher m = urlPattern.matcher(realUrl);
         if (m.find()) {
             int index = pathVariableMap.get(pathVariableName);
-            return m.groupCount() >= index ? m.group(index) : null;
+            return m.groupCount() >= index ? StringUtils.decode(m.group(index)) : null;
         }
         return null;
     }

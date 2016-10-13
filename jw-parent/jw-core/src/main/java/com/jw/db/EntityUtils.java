@@ -5,8 +5,12 @@ import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jw.db.transformer.ResultSetTransformer;
 import com.jw.db.transformer.ResultSetTransformerFactory;
@@ -23,6 +27,8 @@ import com.jw.util.Pair;
 import com.jw.util.StringUtils;
 
 public class EntityUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityUtils.class);
 
     private EntityUtils() {
     }
@@ -144,7 +150,7 @@ public class EntityUtils {
 
             SQLUtils.release(rs);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Error raised when statistic the count of " + claze.getName(), e);
         }
 
         return count;
@@ -256,7 +262,7 @@ public class EntityUtils {
             try {
                 return StringUtils.toColumnName(field.getName());
             } catch (IllegalArgumentException e) {
-                e.printStackTrace();
+                LOGGER.error("Error raised in getPrimaryKey method", e);
             }
         }
 
@@ -277,7 +283,7 @@ public class EntityUtils {
                 field.setAccessible(true);
                 return new Pair(StringUtils.toColumnName(field.getName()), field.get(entity));
             } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
+                LOGGER.error("Error raised in getPrimaryKey method", e);
             }
         }
 
@@ -319,13 +325,32 @@ public class EntityUtils {
 
             SQLUtils.release(rs);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Error raised in toMaps method", e);
         }
 
         return list;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> List<T> toList(ResultSet rs, Class<T> claze) {
+        if (String.class.equals(claze)) {
+            return (List<T>) toStrings(rs);
+        }
+        if (Integer.TYPE.equals(claze) || Integer.class.equals(claze)) {
+            return (List<T>) toInts(rs);
+        }
+        if (Long.TYPE.equals(claze) || Long.class.equals(claze)) {
+            return (List<T>) toLongs(rs);
+        }
+        if (Double.TYPE.equals(claze) || Double.class.equals(claze)) {
+            return (List<T>) toDoubles(rs);
+        }
+        if (Float.TYPE.equals(claze) || Float.class.equals(claze)) {
+            return (List<T>) toFloats(rs);
+        }
+        if (Date.class.equals(claze)) {
+            return (List<T>) toDates(rs);
+        }
         List<T> list = new ArrayList<T>();
 
         try {
@@ -347,7 +372,7 @@ public class EntityUtils {
 
             SQLUtils.release(rs);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Error raised in toList method", e);
         }
 
         return list;
@@ -357,24 +382,28 @@ public class EntityUtils {
         return toList(rs, ResultSetTransformerFactory.getStringTransformer());
     }
 
-    public static List<String> toInts(ResultSet rs) {
+    public static List<Integer> toInts(ResultSet rs) {
         return toList(rs, ResultSetTransformerFactory.getIntegerTransformer());
     }
 
-    public static List<String> toLongs(ResultSet rs) {
+    public static List<Long> toLongs(ResultSet rs) {
         return toList(rs, ResultSetTransformerFactory.getLongTransformer());
     }
 
-    public static List<String> toDoubles(ResultSet rs) {
+    public static List<Double> toDoubles(ResultSet rs) {
         return toList(rs, ResultSetTransformerFactory.getDoubleTransformer());
     }
 
-    public static List<String> toFloats(ResultSet rs) {
+    public static List<Float> toFloats(ResultSet rs) {
         return toList(rs, ResultSetTransformerFactory.getFloatTransformer());
     }
 
-    public static List<String> toDates(ResultSet rs) {
+    public static List<Date> toDates(ResultSet rs) {
         return toList(rs, ResultSetTransformerFactory.getDateTransformer());
+    }
+
+    public static List<Date> toBools(ResultSet rs) {
+        return toList(rs, ResultSetTransformerFactory.getBoolTransformer());
     }
 
     public static <T> List<T> toList(ResultSet rs, ResultSetTransformer transformer) {
@@ -382,13 +411,13 @@ public class EntityUtils {
 
         try {
             while (rs.next()) {
-                T t = transformer.execute(rs);
+                T t = transformer.transform(rs);
                 list.add(t);
             }
 
             SQLUtils.release(rs);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Error raised in toList method", e);
         }
 
         return list;
@@ -408,7 +437,7 @@ public class EntityUtils {
                     map.put(StringUtils.toColumnName(field.getName()), field.get(entity));
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                LOGGER.error("Error raised in convert2Map method", e);
             }
         }
 

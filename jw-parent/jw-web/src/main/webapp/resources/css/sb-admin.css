@@ -8,7 +8,7 @@
 
 body {
     margin-top: 100px;
-    background-color: #222;
+    background-color:  #fff;/* #222;*/
 }
 
 @media(min-width:768px) {
@@ -34,11 +34,12 @@ body {
 
 @media(min-width:768px) {
     #wrapper {
-        padding-left: 225px;
+        padding-left: 0px;
+        padding-right: 0px;
     }
 
     #page-wrapper {
-        padding: 10px;
+        padding: 10px 50px;
     }
 }
 

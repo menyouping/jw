@@ -173,6 +173,7 @@ public class SQLUtils {
                 }
             }
         }
+        LOGGER.info("The sql is " + ps.toString());
         ResultSet rs = null;
         try {
             rs = ps.executeQuery();

@@ -5,5 +5,5 @@ import java.sql.SQLException;
 
 public interface ResultSetTransformer {
 
-    public <T> T execute(ResultSet rs) throws SQLException;
+    public <T> T transform(ResultSet rs) throws SQLException;
 }

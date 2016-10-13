@@ -1,5 +1,7 @@
 package com.jw.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -126,6 +128,15 @@ public class StringUtils {
             start = m.end();
         }
         return sb.toString();
+    }
+
+    public static String decode(String s) {
+        try {
+            return URLDecoder.decode(s, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return s;
     }
 
     public static void main(String[] args) {

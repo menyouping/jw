@@ -11,7 +11,7 @@ public class ResultSetTransformerFactory {
 
             @SuppressWarnings("unchecked")
             @Override
-            public String execute(ResultSet rs) throws SQLException {
+            public String transform(ResultSet rs) throws SQLException {
                 return rs.getString(1);
             }
 
@@ -23,7 +23,7 @@ public class ResultSetTransformerFactory {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Integer execute(ResultSet rs) throws SQLException {
+            public Integer transform(ResultSet rs) throws SQLException {
                 return rs.getInt(1);
             }
 
@@ -35,7 +35,7 @@ public class ResultSetTransformerFactory {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Long execute(ResultSet rs) throws SQLException {
+            public Long transform(ResultSet rs) throws SQLException {
                 return rs.getLong(1);
             }
 
@@ -47,7 +47,7 @@ public class ResultSetTransformerFactory {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Double execute(ResultSet rs) throws SQLException {
+            public Double transform(ResultSet rs) throws SQLException {
                 return rs.getDouble(1);
             }
 
@@ -59,7 +59,7 @@ public class ResultSetTransformerFactory {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Float execute(ResultSet rs) throws SQLException {
+            public Float transform(ResultSet rs) throws SQLException {
                 return rs.getFloat(1);
             }
 
@@ -71,8 +71,20 @@ public class ResultSetTransformerFactory {
 
             @SuppressWarnings("unchecked")
             @Override
-            public Date execute(ResultSet rs) throws SQLException {
+            public Date transform(ResultSet rs) throws SQLException {
                 return rs.getDate(1);
+            }
+
+        };
+    }
+
+    public static ResultSetTransformer getBoolTransformer() {
+        return new ResultSetTransformer() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Boolean transform(ResultSet rs) throws SQLException {
+                return rs.getBoolean(1);
             }
 
         };
