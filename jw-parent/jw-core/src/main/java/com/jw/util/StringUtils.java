@@ -11,6 +11,10 @@ public class StringUtils {
 
     public static final Pattern PATTERN_PATH_VARIABLE = Pattern.compile("(\\{([^}]+)\\})");
 
+    public static boolean isBlank(String str) {
+        return str == null || str.trim().isEmpty();
+    }
+
     public static boolean isEmpty(String str) {
         return str == null || str.isEmpty();
     }

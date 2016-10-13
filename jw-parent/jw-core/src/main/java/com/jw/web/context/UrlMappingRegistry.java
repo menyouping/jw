@@ -85,11 +85,6 @@ public class UrlMappingRegistry {
             urls = method.getAnnotation(RequestMapping.class).value();
             flag = false;
             for (String url : urls) {
-                if (url.isEmpty()) {
-                    LOGGER.warn("The @RequestMapping value of {} in {} is invalid.", method.getName(),
-                            controller.getName());
-                    continue;
-                }
                 try {
                     urlMapping = buildUrlMapping(method, clazeUrl, url);
                     urlMap.put(clazeUrl + url, urlMapping);
@@ -145,10 +140,14 @@ public class UrlMappingRegistry {
                     }
                 }
                 urlMapping.setUrl(clazeUrl + url);
-                urlMapping.setUrlExpression("^" + urlExpression + "$");
+                urlMapping.setUrlExpression("^" + clazeUrl + urlExpression + "$");
                 urlMapping.setPathVariableMap(pathVariableMap);
                 pathUrls.add(urlMapping);
             }
+        } else {
+            urlMapping.setUrl(clazeUrl + url);
+            urlMapping.setUrlExpression("^" + clazeUrl + url + "$");
+            pathUrls.add(urlMapping);
         }
         return urlMapping;
     }

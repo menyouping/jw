@@ -19,9 +19,6 @@
     <!-- Custom CSS -->
     <link href="${root}/css/sb-admin.css" rel="stylesheet">
 
-    <!-- Morris Charts CSS -->
-    <link href="${root}/css/plugins/morris.css" rel="stylesheet">
-
     <!-- Custom Fonts -->
     <link href="${root}/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
@@ -32,6 +29,14 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <style type="text/css">
+    #txtKeyword {
+        height: 46px;
+    }
+    .searchicon {
+        font-size:20px;
+    }
+    </style>
 </head>
 
 <body>
@@ -56,8 +61,8 @@
                     <div class="col-md-offset-2 col-lg-offset-2 col-md-8 col-lg-8">
                         <form role="form">
                             <div class="form-group input-group">
-                                <input type="text" class="form-control" style="height:46px;" placeholder="单词或词组从这里开始">
-                                <span class="input-group-btn"><button class="btn btn-lg btn-success" type="button" style="width:100px;"><i class="fa fa-search" style="font-size:20px;"></i></button></span>
+                                <input type="text" id="txtKeyword" class="form-control" style="height:46px;" placeholder="单词或词组从这里开始">
+                                <span class="input-group-btn"><button id="btnQuery" class="btn btn-lg btn-success" type="button" style="width:100px;"><i class="fa fa-search" style="font-size:20px;"></i></button></span>
                             </div>
 
                         </form>
@@ -80,11 +85,19 @@
     <!-- Bootstrap Core JavaScript -->
     <script src="${root}/js/bootstrap.min.js"></script>
 
-    <!-- Morris Charts JavaScript -->
-    <script src="${root}/js/plugins/morris/raphael.min.js"></script>
-    <script src="${root}/js/plugins/morris/morris.min.js"></script>
-    <script src="${root}/js/plugins/morris/morris-data.js"></script>
-
+    <script type="text/javascript">
+    $(function(){
+    	var $txtKeyword = $('#txtKeyword');
+        $('#btnQuery').click(function(){
+            var keyword = $txtKeyword.val();
+            if(!keyword) {
+                $txtKeyword.focus();
+            } else {
+                location.href = "${root}/dict/" + keyword;
+            }
+        });
+    });
+    </script>
 </body>
 
 </html>
