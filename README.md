@@ -16,3 +16,5 @@ jw，全称java web， 模仿spring框架， 实现一个简单可用的java web
 Jay Zhang
 
 写于2016年中秋节 上海寓所
+
+ps: 国庆节期间增加了Validation和Cache支持.
