@@ -21,9 +21,9 @@
                         <li id="menuJson">
                             <a href="${root}/json">JSON</a>
                         </li>
-                        <li id="menuXml">
-                            <a href="${root}/xml">XML</a>
-                        </li>
+<!--                         <li id="menuXml"> -->
+<%--                             <a href="${root}/xml">XML</a> --%>
+<!--                         </li> -->
                     </ul>
                 </div>
             </div>
