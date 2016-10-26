@@ -15,11 +15,14 @@
                 </div>
                 <div>
                     <ul class="nav navbar-nav">
-                        <li id="liDict">
+                        <li id="menuDict">
                             <a href="${root}/">字典</a>
                         </li>
-                        <li id="liJson">
+                        <li id="menuJson">
                             <a href="${root}/json">JSON</a>
+                        </li>
+                        <li id="menuXml">
+                            <a href="${root}/xml">XML</a>
                         </li>
                     </ul>
                 </div>

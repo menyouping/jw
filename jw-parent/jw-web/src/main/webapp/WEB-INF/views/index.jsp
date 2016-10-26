@@ -80,7 +80,7 @@
     <script type="text/javascript">
     $(function(){
         var $txtKeyword = $('#txtKeyword');
-        $("#liDict").addClass("active");
+        $("#menuDict").addClass("active");
         $('#btnQuery').click(function(e){
             var keyword = $txtKeyword.val();
             if(!keyword) {
@@ -96,6 +96,7 @@
         });
     });
     </script>
+    <jsp:include page="./footer.jsp"></jsp:include>
 </body>
 
 </html>

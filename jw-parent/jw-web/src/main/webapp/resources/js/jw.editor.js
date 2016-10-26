@@ -10,6 +10,10 @@ $(function() {
         hideMsg();
         keyUp();
     });
+    $('#txtContent').on('change', function(e) {
+        hideMsg();
+        keyUp();
+    });
     setLineNumber(1);
     if (!document.all) {
         window.addEventListener("load", autoScroll, false);
@@ -29,6 +33,7 @@ function keyUp() {
     var n = lines.length;
     setLineNumber(n);
 }
+
 function setLineNumber(n) {
     var $line = $("#txtLine");
     var nums = [];
@@ -41,6 +46,7 @@ function setLineNumber(n) {
         $line.val(nums.join("\n"));
     }
 }
+
 function autoScroll() {
     var nV = 0;
     if (!document.all) {
@@ -48,13 +54,4 @@ function autoScroll() {
         $("#txtLine").scrollTop(nV);
         setTimeout("autoScroll()", 20);
     }
-}
-
-function unformatJson(json) {
-    if (typeof json === 'string') {
-        json = JSON.parse(json);
-    }
-    json = JSON.stringify(json);
-
-    return json.trim();
 }

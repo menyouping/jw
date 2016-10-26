@@ -84,14 +84,20 @@
     <script src="${root}/js/jquery.js"></script>
     <script src="${root}/js/jsl.format.js"></script>
     <script src="${root}/js/jsl.parser.js"></script>
+    <script src="${root}/js/jw.editor.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="${root}/js/bootstrap.min.js"></script>
     <script src="${root}/js/jw.js"></script>
-    <script src="${root}/js/jw.editor.js"></script>
     <script type="text/javascript">
+        var storageKey = 'json';
         $(function() {
-            $("#liJson").addClass("active");
+            $("#menuJson").addClass("active");
+            var json = $jw.readStorage(storageKey);
+            if(json) {
+            	$('#txtContent').val(json);
+            }
+            keyUp();
             $('#btnGo').click(
                 function(e) {
                     try {
@@ -100,24 +106,36 @@
                         content = jsl.format.formatJson(content);
                         $('#txtContent').val(content);
                         keyUp();
-                        $('#divMsg').removeClass('alert-danger').addClass(
-                                'alert-success').html('JSON is valid.')
-                                .show();
+                        $('#divMsg').removeClass('alert-danger')
+                            .addClass('alert-success')
+                            .html('JSON is valid.')
+                            .show();
+                        $jw.saveStorage(storageKey, content);
                     } catch (exp) {
-                        $('#divMsg').removeClass('alert-success').addClass(
-                                'alert-danger').html(exp).show();
+                        $('#divMsg').removeClass('alert-success')
+                            .addClass('alert-danger')
+                            .html(exp)
+                            .show();
                     }
                 });
             $('#btnRaw').click(function(e) {
-                var json = unformatJson($('#txtContent').val());
-                $('#txtContent').val(json);
+                var content = unformatJson($('#txtContent').val());
+                $('#txtContent').val(content);
+                $jw.saveStorage(storageKey, content);
                 hideMsg();
                 keyUp();
             });
         });
 
-        
+        function unformatJson(json) {
+            if (typeof json === 'string') {
+                json = JSON.parse(json);
+            }
+            json = JSON.stringify(json);
+            return json.trim();
+        }
     </script>
+    <jsp:include page="./footer.jsp"></jsp:include>
 </body>
 
 </html>
