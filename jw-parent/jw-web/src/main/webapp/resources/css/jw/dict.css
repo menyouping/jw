@@ -1,0 +1,101 @@
+#txtKeyword {
+    height: 46px;
+    z-index: 2;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding-left: 45px;
+}
+
+.searchicon {
+    cursor: pointer;
+    display: inline-block;
+    height: 12px;
+    left: 20px;
+    position: absolute;
+    top: 13px;
+    width: 12px;
+    color: #2dc3e8;
+    font-size: 20px;
+    z-index: 124;
+}
+
+.clearicon {
+    cursor: pointer;
+    display: inline-block;
+    height: 12px;
+    right: 20px;
+    position: absolute;
+    top: 13px;
+    width: 12px;
+    color: #999;
+    font-size: 20px;
+    z-index: 124;
+}
+
+.clearicon:hover {
+    color: #d5d5d5;
+}
+
+.word {
+    padding: 15px 15px;
+    margin-bottom: 10px;
+    position: relative;
+    background: #f9f8e4;
+    border: 1px solid #ecebc7;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.voice {
+    cursor: pointer;
+    color: #e46f61;
+}
+
+.voice:hover {
+    color: #ff9912;
+}
+
+.pos {
+    color: #999;
+}
+
+.meaning {
+    padding-top: 8px;
+}
+
+.sentence {
+    display: block;
+    padding: 15px 15px;
+    margin-bottom: 10px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    background: #F5F5F5;
+    border: 1px solid #eee;
+    font-size: 14px;
+}
+
+.sentence div {
+    padding-top: 8px;
+}
+
+.sentence-cn {
+    padding-left: 22px;
+    color: #666;
+}
+
+.example {
+    font-size: 18px;
+    border-bottom: 1px solid #e2e2e2;
+    padding-bottom: 5px;
+    padding-bottom: 10px;
+}
+
+span {
+    padding-left: 3px;
+}
+
+.hign-light {
+    color: #ea843f;
+}

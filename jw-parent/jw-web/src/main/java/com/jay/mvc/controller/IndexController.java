@@ -47,6 +47,11 @@ public class IndexController {
         return "index";
     }
 
+    @RequestMapping(value = {"/json" })
+    public String json() {
+        return "json";
+    }
+
     @RequestMapping(value = "/{page}")
     public String page(@PathVariable("page") String page) {
         return page;

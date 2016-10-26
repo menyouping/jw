@@ -115,8 +115,8 @@ public class FileUtils {
                     // 检查文件是否允许上传
                     index = fileName.lastIndexOf(".");
                     if (index > -1 && index < fileName.length() - 1) {
-                        String extension = fileName.substring(index + 1).toLowerCase();
-                        if (!ConfigUtils.getString("web.files.upload.extension").contains(extension)) {
+                        String ext = fileName.substring(index + 1).toLowerCase();
+                        if (!ConfigUtils.getString("web.files.upload.extension").contains(";" + ext + ";")) {
                             LOGGER.warn("The file {} is not allowed to upload.", fileName);
                             continue;
                         }

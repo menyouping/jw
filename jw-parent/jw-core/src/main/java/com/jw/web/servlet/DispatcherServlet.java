@@ -85,7 +85,7 @@ public class DispatcherServlet extends HttpServlet {
             showError(request, response, HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        LOGGER.info("Request {} is matched:{}", request.getRequestURI(), urlMapping);
+        LOGGER.info("Request {} is matched:{}", request.getRequestURI(), urlMapping.getUrl());
         // build context
         SessionContext.buildContext().set(SessionContext.REQUEST, request).set(SessionContext.RESPONSE, response)
                 .set(SessionContext.SESSION, request.getSession()).set("requestUrl", path);
@@ -167,7 +167,7 @@ public class DispatcherServlet extends HttpServlet {
         int index = path.lastIndexOf(".");
         if (index > -1 && index < path.length() - 1) {
             String ext = path.substring(index + 1).toLowerCase();
-            if (RESOURCES_EXTENSION.contains(ext)) {
+            if (RESOURCES_EXTENSION.contains(";" + ext + ";")) {
                 response.setHeader("Content-type", MimeUtils.getMimeType(ext) + ";charset=UTF-8");
                 String page = this.getServletContext().getRealPath(getResource(path));
                 FileUtils.copy(page, response.getOutputStream());

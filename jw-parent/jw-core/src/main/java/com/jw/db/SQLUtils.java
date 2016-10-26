@@ -91,6 +91,9 @@ public class SQLUtils {
                 }
             }
         }
+
+        log(ps);
+
         int i = 0;
         try {
             i = ps.executeUpdate();
@@ -173,7 +176,8 @@ public class SQLUtils {
                 }
             }
         }
-        LOGGER.info("The sql is " + ps.toString());
+
+        log(ps);
         ResultSet rs = null;
         try {
             rs = ps.executeQuery();
@@ -182,6 +186,15 @@ public class SQLUtils {
             return null;
         }
         return rs;
+    }
+
+    private static void log(PreparedStatement ps) {
+        String msg = ps.toString();
+        int index = msg.indexOf(":");
+        if (index > -1 && index != msg.length() - 1) {
+            msg = msg.substring(msg.indexOf(":") + 1);
+        }
+        LOGGER.info("The sql is " + msg);
     }
 
     public static void release(ResultSet rs) {

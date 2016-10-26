@@ -1,0 +1,42 @@
+@font-face {
+  font-family: 'font-jw';
+  src:  url('fonts/font-jw.eot?g7v44p');
+  src:  url('fonts/font-jw.eot?g7v44p#iefix') format('embedded-opentype'),
+    url('fonts/font-jw.ttf?g7v44p') format('truetype'),
+    url('fonts/font-jw.woff?g7v44p') format('woff'),
+    url('fonts/font-jw.svg?g7v44p#font-jw') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+i {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'font-jw' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.jw-search:before {
+  content: "\f002";
+}
+.jw-close:before {
+  content: "\f00d";
+}
+.jw-remove:before {
+  content: "\f00d";
+}
+.jw-times:before {
+  content: "\f00d";
+}
+.jw-volume-up:before {
+  content: "\f028";
+}
+

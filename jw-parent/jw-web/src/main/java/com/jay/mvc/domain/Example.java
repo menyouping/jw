@@ -2,15 +2,14 @@ package com.jay.mvc.domain;
 
 import com.jw.domain.annotation.Table;
 
-@Table(name = "dict_word")
-public class Word {
+@Table(name = "dict_example")
+public class Example {
 
     private long id;
-    private int type = 0;
+    private long wordId;
     private String k;
     private String v;
-    private String agent;
-    private int version = 0;
+    private String source;
 
     public long getId() {
         return id;
@@ -20,12 +19,12 @@ public class Word {
         this.id = id;
     }
 
-    public int getType() {
-        return type;
+    public long getWordId() {
+        return wordId;
     }
 
-    public void setType(int type) {
-        this.type = type;
+    public void setWordId(long wordId) {
+        this.wordId = wordId;
     }
 
     public String getK() {
@@ -44,19 +43,12 @@ public class Word {
         this.v = v;
     }
 
-    public String getAgent() {
-        return agent;
+    public String getSource() {
+        return source;
     }
 
-    public void setAgent(String agent) {
-        this.agent = agent;
+    public void setSource(String source) {
+        this.source = source;
     }
 
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
-    }
 }
