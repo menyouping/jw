@@ -125,7 +125,7 @@
                         .html(rs.msg)
                         .show();
                 } else {
-                    content = content.replace(/\n(\s*)/g,'');
+                    content = content.replace(/(\s*)\n(\s*)/g,'');
                     $('#txtContent').val(content);
                     keyUp();
                     $('#divMsg').removeClass('alert-danger')
@@ -149,12 +149,10 @@
          
                 if(xmlDoc.parseError.errorCode!=0) 
                 { 
-                    msg="错误code: " + xmlDoc.parseError.errorCode + "\n"; 
-                    msg +="错误原因: " + xmlDoc.parseError.reason; 
-                    msg+="错误位置: " + xmlDoc.parseError.line; 
+                    msg ="line " + xmlDoc.parseError.line + " exists error, the detail is " + xmlDoc.parseError.reason; 
                     errorCode = 1; 
                 } else { 
-                    msg = "格式正确"; 
+                    msg = "XML is valid"; 
                 } 
             } 
             // code for Mozilla, Firefox, Opera, chrome, safari,etc. 
@@ -171,11 +169,11 @@
                         msg = xmlDoc.getElementsByTagName("parsererror")[0].innerHTML; 
                     } 
                 } else { 
-                    msg = "格式正确"; 
+                    msg = "XML is valid"; 
                 } 
             } else  { 
                 errorCode = 2; 
-                msg = "浏览器不支持验证，无法验证xml正确性"; 
+                msg = "The web browser is not support to validate the xml"; 
             } 
             return { 
                 "msg":msg,  

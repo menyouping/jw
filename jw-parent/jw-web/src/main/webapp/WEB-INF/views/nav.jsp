@@ -24,6 +24,9 @@
                         <li id="menuXml">
                             <a href="${root}/xml">XML</a>
                         </li>
+                        <li id="menuSql">
+                            <a href="${root}/sql">SQL</a>
+                        </li>
                     </ul>
                 </div>
             </div>

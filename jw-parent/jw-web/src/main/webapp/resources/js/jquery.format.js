@@ -184,73 +184,6 @@
 			return  (str[0] == '\n') ? str.slice(1) : str;
 		},
 
-		xmlmin: function(text) {
-			var str = this.preserveComments ? text
-					: text.replace(/\<![ \r\n\t]*(--([^\-]|[\r\n]|-[^\-])*--[ \r\n\t]*)\>/g,"")
-					.replace(/[ \r\n\t]{1,}xmlns/g, ' xmlns');
-			return  str.replace(/>\s{0,}</g,"><");
-		},
-
-		json: function(text) {
-			if ( typeof JSON === 'undefined' ) return text;
-			if ( typeof text === "string" ) {
-				return JSON.stringify(JSON.parse(text), null, this.step);
-			}
-			if ( typeof text === "object" ) {
-				return JSON.stringify(text, null, this.step);
-			}
-			return text; // text is not string nor object
-		},
-
-		jsonmin: function(text) {
-			if (typeof JSON === 'undefined' ) {
-				return text;
-			}
-			return JSON.stringify(JSON.parse(text), null, 0);
-		},
-
-		css: function(text) {
-			var ar = text.replace(/\s{1,}/g,' ')
-						.replace(/\{/g,"{~::~")
-						.replace(/\}/g,"~::~}~::~")
-						.replace(/\;/g,";~::~")
-						.replace(/\/\*/g,"~::~/*")
-						.replace(/\*\//g,"*/~::~")
-						.replace(/~::~\s{0,}~::~/g,"~::~")
-						.split('~::~'),
-				len = ar.length,
-				deep = 0,
-				str = '',
-				ix = 0;
-
-			for(ix=0;ix<len;ix++) {
-
-				if( /\{/.exec(ar[ix]))  {
-					str += this.shift[deep++]+ar[ix];
-				} else
-				if( /\}/.exec(ar[ix]))  {
-					str += this.shift[--deep]+ar[ix];
-				} else
-				if( /\*\\/.exec(ar[ix]))  {
-					str += this.shift[deep]+ar[ix];
-				}
-				else {
-					str += this.shift[deep]+ar[ix];
-				}
-			}
-			return str.replace(/^\n{1,}/,'');
-		},
-
-		cssmin: function(text) {
-			var str = this.preserveComments ? text : text.replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\//g,"") ;
-			return str.replace(/\s{1,}/g,' ')
-					.replace(/\{\s{1,}/g,"{")
-					.replace(/\}\s{1,}/g,"}")
-					.replace(/\;\s{1,}/g,";")
-					.replace(/\/\*\s{1,}/g,"/*")
-					.replace(/\*\/\s{1,}/g,"*/");
-		},
-
 		sql: function(text) {
 
 			var ar_by_quote = text.replace(/\s{1,}/g," ")
@@ -306,10 +239,6 @@
 				return str;
 		},
 
-		sqlmin: function(text) {
-			return text.replace(/\s{1,}/g," ").replace(/\s{1,}\(/,"(").replace(/\s{1,}\)/,")");
-		}
-
 	};//end Formatter.prototype
 
 
@@ -318,20 +247,9 @@
 	 */
 	$.fn.format = function(options) {
 		var fmt = new Formatter(options);
-//		var methodName = fmt.options.method;
-//		if (!$.isFunction(fmt[methodName])) {
-//			$.error("'" + methodName + "' is not a Formatter method.")
-//		};
-//		console.log("call " + methodName + " on " + $.type(this));
-//		console.log(this);
 		return this.each(function() {
-//			console.log($.type(this));
-//			console.log(this);
 			var node = $(this);
-//			console.log($.type(node));
-//			console.log(node);
 			var text = node.val();
-//			console.log("text ==>\n" + text);
 			text = fmt.format(text);
 			node.val(text);
 		});
@@ -342,13 +260,6 @@
 	 */
 	$.format = function(text, options) {
 		var fmt = new Formatter(options);
-//		var methodName = fmt.options.method;
-//		if (!$.isFunction(fmt[methodName])) {
-//			$.error("'" + methodName + "' is not a Formatter method.")
-//		};
-//		console.log("call " + methodName + " on " + $.type(text));
-//		console.log(text);
-//		return fmt[methodName].call(fmt, text);
 		return fmt.format(text);
 	};
 
