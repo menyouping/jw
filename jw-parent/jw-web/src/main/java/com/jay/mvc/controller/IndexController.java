@@ -52,10 +52,10 @@ public class IndexController {
         return "json";
     }
 
-//    @RequestMapping(value = { "/xml" })
-//    public String xml() {
-//        return "xml";
-//    }
+    @RequestMapping(value = { "/xml" })
+    public String xml() {
+        return "xml";
+    }
 
     @RequestMapping(value = "/{page}")
     public String page(@PathVariable("page") String page) {

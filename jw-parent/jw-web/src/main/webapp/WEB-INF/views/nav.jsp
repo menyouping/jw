@@ -11,7 +11,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="${root}/">Jw英语</a>
+                    <a class="navbar-brand" href="${root}/">Jw Labs</a>
                 </div>
                 <div>
                     <ul class="nav navbar-nav">
@@ -21,9 +21,9 @@
                         <li id="menuJson">
                             <a href="${root}/json">JSON</a>
                         </li>
-<!--                         <li id="menuXml"> -->
-<%--                             <a href="${root}/xml">XML</a> --%>
-<!--                         </li> -->
+                        <li id="menuXml">
+                            <a href="${root}/xml">XML</a>
+                        </li>
                     </ul>
                 </div>
             </div>

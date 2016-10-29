@@ -6,13 +6,9 @@
 
 <head>
 
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="">
-<meta name="author" content="Jay Zhang">
+<jsp:include page="./header.jsp"></jsp:include>
 
-<title>Jw英语</title>
+<title>Jw Labs-JSON</title>
 
 <!-- Bootstrap Core CSS -->
 <link href="${root}/css/bootstrap.min.css" rel="stylesheet">
@@ -93,9 +89,9 @@
         var storageKey = 'json';
         $(function() {
             $("#menuJson").addClass("active");
-            var json = $jw.readStorage(storageKey);
-            if(json) {
-            	$('#txtContent').val(json);
+            var cache = $jw.readStorage(storageKey);
+            if(cache) {
+                $('#txtContent').val(cache);
             }
             keyUp();
             $('#btnGo').click(
@@ -112,18 +108,29 @@
                             .show();
                         $jw.saveStorage(storageKey, content);
                     } catch (exp) {
+                        var msg = exp.toString().replace(/\n/g, "<br>");
                         $('#divMsg').removeClass('alert-success')
                             .addClass('alert-danger')
-                            .html(exp)
+                            .html(msg)
                             .show();
                     }
                 });
             $('#btnRaw').click(function(e) {
-                var content = unformatJson($('#txtContent').val());
-                $('#txtContent').val(content);
-                $jw.saveStorage(storageKey, content);
-                hideMsg();
-                keyUp();
+                try {
+                    var content = $('#txtContent').val();
+                    jsl.parser.parse(content);
+                    content = unformatJson(content);
+                    $('#txtContent').val(content);
+                    $jw.saveStorage(storageKey, content);
+                    hideMsg();
+                    keyUp();
+                } catch (exp) {
+                    var msg = exp.toString().replace(/\n/g, "<br>");
+                    $('#divMsg').removeClass('alert-success')
+                        .addClass('alert-danger')
+                        .html(msg)
+                        .show();
+                }
             });
         });
 

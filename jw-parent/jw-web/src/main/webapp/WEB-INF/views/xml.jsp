@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+    pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -12,7 +12,7 @@
 <meta name="description" content="">
 <meta name="author" content="Jay Zhang">
 
-<title>Jw英语</title>
+<title>Jw Labs-XML</title>
 
 <!-- Bootstrap Core CSS -->
 <link href="${root}/css/bootstrap.min.css" rel="stylesheet">
@@ -25,7 +25,7 @@
 <link href="${root}/css/jw.editor.css" rel="stylesheet" type="text/css">
 <style type="text/css">
 #main {
-	color: #666
+    color: #666
 }
 </style>
 
@@ -39,84 +39,151 @@
 
 <body>
 
-	<jsp:include page="./nav.jsp"></jsp:include>
-	<div id="wrapper">
-		<div id="page-wrapper">
+    <jsp:include page="./nav.jsp"></jsp:include>
+    <div id="wrapper">
+        <div id="page-wrapper">
 
-			<div class="container-fluid">
-				<!-- /.row -->
-				<div class="row" style="padding-top: 10px;">
-					<div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
-						style="margin-left: 15px; margin-right: 15px">
-						<button id="btnGo" class="btn btn-success">美化</button>
-						<button id="btnRaw" class="btn btn-default">一行</button>
-					</div>
-				</div>
-				<!-- /.row -->
-				<div class="row" style="padding-top: 10px;">
-					<div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
-						style="margin-left: 15px; margin-right: 15px">
-						<div class="line">
-							<textarea rows="10" id="txtLine" disabled></textarea>
-						</div>
-						<textarea rows="20" id="txtContent" class="form-control"></textarea>
-					</div>
-				</div>
+            <div class="container-fluid">
+                <!-- /.row -->
+                <div class="row" style="padding-top: 10px;">
+                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
+                        style="margin-left: 15px; margin-right: 15px">
+                        <button id="btnGo" class="btn btn-success">美化</button>
+                        <button id="btnRaw" class="btn btn-default">一行</button>
+                    </div>
+                </div>
+                <!-- /.row -->
+                <div class="row" style="padding-top: 10px;">
+                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
+                        style="margin-left: 15px; margin-right: 15px">
+                        <div class="line">
+                            <textarea rows="10" id="txtLine" disabled></textarea>
+                        </div>
+                        <textarea rows="20" id="txtContent" class="form-control"></textarea>
+                    </div>
+                </div>
 
-				<div class="row" style="padding-top: 10px;">
-					<div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
-						style="margin-left: 15px; margin-right: 15px">
-						<div id="divMsg" class="alert alert-success"
-							style="display: none;"></div>
-					</div>
-				</div>
-			</div>
-			<!-- /.container-fluid -->
+                <div class="row" style="padding-top: 10px;">
+                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
+                        style="margin-left: 15px; margin-right: 15px">
+                        <div id="divMsg" class="alert alert-success"
+                            style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.container-fluid -->
 
-		</div>
-		<!-- /#page-wrapper -->
+        </div>
+        <!-- /#page-wrapper -->
 
-	</div>
+    </div>
 
-	<!-- /#wrapper -->
+    <!-- /#wrapper -->
 
-	<!-- jQuery -->
-	<script src="${root}/js/jquery.js"></script>
-	<script src="${root}/js/jw.editor.js"></script>
+    <!-- jQuery -->
+    <script src="${root}/js/jquery.js"></script>
+    <script src="${root}/js/jw.editor.js"></script>
+    <script src="${root}/js/jquery.format.js"></script>
 
-	<!-- Bootstrap Core JavaScript -->
-	<script src="${root}/js/bootstrap.min.js"></script>
-	<script src="${root}/js/jw.js"></script>
-	<script type="text/javascript" type="text/javascript;e4x=1">
-		$(function() {
-			$("#menuXml").addClass("active");
-			$('#btnGo').click(
-					function(e) {
-						try {
-							var content = $('#txtContent').val();
-							content = new XML($('textarea').val()).toXMLString();
-							$('#txtContent').val(content);
-							keyUp();
-							$('#divMsg').removeClass('alert-danger')
-							    .addClass('alert-success')
-							    .html('JSON is valid.')
-								.show();
-						} catch (exp) {
-							$('#divMsg').removeClass('alert-success')
-							    .addClass('alert-danger')
-							    .html(exp)
-							    .show();
-						}
-					});
-			$('#btnRaw').click(function(e) {
-				var json = unformatJson($('#txtContent').val());
-				$('#txtContent').val(json);
-				hideMsg();
-				keyUp();
-			});
-		});
-	</script>
-	<jsp:include page="./footer.jsp"></jsp:include>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="${root}/js/bootstrap.min.js"></script>
+    <script src="${root}/js/jw.js"></script>
+    <script type="text/javascript" >
+       var storageKey = 'xml';
+        $(function() {
+            $("#menuXml").addClass("active");
+            var cache = $jw.readStorage(storageKey);
+            if(cache) {
+                $('#txtContent').val(cache);
+            }
+            keyUp();
+            $('#btnGo').click(function(e) {
+                var content = $('#txtContent').val().trim();
+                var rs = validateXML(content);
+                if(rs.error_code == 1) {
+                    $('#divMsg').removeClass('alert-success')
+                        .addClass('alert-danger')
+                        .html(rs.msg)
+                        .show();
+                } else {
+                    content = $.format(content,{method:'xml'});
+                    $('#txtContent').val(content);
+                    keyUp();
+                    $('#divMsg').removeClass('alert-danger')
+                    .addClass('alert-success')
+                    .html('XML is valid.')
+                    .show();
+                    $jw.saveStorage(storageKey, content);
+                }
+            });
+            $('#btnRaw').click(function(e) {
+                var content = $('#txtContent').val().trim();
+                var rs = validateXML(content);
+                if(rs.error_code == 1) {
+                    $('#divMsg').removeClass('alert-success')
+                        .addClass('alert-danger')
+                        .html(rs.msg)
+                        .show();
+                } else {
+                    content = content.replace(/\n(\s*)/g,'');
+                    $('#txtContent').val(content);
+                    keyUp();
+                    $('#divMsg').removeClass('alert-danger')
+                        .addClass('alert-success')
+                        .html('XML is valid.')
+                    .show();
+                    $jw.saveStorage(storageKey, content);
+                }
+            });
+        });
+
+        function validateXML(xmlContent) 
+        { 
+            //errorCode 0是xml正确，1是xml错误，2是无法验证 
+            var xmlDoc,msg,errorCode = 0; 
+            // code for IE 
+            if (window.ActiveXObject) { 
+                xmlDoc  = new ActiveXObject("Microsoft.XMLDOM"); 
+                xmlDoc.async="false"; 
+                xmlDoc.loadXML(xmlContent); 
+         
+                if(xmlDoc.parseError.errorCode!=0) 
+                { 
+                    msg="错误code: " + xmlDoc.parseError.errorCode + "\n"; 
+                    msg +="错误原因: " + xmlDoc.parseError.reason; 
+                    msg+="错误位置: " + xmlDoc.parseError.line; 
+                    errorCode = 1; 
+                } else { 
+                    msg = "格式正确"; 
+                } 
+            } 
+            // code for Mozilla, Firefox, Opera, chrome, safari,etc. 
+            else if (document.implementation.createDocument) { 
+                var parser=new DOMParser(); 
+                xmlDoc = parser.parseFromString(xmlContent,"text/xml"); 
+                var error = xmlDoc.getElementsByTagName("parsererror"); 
+                if (error.length > 0) { 
+                    if(xmlDoc.documentElement.nodeName=="parsererror"){ 
+                        errorCode = 1; 
+                        msg = xmlDoc.documentElement.childNodes[0].nodeValue; 
+                    } else { 
+                        errorCode = 1; 
+                        msg = xmlDoc.getElementsByTagName("parsererror")[0].innerHTML; 
+                    } 
+                } else { 
+                    msg = "格式正确"; 
+                } 
+            } else  { 
+                errorCode = 2; 
+                msg = "浏览器不支持验证，无法验证xml正确性"; 
+            } 
+            return { 
+                "msg":msg,  
+                "error_code":errorCode 
+            }; 
+        } 
+    </script>
+    <jsp:include page="./footer.jsp"></jsp:include>
 </body>
 
 </html>

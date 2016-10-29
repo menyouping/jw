@@ -92,3 +92,7 @@ String.prototype.insert = function(text,at) {
     
     return this.substring(0,at)+text+this.substring(at);
 }
+
+String.prototype.removeLineEnd = function() {
+    return this.replace(/(<.+?\s+?)(?:\n\s*?(.+?=".*?"))/g,'$1 $2')
+}
