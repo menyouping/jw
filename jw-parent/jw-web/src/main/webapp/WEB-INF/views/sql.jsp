@@ -22,7 +22,8 @@
 
 <!-- Custom Fonts -->
 <link href="${root}/font-jw/style.css" rel="stylesheet" type="text/css">
-<link href="${root}/css/jw.editor.css" rel="stylesheet" type="text/css">
+<%-- <link href="${root}/css/jw.editor.css" rel="stylesheet" type="text/css"> --%>
+<link rel="stylesheet" href="${root}/plugin/codemirror/lib/codemirror.css">
 <style type="text/css">
 #main {
     color: #666
@@ -56,10 +57,7 @@
                 <div class="row" style="padding-top: 10px;">
                     <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
                         style="margin-left: 15px; margin-right: 15px">
-                        <div class="line">
-                            <textarea rows="10" id="txtLine" disabled></textarea>
-                        </div>
-                        <textarea rows="20" id="txtContent" class="form-control"></textarea>
+                        <textarea id="code" name="code" style="display: none;"></textarea>
                     </div>
                 </div>
 
@@ -82,8 +80,9 @@
 
     <!-- jQuery -->
     <script src="${root}/js/jquery.js"></script>
-    <script src="${root}/js/jw.editor.js"></script>
     <script src="${root}/js/jquery.format.js"></script>
+    <script src="${root}/plugin/codemirror/lib/codemirror.js"></script>
+    <script src="${root}/plugin/codemirror/mode/sql/sql.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="${root}/js/bootstrap.min.js"></script>
@@ -92,26 +91,33 @@
        var storageKey = 'sql';
         $(function() {
             $("#menuSql").addClass("active");
-            var cache = $jw.readStorage(storageKey);
-            if(cache) {
-                $('#txtContent').val(cache);
-            }
-            keyUp();
+            var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                mode: "text/x-sql",
+                lineNumbers: true,
+                indentUnit:4
+              });
+            editor.setValue($jw.readStorage(storageKey) || '');
+            editor.on('change', function(instance, changeObj) {
+                hideMsg();
+            });
             $('#btnGo').click(function(e) {
-                var content = $('#txtContent').val().trim();
+                var content = editor.getValue().trim();
                 content = $.format(content,{method:'sql'});
-                $('#txtContent').val(content);
-                keyUp();
+                editor.setValue(content);
                 $jw.saveStorage(storageKey, content);
             });
             $('#btnRaw').click(function(e) {
-                var content = $('#txtContent').val().trim();
+                var content = editor.getValue().trim();
                 content = content.replace(/(\s*)\n(\s*)/g,' ');
-                $('#txtContent').val(content);
-                keyUp();
+                editor.setValue(content);
                 $jw.saveStorage(storageKey, content);
             });
         });
+        
+        function hideMsg() {
+            $('#divMsg').removeClass('alert-danger').removeClass('alert-success').html(
+                    '').hide();
+        }
     </script>
     <jsp:include page="./footer.jsp"></jsp:include>
 </body>

@@ -18,7 +18,7 @@
 
 <!-- Custom Fonts -->
 <link href="${root}/font-jw/style.css" rel="stylesheet" type="text/css">
-<link href="${root}/css/jw.editor.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="${root}/plugin/codemirror/lib/codemirror.css">
 <style type="text/css">
 #main {
     color: #666
@@ -52,10 +52,7 @@
                 <div class="row" style="padding-top: 10px;">
                     <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
                         style="margin-left: 15px; margin-right: 15px">
-                        <div class="line">
-                            <textarea rows="10" id="txtLine" disabled></textarea>
-                        </div>
-                        <textarea rows="20" id="txtContent" class="form-control"></textarea>
+                             <textarea id="code" name="code" style="display: none;"></textarea>
                     </div>
                 </div>
 
@@ -80,7 +77,10 @@
     <script src="${root}/js/jquery.js"></script>
     <script src="${root}/js/jsl.format.js"></script>
     <script src="${root}/js/jsl.parser.js"></script>
-    <script src="${root}/js/jw.editor.js"></script>
+    <script src="${root}/plugin/codemirror/lib/codemirror.js"></script>
+    <script src="${root}/plugin/codemirror/addon/edit/closebrackets.js"></script>
+    <script src="${root}/plugin/codemirror/addon/edit/matchbrackets.js"></script>
+    <script src="${root}/plugin/codemirror/mode/javascript/javascript.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="${root}/js/bootstrap.min.js"></script>
@@ -89,19 +89,24 @@
         var storageKey = 'json';
         $(function() {
             $("#menuJson").addClass("active");
-            var cache = $jw.readStorage(storageKey);
-            if(cache) {
-                $('#txtContent').val(cache);
-            }
-            keyUp();
+            var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                mode: "application/json",
+                matchBrackets: true,
+                autoCloseBrackets: true,
+                lineNumbers: true,
+                indentUnit:4
+              });
+            editor.setValue($jw.readStorage(storageKey) || '');
+            editor.on('change', function(instance, changeObj) {
+                hideMsg();
+            });
             $('#btnGo').click(
                 function(e) {
                     try {
-                        var content = $('#txtContent').val();
+                        var content = editor.getValue();
                         jsl.parser.parse(content);
                         content = jsl.format.formatJson(content);
-                        $('#txtContent').val(content);
-                        keyUp();
+                        editor.setValue(content);
                         $('#divMsg').removeClass('alert-danger')
                             .addClass('alert-success')
                             .html('JSON is valid.')
@@ -117,13 +122,12 @@
                 });
             $('#btnRaw').click(function(e) {
                 try {
-                    var content = $('#txtContent').val();
+                    var content = editor.getValue();
                     jsl.parser.parse(content);
                     content = unformatJson(content);
-                    $('#txtContent').val(content);
+                    editor.setValue(content);
                     $jw.saveStorage(storageKey, content);
                     hideMsg();
-                    keyUp();
                 } catch (exp) {
                     var msg = exp.toString().replace(/\n/g, "<br>");
                     $('#divMsg').removeClass('alert-success')
@@ -140,6 +144,11 @@
             }
             json = JSON.stringify(json);
             return json.trim();
+        }
+
+        function hideMsg() {
+            $('#divMsg').removeClass('alert-danger').removeClass('alert-success').html(
+                    '').hide();
         }
     </script>
     <jsp:include page="./footer.jsp"></jsp:include>
