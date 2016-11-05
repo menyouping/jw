@@ -36,7 +36,7 @@
             <div class="container-fluid">
                 <!-- /.row -->
                 <div class="row" style="padding-top:10px;">
-                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10" style="margin-left:15px;margin-right:15px">
+                    <div class="col-md-12 col-lg-12" style="margin-left:15px;margin-right:15px">
                          <i class="jw-search searchicon"></i>
                          <input type="text" id="txtKeyword" class="form-control" placeholder="单词或词组从这里开始" value="${keyword}">
                          <i id="btnClear" class="jw-times clearicon"></i>
@@ -44,7 +44,7 @@
                 </div>
                 <!-- /.row -->
                 <div class="row" style="padding-top:60px;display:none;">
-                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10 word" style="margin-left:15px;margin-right:15px">
+                    <div class="col-md-12 col-lg-12 word" style="margin-left:15px;margin-right:15px">
                         <div id="meaning-content">
                         </div>
                     </div>
@@ -52,7 +52,7 @@
                 
                 <!-- /.row -->
                 <div class="row" style="display:none;margin-bottom:10px;">
-                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10 sentence" style="margin-left:15px;margin-right:15px">
+                    <div class="col-md-12 col-lg-12 sentence" style="margin-left:15px;margin-right:15px">
                         <div id="sentence-content">
                         </div>
                     </div>

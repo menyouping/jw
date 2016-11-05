@@ -59,29 +59,48 @@ public class IndexController {
     public String json() {
         return "json";
     }
-    
+
     @RequestMapping(value = "/xml")
     public String xml() {
         return "xml";
     }
-    
+
     @RequestMapping(value = "/sql")
     public String sql() {
         return "sql";
     }
-    
+
+    /**
+     * 集合
+     * 
+     * @return
+     */
+    @RequestMapping(value = "/set")
+    public String set() {
+        return "set";
+    }
+
+    @RequestMapping(value = "/compare")
+    public String compare() {
+        return "compare";
+    }
+
+    /**
+     * MSS O3
+     * 
+     * @return
+     */
     @RequestMapping(value = "/o3")
     public String o3() {
         return "o3";
     }
-    
-    
+
     @RequestMapping(value = "/o3/sign")
     @ResponseBody
     public Object o3Sign(@ModelAttribute("dto") O3Dto o3Dto) {
         Map<String, Object> result = JwUtils.newHashMap();
-        
-        if(!StringUtils.isEmpty(o3Dto.getBody())) {
+
+        if (!StringUtils.isEmpty(o3Dto.getBody())) {
             result.put("status", 200);
             result.put("message", "SUCCESS");
             result.put("body", O3Utils.calcSign(JSONObject.parseObject(o3Dto.getBody()), o3Dto.getSecretKey()));

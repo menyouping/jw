@@ -42,7 +42,7 @@
             <div class="container-fluid">
                 <!-- /.row -->
                 <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
+                    <div class="col-md-12 col-lg-12"
                         style="margin-left: 15px; margin-right: 15px">
                         <button id="btnGo" class="btn btn-success">美化</button>
                         <button id="btnRaw" class="btn btn-default">一行</button>
@@ -50,14 +50,14 @@
                 </div>
                 <!-- /.row -->
                 <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
+                    <div class="col-md-12 col-lg-12"
                         style="margin-left: 15px; margin-right: 15px">
                              <textarea id="code" name="code" style="display: none;"></textarea>
                     </div>
                 </div>
 
                 <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
+                    <div class="col-md-12 col-lg-12"
                         style="margin-left: 15px; margin-right: 15px">
                         <div id="divMsg" class="alert alert-success"
                             style="display: none;"></div>

@@ -12,7 +12,7 @@
 <meta name="description" content="">
 <meta name="author" content="Jay Zhang">
 
-<title>Jw Labs-SQL</title>
+<title>Jw Labs-O3</title>
 
 <!-- Bootstrap Core CSS -->
 <link href="${root}/css/bootstrap.min.css" rel="stylesheet">
@@ -49,15 +49,14 @@
             <div class="container-fluid">
                 <!-- /.row -->
                 <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
+                    <div class="col-md-12 col-lg-12"
                         style="margin-left: 15px; margin-right: 15px">
-                        <button id="btnGo" class="btn btn-success">美化</button>
-                        <button id="btnRaw" class="btn btn-default">一行</button>
-                        <button id="btnSign" class="btn btn-primary">算签</button>
+                        <button id="btnSign" class="btn btn-success">算签</button>
+                        &nbsp;&nbsp;<a href="http://docs.o3cloud.cn/explain.html#" target="new">说明</a>
                     </div>
                 </div>
                 <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
+                    <div class="col-md-12 col-lg-12"
                         style="margin-left: 15px; margin-right: 15px">
                         <label><span>私钥</span></label>
                         <input id="txtSecretKey" type="text" class="form-control" ></input>
@@ -65,7 +64,7 @@
                 </div>
                 <!-- /.row -->
                 <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
+                    <div class="col-md-12 col-lg-12"
                         style="margin-left: 15px; margin-right: 15px">
                         <label><span>Body</span></label>
                         <textarea id="code" name="code" style="display: none;"></textarea>
@@ -73,7 +72,7 @@
                 </div>
 
                 <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-offset-2 col-lg-offset-2 col-md-10 col-lg-10"
+                    <div class="col-md-12 col-lg-12"
                         style="margin-left: 15px; margin-right: 15px">
                         <div id="divMsg" class="alert alert-success"
                             style="display: none;"></div>
@@ -102,8 +101,8 @@
     <script src="${root}/js/bootstrap.min.js"></script>
     <script src="${root}/js/jw.js"></script>
     <script type="text/javascript" >
-       var secretKey = 'o3.secretKey';
-       var body = 'o3.body';
+       var o3SecretKey = 'o3.secretKey';
+       var o3Body = 'o3.body';
         $(function() {
             $("#menuO3").addClass("active");
             var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -113,78 +112,48 @@
                 lineNumbers: true,
                 indentUnit:4
               });
-              editor.setValue($jw.readStorage(body) || '');
-              $('#txtSecretKey').val($jw.readStorage(secretKey) || '');
+            editor.setValue($jw.readStorage(o3Body) || '');
+            $('#txtSecretKey').val($jw.readStorage(o3SecretKey) || '');
             editor.on('change', function(instance, changeObj) {
                 hideMsg();
             });
-            $('#btnGo').click(function(e) {
-                try {
-                    var content = editor.getValue();
-                    jsl.parser.parse(content);
-                    content = jsl.format.formatJson(content);
-                    editor.setValue(content);
-                    $('#divMsg').removeClass('alert-danger')
-                        .addClass('alert-success')
-                        .html('JSON is valid.')
-                        .show();
-                    $jw.saveStorage(body, content);
-                } catch (exp) {
-                    var msg = exp.toString().replace(/\n/g, "<br>");
-                    $('#divMsg').removeClass('alert-success')
-                        .addClass('alert-danger')
-                        .html(msg)
-                        .show();
-                }
-            });
-            $('#btnRaw').click(function(e) {
-                try {
-                    var content = editor.getValue();
-                    jsl.parser.parse(content);
-                    content = unformatJson(content);
-                    editor.setValue(content);
-                    $jw.saveStorage(body, content);
-                    hideMsg();
-                } catch (exp) {
-                    var msg = exp.toString().replace(/\n/g, "<br>");
-                    $('#divMsg').removeClass('alert-success')
-                        .addClass('alert-danger')
-                        .html(msg)
-                        .show();
-                }
-            });
             $('#btnSign').click(function(e) {
-                var param = JSON.stringify({'secretKey':$('#txtSecretKey').val(),'body':editor.getValue().trim()});  
-                $.ajax({  
-                    url : "${root}/o3/sign",  
-                    type : 'POST',  
-                    data : param,  
-                    contentType : 'application/json;charset=utf-8',  
-                    success : function(data, status, xhr) {  
-                        if(data && data.status == 200) {
-                            editor.setValue(data.body);
-                            $jw.saveStorage(body, editor.getValue().trim());
-                            $jw.saveStorage(secretKey, $('#txtSecretKey').val());
-                        }
-                    },  
-                    error : function(xhr, error, exception) {  
-                        alert(exception.toString());  
-                    }  
-                });
+            	try {
+                    var content = editor.getValue();
+                    jsl.parser.parse(content);
+                    hideMsg();
+                    var param = JSON.stringify({'secretKey':$('#txtSecretKey').val(),'body':editor.getValue().trim()});  
+                    $.ajax({  
+                        url : "${root}/o3/sign",  
+                        type : 'POST',  
+                        data : param,  
+                        contentType : 'application/json;charset=utf-8',  
+                        success : function(data, status, xhr) {  
+                            if(data && data.status == 200) {
+                                editor.setValue(jsl.format.formatJson(data.body));
+                                $jw.saveStorage(o3Body, editor.getValue().trim());
+                                $jw.saveStorage(o3SecretKey, $('#txtSecretKey').val());
+                            }
+                        },  
+                        error : function(xhr, error, exception) {  
+                            alert(exception.toString());  
+                        }  
+                    });
+                } catch (exp) {
+                    var msg = exp.toString().replace(/\n/g, "<br>");
+                    $('#divMsg').removeClass('alert-success')
+                        .addClass('alert-danger')
+                        .html(msg)
+                        .show();
+                }
             });
         });
         
-        function unformatJson(json) {
-            if (typeof json === 'string') {
-                json = JSON.parse(json);
-            }
-            json = JSON.stringify(json);
-            return json.trim();
-        }
-        
         function hideMsg() {
-            $('#divMsg').removeClass('alert-danger').removeClass('alert-success').html(
-                    '').hide();
+            $('#divMsg').removeClass('alert-danger')
+                .removeClass('alert-success')
+                .html('')
+                .hide();
         }
     </script>
     <jsp:include page="./footer.jsp"></jsp:include>
