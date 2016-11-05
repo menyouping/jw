@@ -17,18 +17,19 @@ import com.jw.web.bind.annotation.RequestMapping;
 import com.jw.web.bind.annotation.ResponseBody;
 
 @Controller
+@RequestMapping("/dict")
 public class DictController extends AbstractController {
 
     @Autowired
     WordService wordService;
 
-    @RequestMapping("/dict/{keyword}")
+    @RequestMapping("/{keyword}")
     public String dict(Model model, @PathVariable("keyword") String keyword) {
         model.addAttribute("keyword", keyword);
         return "dict";
     }
     
-    @RequestMapping("/dict/translate/{keyword}")
+    @RequestMapping("/translate/{keyword}")
     @ResponseBody
     public QueryResult translate(Model model, @PathVariable("keyword") String keyword) {
         QueryResult result = new QueryResult();
@@ -60,7 +61,7 @@ public class DictController extends AbstractController {
     }
 
     @SuppressWarnings("rawtypes")
-    @RequestMapping("/dict/suggest/{keyword}")
+    @RequestMapping("/suggest/{keyword}")
     @ResponseBody
     public QueryResult suggest(@PathVariable("keyword") String keyword) {
         QueryResult result = new QueryResult();
@@ -77,7 +78,7 @@ public class DictController extends AbstractController {
         return result;
     }
     
-    @RequestMapping("/dict/scratch/iciba")
+    @RequestMapping("/scratch/iciba")
     @ResponseBody
     public QueryResult scratch() {
         QueryResult result = new QueryResult();

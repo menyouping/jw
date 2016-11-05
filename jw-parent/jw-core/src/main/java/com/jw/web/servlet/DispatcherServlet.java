@@ -297,7 +297,7 @@ public class DispatcherServlet extends HttpServlet {
                         }
                     }
                     return dto;
-                } else if ("application/json".equals(request.getContentType())) {
+                } else if (request.getContentType().startsWith("application/json")) {
                     String content = readText(request);
                     if (!StringUtils.isEmpty(content)) {
                         dto = JSON.parseObject(content).toJavaObject(paramClaze);

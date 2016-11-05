@@ -7,14 +7,17 @@ import javax.servlet.http.HttpServletRequest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jay.aop.annotation.Log;
+import com.jay.mvc.dto.O3Dto;
 import com.jay.mvc.dto.UserDto;
 import com.jay.mvc.service.UserService;
+import com.jay.utils.O3Utils;
 import com.jw.db.JwConnection;
 import com.jw.domain.annotation.Autowired;
 import com.jw.domain.annotation.Value;
 import com.jw.ui.Model;
 import com.jw.util.JwUtils;
 import com.jw.util.SessionContext;
+import com.jw.util.StringUtils;
 import com.jw.validation.ValidErrors;
 import com.jw.web.bind.annotation.Controller;
 import com.jw.web.bind.annotation.ModelAttribute;
@@ -47,9 +50,47 @@ public class IndexController {
         return "index";
     }
 
-    @RequestMapping(value = "/{page}")
+    @RequestMapping(value = "/page/{page}")
     public String page(@PathVariable("page") String page) {
         return page;
+    }
+
+    @RequestMapping(value = "/json")
+    public String json() {
+        return "json";
+    }
+    
+    @RequestMapping(value = "/xml")
+    public String xml() {
+        return "xml";
+    }
+    
+    @RequestMapping(value = "/sql")
+    public String sql() {
+        return "sql";
+    }
+    
+    @RequestMapping(value = "/o3")
+    public String o3() {
+        return "o3";
+    }
+    
+    
+    @RequestMapping(value = "/o3/sign")
+    @ResponseBody
+    public Object o3Sign(@ModelAttribute("dto") O3Dto o3Dto) {
+        Map<String, Object> result = JwUtils.newHashMap();
+        
+        if(!StringUtils.isEmpty(o3Dto.getBody())) {
+            result.put("status", 200);
+            result.put("message", "SUCCESS");
+            result.put("body", O3Utils.calcSign(JSONObject.parseObject(o3Dto.getBody()), o3Dto.getSecretKey()));
+            return result;
+        }
+        result.put("status", 0);
+        result.put("message", "FAILED");
+        result.put("body", "{}");
+        return result;
     }
 
     @RequestMapping("/list")

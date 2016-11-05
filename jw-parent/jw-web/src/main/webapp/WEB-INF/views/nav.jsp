@@ -27,6 +27,9 @@
                         <li id="menuSql">
                             <a href="${root}/sql">SQL</a>
                         </li>
+                        <li id="menuO3">
+                            <a href="${root}/o3">O3</a>
+                        </li>
                     </ul>
                 </div>
             </div>

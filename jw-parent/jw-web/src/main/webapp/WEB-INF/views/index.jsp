@@ -13,7 +13,7 @@
     <link href="${root}/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="${root}/css/sb-admin.css" rel="stylesheet">
+    <link href="${root}/css/sb-admin.min.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
     <link href="${root}/font-jw/style.css" rel="stylesheet" type="text/css">
@@ -68,7 +68,7 @@
     <!-- /#wrapper -->
 
     <!-- jQuery -->
-    <script src="${root}/js/jquery.js"></script>
+    <script src="${root}/js/jquery.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="${root}/js/bootstrap.min.js"></script>
@@ -88,6 +88,7 @@
         $txtKeyword.keypress(function(e) {
             if (e.which == 13) {//监听回车事件
                 $('#btnQuery').click();
+	            return false;
             }
         });
     });
