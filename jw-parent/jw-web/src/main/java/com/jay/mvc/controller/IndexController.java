@@ -84,6 +84,11 @@ public class IndexController {
     public String compare() {
         return "compare";
     }
+    
+    @RequestMapping(value = "/html5")
+    public String html5() {
+        return "html5";
+    }
 
     /**
      * MSS O3

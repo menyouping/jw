@@ -33,6 +33,9 @@
                         <li id="menuCompare">
                             <a href="${root}/compare">文本比较</a>
                         </li>
+                         <li id="menuHtml5">
+                            <a href="${root}/html5">HTML5</a>
+                        </li>
                         <li id="menuO3">
                             <a href="${root}/o3">O3</a>
                         </li>
