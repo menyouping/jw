@@ -27,9 +27,9 @@
                         <li id="menuSql">
                             <a href="${root}/sql">SQL</a>
                         </li>
-<!--                         <li id="menuSet"> -->
-<%--                             <a href="${root}/set">集合</a> --%>
-<!--                         </li> -->
+                        <li id="menuSet">
+                            <a href="${root}/set">集合</a>
+                        </li>
                         <li id="menuSet">
                             <a href="${root}/compare">文本比较</a>
                         </li>

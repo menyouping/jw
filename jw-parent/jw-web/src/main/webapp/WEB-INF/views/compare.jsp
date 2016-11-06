@@ -92,7 +92,8 @@ span.clicky {
     <script src="${root}/plugin/codemirror/mode/sql/sql.min.js"></script>
     <script src="${root}/plugin/codemirror/mode/xml/xml.min.js"></script>
     <script src="${root}/plugin/codemirror/mode/htmlmixed/htmlmixed.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
+<!--     <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script> -->
+    <script src="${root}/js/diff_match_patch.js"></script>
     <script src="${root}/plugin/codemirror/addon/merge/merge.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
