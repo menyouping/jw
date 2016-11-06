@@ -24,8 +24,27 @@
 #main {
     color: #666
 }
+.CodeMirror-merge-2pane > .CodeMirror-merge-pane:first-child > .CodeMirror {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.CodeMirror-merge-2pane > .CodeMirror-merge-pane:nth-child(3) > .CodeMirror {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
 .CodeMirror { 
     line-height: 1.2;
+}
+.CodeMirror-merge {
+    border:0px !important;
+}
+.CodeMirror-merge-gap {
+    border-top:1px solid #ccc;
+    border-bottom:1px solid #ccc;
+    border-left: 0px;
+    border-right: 0px;
+    background-color:white;
 }
 @media screen and (min-width: 1300px) {
   article { max-width: 1000px; }
@@ -37,6 +56,8 @@ span.clicky {
     color: white;
     padding: 0 3px;
     border-radius: 3px;
+}
+.CodeMirror-merge-2pane {
 }
 .CodeMirror-merge, .CodeMirror-merge .CodeMirror {
     height:500px;

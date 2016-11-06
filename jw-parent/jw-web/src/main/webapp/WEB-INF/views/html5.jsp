@@ -26,16 +26,19 @@
 .CodeMirror {
 	float: left;
 	width: 50%;
-	border: 1px solid black;
-	border-radius:0px;
 	height: 500px;
+	border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
 }
 iframe {
 	width: 49%;
 	float: left;
 	height: 500px;
-	border: 1px solid black;
+	border: 1px solid #ccc;
 	border-left: 0px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
 }
 </style>
 
