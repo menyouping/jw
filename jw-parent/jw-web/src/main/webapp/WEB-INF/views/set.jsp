@@ -20,14 +20,14 @@
     <link rel="stylesheet" href="${root}/plugin/codemirror/lib/codemirror.min.css">
     
     <style type="text/css">
-	.btn-operation {
-	   margin: 10px 10px;
-	   width: 80px;
-	}
-	.CodeMirror { 
-	    height: 490px;
-	}
-	</style>
+    .btn-operation {
+       margin: 10px 10px;
+       width: 80px;
+    }
+    .CodeMirror { 
+        height: 490px;
+    }
+    </style>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -77,9 +77,9 @@
                     </div>
                     <div class="col-md-2 col-lg-2" >
                         <div style="margin-top:120px;margin-left:30px;">
-	                        <button id="btnAll" class="btn btn-success btn-operation">A ∪ B</button><br>
-	                        <button id="btnOverlap" class="btn btn-primary btn-operation">A ∩ B</button><br>
-	                        <button id="btnSubtract" class="btn btn-warning btn-operation">A - B</button>
+                            <button id="btnAll" class="btn btn-success btn-operation">A ∪ B</button><br>
+                            <button id="btnOverlap" class="btn btn-primary btn-operation">A ∩ B</button><br>
+                            <button id="btnSubtract" class="btn btn-warning btn-operation">A - B</button>
                         </div>
                     </div>
                     <div class="col-md-3 col-lg-3" style="margin-right:15px">
@@ -101,73 +101,84 @@
     <!-- Bootstrap Core JavaScript -->
     <script src="${root}/js/bootstrap.min.js"></script>
     <script src="${root}/plugin/codemirror/lib/codemirror.min.js"></script>
+    <script src="${root}/plugin/codemirror/addon/selection/active-line.min.js"></script>
     <script src="${root}/js/jw.js"></script>
     <script type="text/javascript">
     var editor0, editor1, editor2;
+    var storageKey0 = 'set.edit0',storageKey1 = 'set.edit1';
     $(function(){
-    	editor0 = CodeMirror.fromTextArea(document.getElementById("code0"), {
+        $("#menuSet").addClass("active");
+        editor0 = CodeMirror.fromTextArea(document.getElementById("code0"), {
             mode: "text/plain",
             lineNumbers: true,
+            styleActiveLine: true,
             indentUnit:4
           });
-    	editor0.setValue('');
-    	editor1 = CodeMirror.fromTextArea(document.getElementById("code1"), {
+        editor0.setValue($jw.readStorage(storageKey0) ||'');
+        editor1 = CodeMirror.fromTextArea(document.getElementById("code1"), {
             mode: "text/plain",
             lineNumbers: true,
+            styleActiveLine: true,
             indentUnit:4
           });
-    	editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {
+        editor1.setValue($jw.readStorage(storageKey1) ||'');
+        editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {
             mode: "text/plain",
             lineNumbers: true,
+            styleActiveLine: true,
             indentUnit:4
           });
-    	editor0.on('change', function(instance, changeObj) {
+        editor0.on('change', function(instance, changeObj) {
             editorChanged();
         });
-    	editor1.on('change', function(instance, changeObj) {
+        editor1.on('change', function(instance, changeObj) {
             editorChanged();
         });
-    	$('#btnAll').click(function(e){
-    		$('#txtResultTitle').html('A ∪ B');
-    		var content0 = editor0.getValue();
-    		var content1 = editor1.getValue();
-    		var rs = handle(content0 + '\n' + content1);
-    		editor2.setValue(rs.list.join('\n'));
-    		$('#btnAsc2').show();
-    		$('#btnDesc2').show();
-    	});
-    	$('#btnOverlap').click(function(e){
+        $('#btnAll').click(function(e){
+            $('#txtResultTitle').html('A ∪ B');
+            var content0 = editor0.getValue();
+            var content1 = editor1.getValue();
+            var rs = handle(content0 + '\n' + content1);
+            editor2.setValue(rs.list.join('\n'));
+            $('#btnAsc2').show();
+            $('#btnDesc2').show();
+            $jw.saveStorage(storageKey0, content0);
+            $jw.saveStorage(storageKey1, content1);
+        });
+        $('#btnOverlap').click(function(e){
             $('#txtResultTitle').html('A ∩ B');
             var content0 = editor0.getValue();
             var content1 = editor1.getValue();
             if(!content0 || !content1) {
                 editor2.setValue('');
             } else {
-	            var rs0 = handle(content0);
-            	var list2 = [];
-            	var map = rs0.map;
-            	var list1 = content1.split('\n');
+                var rs0 = handle(content0);
+                var list2 = [];
+                var map = rs0.map;
+                var list1 = content1.split('\n');
                 var len = list1.length;
                 var line;
                 for(var i = 0;i < len; i++) {
                     line = list1[i];
                     if(line && map.hasOwnProperty(line)) {
-                    	list2.push(line);
+                        list2.push(line);
                     }
                 }
                 editor2.setValue(list2.join('\n'));
             }
             $('#btnAsc2').show();
             $('#btnDesc2').show();
+            $jw.saveStorage(storageKey0, content0);
+            $jw.saveStorage(storageKey1, content1);
         });
-    	$('#btnSubtract').click(function(e){
+        $('#btnSubtract').click(function(e){
             $('#txtResultTitle').html('A - B');
             var content0 = editor0.getValue();
             var content1 = editor1.getValue();
             if(!content0) {
-            	editor2.setValue('');
+                editor2.setValue('');
             } else if(!content1){
-            	editor2.setValue(content0);
+                editor2.setValue(content0);
             } else {
                 var list2 = [];
                 var map = toMap(content1);
@@ -184,28 +195,36 @@
             }
             $('#btnAsc2').show();
             $('#btnDesc2').show();
+            $jw.saveStorage(storageKey0, content0);
+            $jw.saveStorage(storageKey1, content1);
         });
-    	$('#btnUnique0').click(function(e){
-    		var content0 = editor0.getValue();
-    		var rs = unique(content0);
-    		editor0.setValue(rs);
-    	});
-    	$('#btnUnique1').click(function(e){
+        $('#btnUnique0').click(function(e){
+            var content0 = editor0.getValue();
+            var rs = unique(content0);
+            editor0.setValue(rs);
+            $jw.saveStorage(storageKey0, rs);
+        });
+        $('#btnUnique1').click(function(e){
             var content1 = editor1.getValue();
             var rs = unique(content1);
             editor1.setValue(rs);
+            $jw.saveStorage(storageKey1, rs);
         });
-    	$('#btnAsc0').click(function(e){
+        $('#btnAsc0').click(function(e){
             sort(editor0, true);
+            $jw.saveStorage(storageKey0, editor0.getValue());
         });
-    	$('#btnDesc0').click(function(e){
+        $('#btnDesc0').click(function(e){
             sort(editor0, false);
+            $jw.saveStorage(storageKey0, editor0.getValue());
         });
-    	$('#btnAsc1').click(function(e){
+        $('#btnAsc1').click(function(e){
             sort(editor1, true);
+            $jw.saveStorage(storageKey1, editor1.getValue());
         });
         $('#btnDesc1').click(function(e){
             sort(editor1, false);
+            $jw.saveStorage(storageKey1, editor1.getValue());
         });
         $('#btnAsc2').click(function(e){
             sort(editor2, true);
@@ -224,7 +243,7 @@
     }
     
     function numberAsc(a, b) {
-    	return parseFloat(a) - parseFloat(b);
+        return parseFloat(a) - parseFloat(b);
     }
     
     function numberDesc(a, b) {
@@ -232,7 +251,7 @@
     }
     
     function sort(editCtrl, isAsc) {
-    	var content = editCtrl.getValue();
+        var content = editCtrl.getValue();
         if(!content) {
             return;
         }
@@ -244,7 +263,7 @@
             var len = list.length;
             var n;
             for(var i = 0;i<len;i++) {
-            	n = list[i];
+                n = list[i];
                 if(isNaN(parseFloat(n)) || !isFinite(n)) {
                     isNumber = false;
                     break;
@@ -253,22 +272,22 @@
         }
         
         if(isNumber) {
-        	editCtrl.setValue(list.sort(isAsc ? numberAsc : numberDesc).join('\n'));
+            editCtrl.setValue(list.sort(isAsc ? numberAsc : numberDesc).join('\n'));
         } else {
-        	editCtrl.setValue(list.sort(isAsc ? stringAsc : stringDesc).join('\n'));
+            editCtrl.setValue(list.sort(isAsc ? stringAsc : stringDesc).join('\n'));
         }
     }
     
     function unique(content) {
-    	if(!content) {
-    		return content;
-    	}
-    	var rs = handle(content);
+        if(!content) {
+            return content;
+        }
+        var rs = handle(content);
         return rs.list.join('\n');
     }
     
     function handle(content) {
-    	if(!content) {
+        if(!content) {
             return {'list':[],'map':{}};
         }
         var arr = content.split('\n');
@@ -304,10 +323,10 @@
     }
     
     function editorChanged() {
-    	$('#txtResultTitle').html('');
-    	editor2.setValue('');
-    	$('#btnAsc2').hide();
-    	$('#btnDesc2').hide();
+        $('#txtResultTitle').html('');
+        editor2.setValue('');
+        $('#btnAsc2').hide();
+        $('#btnDesc2').hide();
     }
     </script>
     <jsp:include page="./footer.jsp"></jsp:include>

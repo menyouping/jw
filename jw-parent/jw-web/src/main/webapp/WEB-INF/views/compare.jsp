@@ -126,10 +126,6 @@ span.clicky {
       dv.setShowDifferences(highlight = !highlight);
     }
 
-    /* window.onload = function() {
-      initUI();
-    }; */
-
     function mergeViewHeight(mergeView) {
       function editorHeight(editor) {
         if (!editor) return 0;
@@ -157,6 +153,7 @@ span.clicky {
     }
     
     $(function(){
+    	 $("#menuCompare").addClass("active");
         var selected = $jw.readStorage(storageKey);
         if(selected) {
             $('#' + selected).attr("checked","checked");

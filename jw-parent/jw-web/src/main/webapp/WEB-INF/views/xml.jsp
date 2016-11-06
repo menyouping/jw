@@ -87,6 +87,7 @@
     <script src="${root}/plugin/codemirror/addon/edit/closetag.min.js"></script>
     <script src="${root}/plugin/codemirror/addon/edit/matchtags.min.js"></script>
     <script src="${root}/plugin/codemirror/mode/xml/xml.min.js"></script>
+    <script src="${root}/plugin/codemirror/addon/selection/active-line.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="${root}/js/bootstrap.min.js"></script>
@@ -100,6 +101,7 @@
                 matchTags: true,
                 autoCloseTags:true,
                 lineNumbers: true,
+                styleActiveLine: true,
                 indentUnit:4
               });
             editor.setValue($jw.readStorage(storageKey) || '');

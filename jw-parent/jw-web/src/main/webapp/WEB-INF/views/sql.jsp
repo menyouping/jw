@@ -83,6 +83,7 @@
     <script src="${root}/js/jquery.format.min.js"></script>
     <script src="${root}/plugin/codemirror/lib/codemirror.min.js"></script>
     <script src="${root}/plugin/codemirror/mode/sql/sql.min.js"></script>
+    <script src="${root}/plugin/codemirror/addon/selection/active-line.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="${root}/js/bootstrap.min.js"></script>
@@ -94,6 +95,7 @@
             var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
                 mode: "text/x-sql",
                 lineNumbers: true,
+                styleActiveLine: true,
                 indentUnit:4
               });
             editor.setValue($jw.readStorage(storageKey) || '');

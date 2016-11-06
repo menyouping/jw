@@ -81,6 +81,7 @@
     <script src="${root}/plugin/codemirror/addon/edit/closebrackets.min.js"></script>
     <script src="${root}/plugin/codemirror/addon/edit/matchbrackets.min.js"></script>
     <script src="${root}/plugin/codemirror/mode/javascript/javascript.min.js"></script>
+    <script src="${root}/plugin/codemirror/addon/selection/active-line.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="${root}/js/bootstrap.min.js"></script>
@@ -94,6 +95,7 @@
                 matchBrackets: true,
                 autoCloseBrackets: true,
                 lineNumbers: true,
+                styleActiveLine: true,
                 indentUnit:4
               });
             editor.setValue($jw.readStorage(storageKey) || '');
