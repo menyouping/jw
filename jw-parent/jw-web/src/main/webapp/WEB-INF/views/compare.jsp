@@ -63,11 +63,11 @@ span.clicky {
                     <div class="col-md-12 col-lg-12"
                         style="margin-left: 15px; margin-right: 15px">
                             <label>
-                                <input type="radio" name="gpMode" value="text/plain" checked>  纯文本  
-                                <input type="radio" name="gpMode"  value="text/html">  HTML  
-                                <input type="radio" name="gpMode" value="javascript">  JS /JSON 
-                                <input type="radio" name="gpMode" value="application/xml">  XML  
-                                <input type="radio" name="gpMode" value="text/x-sql">  SQL
+                                <input type="radio" name="gpMode" id="rdoMode0" value="text/plain">  纯文本  
+                                <input type="radio" name="gpMode" id="rdoMode1"  value="text/html">  HTML  
+                                <input type="radio" name="gpMode" id="rdoMode2"  value="javascript">  JS /JSON 
+                                <input type="radio" name="gpMode" id="rdoMode3" value="application/xml">  XML  
+                                <input type="radio" name="gpMode" id="rdoMode4" value="text/x-sql">  SQL
                              </label>
                              <div id=view></div>
                     </div>
@@ -85,8 +85,6 @@ span.clicky {
     <!-- jQuery -->
     <script src="${root}/js/jquery.min.js"></script>
     <script src="${root}/plugin/codemirror/lib/codemirror.min.js"></script>
-    <script src="${root}/plugin/codemirror/addon/edit/closebrackets.min.js"></script>
-    <script src="${root}/plugin/codemirror/addon/edit/matchbrackets.min.js"></script>
     
     <script src="${root}/plugin/codemirror/mode/xml/xml.min.js"></script>
     <script src="${root}/plugin/codemirror/mode/css/css.min.js"></script>
@@ -101,6 +99,9 @@ span.clicky {
     <script src="${root}/js/bootstrap.min.js"></script>
     <script src="${root}/js/jw.js"></script>
     <script type="text/javascript">
+    
+    var storageKey = 'compare.mode';
+    
     var value="", orig1 = "", orig2 = "", dv, panes = 2, highlight = true, connect = null, collapse = false;
     var targetMode = "text/plain";
     function initUI() {
@@ -124,9 +125,9 @@ span.clicky {
       dv.setShowDifferences(highlight = !highlight);
     }
 
-    window.onload = function() {
+    /* window.onload = function() {
       initUI();
-    };
+    }; */
 
     function mergeViewHeight(mergeView) {
       function editorHeight(editor) {
@@ -155,34 +156,48 @@ span.clicky {
     }
     
     $(function(){
+        var selected = $jw.readStorage(storageKey);
+        if(selected) {
+            $('#' + selected).attr("checked","checked");
+            targetMode = $('#' + selected).val();
+            changeMode();
+        } else {
+            $('#rdoMode0').attr("checked","checked");
+            initUI();
+        }
         $('input[type=radio]').click(function(e){
-            try {
-                targetMode = $(this).val();
-                var diff = dv.right.diff;
-                var leftArr = [], rightArr = [];
-                var len = diff.length;
-                var line, type, content;
-                for(var i=0;i<len;i++) {
-                    line = diff[i];
-                    type = line[0];
-                    content = line[1];
-                    if(type == 0) {
-                        leftArr.push(content);
-                        rightArr.push(content);
-                    } else if(type == -1) {
-                        rightArr.push(content);
-                    } else if(type == 1) {
-                        leftArr.push(content);
-                    }
-                }
-                value = leftArr.join('');
-                orig2 = rightArr.join('');
-                initUI();
-            } catch (exp) {
-                console.error('error raised when change click the radio.');
-            }
+            var $that = $(this);
+            targetMode = $that.val();
+            changeMode();
+            var selectedId = $that.attr("id");
+            $jw.saveStorage(storageKey, selectedId);
         });
     });
+    
+    function changeMode() {
+        if(dv && dv.right && dv.right.diff) {
+            var diff = dv.right.diff;
+            var leftArr = [], rightArr = [];
+            var len = diff.length;
+            var line, type, content;
+            for(var i=0;i<len;i++) {
+                line = diff[i];
+                type = line[0];
+                content = line[1];
+                if(type == 0) {//EQUAL
+                    leftArr.push(content);
+                    rightArr.push(content);
+                } else if(type == -1) {//DELETE
+                    rightArr.push(content);
+                } else if(type == 1) {//INSERT
+                    leftArr.push(content);
+                }
+            }
+            value = leftArr.join('');
+            orig2 = rightArr.join('');
+        }
+        initUI();
+    }
     </script>
     <jsp:include page="./footer.jsp"></jsp:include>
 </body>
