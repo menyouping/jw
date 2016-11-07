@@ -57,10 +57,22 @@ span.clicky {
     padding: 0 3px;
     border-radius: 3px;
 }
-.CodeMirror-merge-2pane {
+
+ @media screen and (max-height:1080px) {
+    .CodeMirror {
+        height: 845px;
+    }
+    .CodeMirror-merge, .CodeMirror-merge .CodeMirror {
+        height:845px;
+    }
 }
-.CodeMirror-merge, .CodeMirror-merge .CodeMirror {
-    height:500px;
+@media screen and (max-height:800px) {
+    .CodeMirror {
+        height: 500px;
+    }
+    .CodeMirror-merge, .CodeMirror-merge .CodeMirror {
+        height:500px;
+    }
 }
 </style>
 

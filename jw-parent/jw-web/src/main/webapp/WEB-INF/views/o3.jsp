@@ -27,8 +27,17 @@
 #main {
     color: #666
 }
-.CodeMirror {
-    height: 355px;
+
+@media screen and (max-height:1080px) {
+    .CodeMirror {
+        height: 700px;
+    }
+}
+
+@media screen and (max-height:800px) {
+    .CodeMirror {
+        height: 400px;
+    }
 }
 </style>
 

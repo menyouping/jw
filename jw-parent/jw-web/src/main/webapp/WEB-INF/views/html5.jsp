@@ -24,22 +24,39 @@
     color: #666
 }
 .CodeMirror {
-	float: left;
-	width: 50%;
-	height: 500px;
-	border-top-right-radius: 0px;
+    float: left;
+    width: 50%;
+    height: 500px;
+    border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
 }
 iframe {
-	width: 49%;
-	float: left;
-	height: 500px;
-	border: 1px solid #ccc;
-	border-left: 0px;
+    width: 49%;
+    float: left;
+    height: 500px;
+    border: 1px solid #ccc;
+    border-left: 0px;
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
 }
+@media screen and (max-height:1080px) {
+    .CodeMirror {
+        height: 835px;
+    }
+    iframe {
+        height: 835px;
+    }
+}
+
+@media screen and (max-height:800px) {
+        .CodeMirror {
+            height: 500px;
+        }
+        iframe {
+            height: 500px;
+        }
+    }
 </style>
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -69,7 +86,7 @@ iframe {
                     <div class="col-md-12 col-lg-12"
                         style="margin-left: 15px; margin-right: 15px">
                              <textarea id="code" name="code"></textarea>
-		                    <iframe id=preview></iframe>
+                            <iframe id="preview"></iframe>
                     </div>
                 </div>
             </div>
@@ -93,8 +110,8 @@ iframe {
     <script src="${root}/plugin/codemirror/mode/javascript/javascript.min.js"></script>
     
     <script src="${root}/plugin/codemirror/mode/xml/xml.min.js"></script>
-	<script src="${root}/plugin/codemirror/mode/css/css.js"></script>
-	<script src="${root}/plugin/codemirror/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="${root}/plugin/codemirror/mode/css/css.js"></script>
+    <script src="${root}/plugin/codemirror/mode/htmlmixed/htmlmixed.min.js"></script>
     <script src="${root}/plugin/codemirror/addon/selection/active-line.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->

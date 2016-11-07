@@ -28,6 +28,17 @@
 #main {
     color: #666
 }
+@media screen and (max-height:1080px) {
+    .CodeMirror {
+        height: 745px;
+    }
+}
+
+@media screen and (max-height:800px) {
+    .CodeMirror {
+        height: 500px;
+    }
+}
 </style>
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->

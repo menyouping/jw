@@ -24,8 +24,16 @@
        margin: 10px 10px;
        width: 80px;
     }
-    .CodeMirror { 
-        height: 490px;
+    @media screen and (max-height:1080px) {
+        .CodeMirror {
+            height: 835px;
+        }
+    }
+    
+    @media screen and (max-height:800px) {
+        .CodeMirror {
+            height: 500px;
+        }
     }
     </style>
 
