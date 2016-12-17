@@ -117,6 +117,9 @@
                 function(e) {
                     try {
                         var content = editor.getValue();
+                        if(content && content.length > 1 && content.indexOf("\"") == 0 && content.lastIndexOf("\"") == content.length - 1) {
+                                content = content.substring(1, content.length - 1);
+                        }
                         jsl.parser.parse(content);
                         content = jsl.format.formatJson(content);
                         editor.setValue(content);
@@ -136,6 +139,9 @@
             $('#btnRaw').click(function(e) {
                 try {
                     var content = editor.getValue();
+                    if(content && content.length > 1 && content.indexOf("\"") == 0 && content.lastIndexOf("\"") == content.length - 1) {
+                        content = content.substring(1, content.length - 1);
+                    }
                     jsl.parser.parse(content);
                     content = unformatJson(content);
                     editor.setValue(content);
