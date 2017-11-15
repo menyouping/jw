@@ -15,29 +15,38 @@
                 </div>
                 <div>
                     <ul class="nav navbar-nav">
-                        <li id="menuDict">
+                        <li id="menuDict" title="英汉，汉英字典">
                             <a href="${root}/">字典</a>
                         </li>
-                        <li id="menuJson">
+                        <li id="menuJson" title="JSON格式化工具">
                             <a href="${root}/json">JSON</a>
                         </li>
-                        <li id="menuXml">
+                        <li id="menuXml" title="XML格式化工具">
                             <a href="${root}/xml">XML</a>
                         </li>
-                        <li id="menuSql">
+                        <li id="menuSql" title="SQL格式化工具">
                             <a href="${root}/sql">SQL</a>
                         </li>
-                        <li id="menuSet">
+                        <li id="menuSet" title="集合处理工具">
                             <a href="${root}/set">集合</a>
                         </li>
-                        <li id="menuCompare">
+                        <li id="menuTemplate" title="多行文本处理工具">
+                            <a href="${root}/template">模板</a>
+                        </li>
+                        <li id="menuHttp" title="万众期待的HTTP工具">
+                            <a href="${root}/http">HTTP</a>
+                        </li>
+                        <li id="menuCompare" title="文本比较工具">
                             <a href="${root}/compare">文本比较</a>
                         </li>
-                         <li id="menuHtml5">
+                         <li id="menuHtml5" title="HTML5草图大师">
                             <a href="${root}/html5">HTML5</a>
                         </li>
-                        <li id="menuO3">
-                            <a href="${root}/o3">O3</a>
+                        <li id="menuGitLog" title="Git Lab提交记录提取工具">
+                            <a href="${root}/gitLog">Git Lab日志</a>
+                        </li>
+                        <li id="menuO3" title="MSS O3签名速算">
+                            <a href="${root}/o3">MSS O3</a>
                         </li>
                     </ul>
                 </div>

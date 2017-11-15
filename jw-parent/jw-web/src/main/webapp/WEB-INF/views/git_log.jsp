@@ -8,7 +8,7 @@
 
 <jsp:include page="./header.jsp"></jsp:include>
 
-<title>Jw Labs-JSON</title>
+<title>Jw Labs-Git Lab日志</title>
 
 <!-- Bootstrap Core CSS -->
 <link href="${root}/css/bootstrap.min.css" rel="stylesheet">
@@ -55,8 +55,7 @@
                 <div class="row" style="padding-top: 10px;">
                     <div class="col-md-12 col-lg-12"
                         style="margin-left: 15px; margin-right: 15px">
-                        <button id="btnGo" class="btn btn-success">美化</button>
-                        <button id="btnRaw" class="btn btn-default">一行</button>
+                        <button id="btnGo" title="提取Git Lab提交日志，生成发布公告" class="btn btn-success">美化</button>
                     </div>
                 </div>
                 <!-- /.row -->
@@ -64,14 +63,6 @@
                     <div class="col-md-12 col-lg-12"
                         style="margin-left: 15px; margin-right: 15px">
                              <textarea id="code" name="code" style="display: none;"></textarea>
-                    </div>
-                </div>
-
-                <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-12 col-lg-12"
-                        style="margin-left: 15px; margin-right: 15px">
-                        <div id="divMsg" class="alert alert-success"
-                            style="display: none;"></div>
                     </div>
                 </div>
             </div>
@@ -86,23 +77,18 @@
 
     <!-- jQuery -->
     <script src="${root}/js/jquery.min.js"></script>
-    <script src="${root}/js/jsl.format.min.js"></script>
-    <script src="${root}/js/jsl.parser.min.js"></script>
     <script src="${root}/plugin/codemirror/lib/codemirror.min.js"></script>
-    <script src="${root}/plugin/codemirror/addon/edit/closebrackets.min.js"></script>
-    <script src="${root}/plugin/codemirror/addon/edit/matchbrackets.min.js"></script>
-    <script src="${root}/plugin/codemirror/mode/javascript/javascript.min.js"></script>
     <script src="${root}/plugin/codemirror/addon/selection/active-line.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="${root}/js/bootstrap.min.js"></script>
     <script src="${root}/js/jw.js"></script>
     <script type="text/javascript">
-        var storageKey = 'json';
+        var storageKey = 'gitLog';
         $(function() {
-            $("#menuJson").addClass("active");
+            $("#menuGitLog").addClass("active");
             var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-                mode: "application/json",
+                mode: "text-plain",
                 matchBrackets: true,
                 autoCloseBrackets: true,
                 lineNumbers: true,
@@ -117,57 +103,84 @@
                 function(e) {
                     try {
                         var content = editor.getValue();
-                        if(content && content.length > 1 && content.indexOf("\"") == 0 && content.lastIndexOf("\"") == content.length - 1) {
-                                content = content.substring(1, content.length - 1);
-                        }
-                        jsl.parser.parse(content);
-                        content = jsl.format.formatJson(content);
-                        editor.setValue(content);
-                        $('#divMsg').removeClass('alert-danger')
-                            .addClass('alert-success')
-                            .html('JSON is valid.')
-                            .show();
+                        
+                        var result = handle(content);
+                        editor.setValue(result);
+                        
                         $jw.saveStorage(storageKey, content);
                     } catch (exp) {
-                        var msg = exp.toString().replace(/\n/g, "<br>");
-                        $('#divMsg').removeClass('alert-success')
-                            .addClass('alert-danger')
-                            .html(msg)
-                            .show();
                     }
                 });
-            $('#btnRaw').click(function(e) {
-                try {
-                    var content = editor.getValue();
-                    if(content && content.length > 1 && content.indexOf("\"") == 0 && content.lastIndexOf("\"") == content.length - 1) {
-                        content = content.substring(1, content.length - 1);
-                    }
-                    jsl.parser.parse(content);
-                    content = unformatJson(content);
-                    editor.setValue(content);
-                    $jw.saveStorage(storageKey, content);
-                    hideMsg();
-                } catch (exp) {
-                    var msg = exp.toString().replace(/\n/g, "<br>");
-                    $('#divMsg').removeClass('alert-success')
-                        .addClass('alert-danger')
-                        .html(msg)
-                        .show();
-                }
-            });
         });
-
-        function unformatJson(json) {
-            if (typeof json === 'string') {
-                json = JSON.parse(json);
+        
+        function handle(content) {
+            if(!content) {
+                return false;
             }
-            json = JSON.stringify(json);
-            return json.trim();
-        }
-
-        function hideMsg() {
-            $('#divMsg').removeClass('alert-danger').removeClass('alert-success').html(
-                    '').hide();
+            
+            var result = [];
+            var row = 1;
+            
+            var map = {};
+            
+            var lines = content.split('\n');
+            for (var n in lines) {
+                var line = lines[n];
+                if (!line) {
+                    continue;
+                }
+                if (line.indexOf("Merge branch") > -1) {
+                    continue;
+                }
+                if (line.indexOf("bug fix") > -1) {
+                    continue;
+                }
+                if (line.indexOf("fix bug") > -1) {
+                    continue;
+                }
+                if (line.indexOf("solve conflict") > -1) {
+                    continue;
+                }
+                if (line.indexOf("conflict resolve") > -1) {
+                    continue;
+                }
+                if (line.match(/(.*)\s{2}\w{8}/)) {
+                    line = line.substring(0, line.lastIndexOf("  "));
+                }
+                if(line == '提交') {
+                    continue;
+                }
+                if(line == '冲突') {
+                    continue;
+                }
+                if(line == '代码优化') {
+                    continue;
+                }
+                if(line == 'merge') {
+                    continue;
+                }
+                if (line.match(/(.*)authored(.*)/)) {
+                    continue;
+                }
+                if (line.match(/\s*\d+\s*commit/)) {
+                    continue;
+                }
+                if (line.match(/\s*\d+\s*\w{3},\s*\d{4}/)) {
+                    continue;
+                }
+                for (var i = 1; i < 9; i++) {
+                    if (line.startsWith(i + ".")) {
+                        line = line.replace(i + ".", "");
+                        break;
+                    }
+                }
+                if(map[line]) {
+                    continue;
+                }
+                map[line] = true;
+                result.push((row++) + "." + line.trim());
+            }
+            return result.join('<br>\n');
         }
     </script>
     <jsp:include page="./footer.jsp"></jsp:include>

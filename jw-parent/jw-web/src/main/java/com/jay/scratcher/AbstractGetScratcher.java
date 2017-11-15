@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import com.jay.utils.ActionResult;
 import com.jay.utils.HttpUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.StringUtils;
@@ -23,7 +24,11 @@ public abstract class AbstractGetScratcher implements IScratcher {
             }
         }
 
-        return HttpUtils.get(url, list);
+        ActionResult result = HttpUtils.get(url, list, null);
+        if(result.isOK()) {
+            return (String) result.getData();
+        }
+        return result.getMessage();
     }
 
     public abstract <T> T extract(String content);

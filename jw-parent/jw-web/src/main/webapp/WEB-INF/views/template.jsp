@@ -55,42 +55,40 @@
                 <!-- /.row -->
                 <div class="row" style="padding-top:10px;">
                     <div class="col-md-3 col-lg-3">
-                        <label>集合A</label>
+                        <label>源数据A</label>
                         <button id="btnUnique0" class="btn btn-danger">去重</button>
                         <button id="btnAsc0" class="btn btn-default">升序</button>
                         <button id="btnDesc0" class="btn btn-default">降序</button>
                     </div>
-                    <div class="col-md-3 col-lg-3">
-                        <label>集合B</label>
-                        <button id="btnUnique1" class="btn btn-danger">去重</button>
-                        <button id="btnAsc1" class="btn btn-default">升序</button>
-                        <button id="btnDesc1" class="btn btn-default">降序</button>
+                    <div class="col-md-5 col-lg-5">
+                        <label>处理器B</label>
+                        <input type="radio" name="method" value="TEMPLATE" checked>模板&nbsp;&nbsp;
+                        <input type="radio" name="method" value="FUNCTION">函数&nbsp;&nbsp;
+                        <button id="btnTrim" class="btn btn-default">去空格</button>
+                        <button id="btnRemoveLine" class="btn btn-default">去行号</button>
                     </div>
                     <div class="col-md-1 col-lg-1">
                         <label>&nbsp;</label>
                     </div>
-                    <div class="col-md-5 col-lg-5">
+                    <div class="col-md-3 col-lg-3">
                         <label><span id="txtResultTitle"></span></label>
-                        <button id="btnAsc2" class="btn btn-default" style="display: none;">升序</button>
-                        <button id="btnDesc2" class="btn btn-default" style="display: none;">降序</button>
+                        <button id="btnCopy" class="btn btn-danger" style="display:none;">复制到A</button>
                     </div>
                 </div>
                 <!-- /.row -->
                 <div class="row" style="padding-top:10px;">
-                    <div class="col-md-3 col-lg-3" >
+                    <div class="col-md-3 col-lg-3">
                         <textarea id="code0" name="code0" style="display: none;"></textarea>
                     </div>
-                    <div class="col-md-3 col-lg-3" >
+                    <div class="col-md-5 col-lg-5" >
                         <textarea id="code1" name="code1" style="display: none;"></textarea>
                     </div>
                     <div class="col-md-1 col-lg-1" >
                         <div style="margin-top:120px;">
-                            <button id="btnAll" class="btn btn-success btn-operation">A ∪ B</button><br>
-                            <button id="btnOverlap" class="btn btn-primary btn-operation">A ∩ B</button><br>
-                            <button id="btnSubtract" class="btn btn-warning btn-operation">A - B</button>
+                            <button id="btnTemplate" title='A为数据源，B为模板或函数, 以模板方法处理A中的每行数据' class="btn btn-success btn-operation">美化</button>
                         </div>
                     </div>
-                    <div class="col-md-5 col-lg-5">
+                    <div class="col-md-3 col-lg-3">
                         <textarea id="code2" name="code2" style="display: none;"></textarea>
                     </div>
                 </div>
@@ -109,14 +107,24 @@
     <!-- Bootstrap Core JavaScript -->
     <script src="${root}/js/bootstrap.min.js"></script>
     <script src="${root}/js/bootbox.js"></script>
+    <script src="${root}/js/jsl.format.min.js"></script>
+    <script src="${root}/js/jsl.parser.min.js"></script>
     <script src="${root}/plugin/codemirror/lib/codemirror.min.js"></script>
+    <script src="${root}/plugin/codemirror/addon/edit/closebrackets.min.js"></script>
+    <script src="${root}/plugin/codemirror/addon/edit/matchbrackets.min.js"></script>
+    <script src="${root}/plugin/codemirror/mode/javascript/javascript.min.js"></script>
     <script src="${root}/plugin/codemirror/addon/selection/active-line.min.js"></script>
     <script src="${root}/js/jw.js"></script>
     <script type="text/javascript">
     var editor0, editor1, editor2;
-    var storageKey0 = 'set.edit0',storageKey1 = 'set.edit1';
+    var storageKey0 = 'tpl.edit0',storageKey1 = 'tpl.edit1', tplMethod = 'tpl.method';
     $(function(){
-        $("#menuSet").addClass("active");
+        $("#menuTemplate").addClass("active");
+        
+        if($jw.readStorage(tplMethod)) {
+            $("input[name=method][value='" + $jw.readStorage(tplMethod) + "']").prop("checked", "checked");
+        }
+        
         editor0 = CodeMirror.fromTextArea(document.getElementById("code0"), {
             mode: "text/plain",
             lineNumbers: true,
@@ -125,12 +133,14 @@
           });
         editor0.setValue($jw.readStorage(storageKey0) ||'');
         editor1 = CodeMirror.fromTextArea(document.getElementById("code1"), {
-            mode: "text/plain",
+            mode: "application/json",
+            matchBrackets: true,
+            autoCloseBrackets: true,
             lineNumbers: true,
             styleActiveLine: true,
             indentUnit:4
           });
-        editor1.setValue($jw.readStorage(storageKey1) ||'');
+        editor1.setValue($jw.readStorage(storageKey1) ||'AAA{{line}}BBB');
         editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {
             mode: "text/plain",
             lineNumbers: true,
@@ -139,73 +149,69 @@
           });
         editor0.on('change', function(instance, changeObj) {
             editorChanged();
+            $('#btnCopy').hide();
         });
         editor1.on('change', function(instance, changeObj) {
             editorChanged();
         });
-        $('#btnAll').click(function(e){
-            $('#txtResultTitle').html('A ∪ B');
-            var content0 = editor0.getValue();
-            var content1 = editor1.getValue();
-            var rs = handle(content0 + '\n' + content1);
-            editor2.setValue(rs.list.join('\n'));
-            $('#btnAsc2').show();
-            $('#btnDesc2').show();
-            $jw.saveStorage(storageKey0, content0);
-            $jw.saveStorage(storageKey1, content1);
-        });
-        $('#btnOverlap').click(function(e){
-            $('#txtResultTitle').html('A ∩ B');
-            var content0 = editor0.getValue();
-            var content1 = editor1.getValue();
-            if(!content0 || !content1) {
-                editor2.setValue('');
-            } else {
-                var rs0 = handle(content0);
-                var list2 = [];
-                var map = rs0.map;
-                var list1 = content1.split('\n');
-                var len = list1.length;
-                var line;
-                for(var i = 0;i < len; i++) {
-                    line = list1[i];
-                    if(line && map.hasOwnProperty(line)) {
-                        list2.push(line);
-                    }
-                }
-                editor2.setValue(list2.join('\n'));
+        
+        $('input[name=method]').click(function(e){
+            var $that = $(this);
+            if($that.val() == "TEMPLATE") {
+                editor1.setValue("{{i}}.{{line}}");
+            } else{
+                editor1.setValue("function beautify(line, i) {\n    return line;\n}");
             }
-            $('#btnAsc2').show();
-            $('#btnDesc2').show();
-            $jw.saveStorage(storageKey0, content0);
-            $jw.saveStorage(storageKey1, content1);
         });
-        $('#btnSubtract').click(function(e){
-            $('#txtResultTitle').html('A - B');
+        $('#btnTrim').click(function(e){
+            $("input[name=method][value='FUNCTION']").prop("checked", "checked");
+            editor1.setValue("function beautify(line, i) {\n    return line.trim();\n}");
+        });
+        $('#btnRemoveLine').click(function(e){
+            $("input[name=method][value='FUNCTION']").prop("checked", "checked");
+            editor1.setValue("function beautify(line, i) {\n    return line.replace(/^\\d+\\./,'');\n}");
+        });
+        $('#btnTemplate').click(function(e){
+            $('#txtResultTitle').html('结果');
+            $('#btnCopy').show();
             var content0 = editor0.getValue();
             var content1 = editor1.getValue();
             if(!content0) {
                 editor2.setValue('');
             } else if(!content1){
-                editor2.setValue(content0);
+                bootbox.alert('请设置模板！例如"AAA{{line}}BBB"');
             } else {
                 var list2 = [];
-                var map = toMap(content1);
                 var list0 = content0.split('\n');
                 var len = list0.length;
                 var line;
-                for(var i = 0;i < len; i++) {
-                    line = list0[i];
-                    if(line && !map.hasOwnProperty(line)) {
-                        list2.push(line);
+                var tpl = content1.replaceAll('\s*\n+\s*','');
+                
+                var method = $('input[name=method]:checked').val();
+                    if(method == "TEMPLATE") {
+                        for(var i = 0;i < len; i++) {
+                            line = list0[i];
+                            list2.push(tpl.replaceAll("{{line}}",line).replaceAll("{{i}}",(i+1)));
+                        }
+                    } else{
+                        try {
+                            var func = content1;
+                            eval(func);
+                        } catch (ex) {
+                            bootbox.alert("函数编译失败!");
+                            return false;
+                        }
+                        for(var i = 0;i < len; i++) {
+                            line = list0[i];
+                            list2.push(beautify(line, i + 1));
+                        }
                     }
-                }
+                
                 editor2.setValue(list2.join('\n'));
             }
-            $('#btnAsc2').show();
-            $('#btnDesc2').show();
             $jw.saveStorage(storageKey0, content0);
             $jw.saveStorage(storageKey1, content1);
+            $jw.saveStorage(tplMethod, $("input[name=method]:checked").val());
         });
         $('#btnUnique0').click(function(e){
             var content0 = editor0.getValue();
@@ -227,19 +233,8 @@
             sort(editor0, false);
             $jw.saveStorage(storageKey0, editor0.getValue());
         });
-        $('#btnAsc1').click(function(e){
-            sort(editor1, true);
-            $jw.saveStorage(storageKey1, editor1.getValue());
-        });
-        $('#btnDesc1').click(function(e){
-            sort(editor1, false);
-            $jw.saveStorage(storageKey1, editor1.getValue());
-        });
-        $('#btnAsc2').click(function(e){
-            sort(editor2, true);
-        });
-        $('#btnDesc2').click(function(e){
-            sort(editor2, false);
+        $('#btnCopy').click(function(e){
+            editor0.setValue(editor2.getValue());
         });
     });
     
@@ -334,10 +329,35 @@
     function editorChanged() {
         $('#txtResultTitle').html('');
         editor2.setValue('');
-        $('#btnAsc2').hide();
-        $('#btnDesc2').hide();
+    }
+    
+    String.prototype.endWith = function(s) {
+        if (s == null || s == "" || this.length == 0 || s.length > this.length)
+            return false;
+        if (this.substring(this.length - s.length) == s)
+            return true;
+        else
+            return false;
+        return true;
     }
 
+    String.prototype.startWith = function(s) {
+        if (s == null || s == "" || this.length == 0 || s.length > this.length)
+            return false;
+        if (this.substr(0, s.length) == s)
+            return true;
+        else
+            return false;
+        return true;
+    }
+
+    String.prototype.replaceAll = function(s1,s2){
+        return this.replace(new RegExp(s1,"gm"),s2);
+    }
+
+    String.prototype.trim = function(){   
+         return   this.replace(/(^\s*)|(\s*$)/g,"");   
+    }
     </script>
     <jsp:include page="./footer.jsp"></jsp:include>
 </body>

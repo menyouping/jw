@@ -36,7 +36,7 @@
 
 @media screen and (max-height:800px) {
     .CodeMirror {
-        height: 500px;
+        height: 450px;
     }
 }
 </style>

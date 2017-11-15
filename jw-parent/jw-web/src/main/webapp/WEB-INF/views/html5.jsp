@@ -33,7 +33,7 @@
 iframe {
     width: 49%;
     float: left;
-    height: 500px;
+    height: 450px;
     border: 1px solid #ccc;
     border-left: 0px;
     border-top-right-radius: 4px;
@@ -51,10 +51,10 @@ iframe {
 
 @media screen and (max-height:800px) {
         .CodeMirror {
-            height: 500px;
+            height: 450px;
         }
         iframe {
-            height: 500px;
+            height: 450px;
         }
     }
 </style>

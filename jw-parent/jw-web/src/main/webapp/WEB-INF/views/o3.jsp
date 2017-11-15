@@ -12,7 +12,7 @@
 <meta name="description" content="">
 <meta name="author" content="Jay Zhang">
 
-<title>Jw Labs-O3</title>
+<title>Jw Labs-MSS O3</title>
 
 <!-- Bootstrap Core CSS -->
 <link href="${root}/css/bootstrap.min.css" rel="stylesheet">
@@ -36,7 +36,7 @@
 
 @media screen and (max-height:800px) {
     .CodeMirror {
-        height: 400px;
+        height: 380px;
     }
 }
 </style>

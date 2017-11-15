@@ -1,5 +1,6 @@
 package com.jay.mvc.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -7,9 +8,12 @@ import javax.servlet.http.HttpServletRequest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jay.aop.annotation.Log;
+import com.jay.mvc.dto.HttpRequestDto;
 import com.jay.mvc.dto.O3Dto;
 import com.jay.mvc.dto.UserDto;
 import com.jay.mvc.service.UserService;
+import com.jay.utils.ActionResult;
+import com.jay.utils.HttpUtils;
 import com.jay.utils.O3Utils;
 import com.jw.db.JwConnection;
 import com.jw.domain.annotation.Autowired;
@@ -79,12 +83,67 @@ public class IndexController {
     public String set() {
         return "set";
     }
+    
+    @RequestMapping(value = "/template")
+    public String template() {
+        return "template";
+    }
 
     @RequestMapping(value = "/compare")
     public String compare() {
         return "compare";
     }
-    
+
+    @RequestMapping(value = "/gitLog")
+    public String gitLog() {
+        return "git_log";
+    }
+
+    @RequestMapping(value = "/http")
+    public String http() {
+        return "http";
+    }
+
+    @RequestMapping(value = "/http/send", method = RequestMethod.POST)
+    @ResponseBody
+    public Object httpSend(@ModelAttribute("dto") HttpRequestDto dto) {
+        ActionResult result = dto.validate();
+        if (!result.isOK()) {
+            return result;
+        }
+
+        String contentType = "";
+        if ("JSON".equals(dto.getContentType())) {
+            contentType = "application/json";
+        } else if ("XML".equals(dto.getContentType())) {
+            contentType = "application/xml;charset=utf-8";
+        }
+        
+        Map<String, String> headers = null;
+        if(!StringUtils.isEmpty(dto.getHeader())) {
+            headers = new HashMap<>();
+            String[] list = dto.getHeader().split("\\s*;\\s*");
+            for(String header : list) {
+                if(header.isEmpty()) {
+                    continue;
+                }
+                String[] kv = header.split("\\s*=\\s*", 2);
+                if(kv != null && kv.length == 2) {
+                    headers.put(kv[0], kv[1]);
+                }
+            }
+        }
+        
+        if ("PUT".equals(dto.getMethod())) {
+            result = HttpUtils.put(dto.getUrl(), dto.getBody(), headers, contentType);
+            return result;
+        } else if ("POST".equals(dto.getMethod())) {
+            result = HttpUtils.post(dto.getUrl(), dto.getBody(), headers, contentType);
+            return result;
+        }
+        return ActionResult.fail("不应该到达此处");
+    }
+
     @RequestMapping(value = "/html5")
     public String html5() {
         return "html5";
