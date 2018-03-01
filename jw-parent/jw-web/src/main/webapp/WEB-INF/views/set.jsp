@@ -88,6 +88,7 @@
                             <button id="btnAll" class="btn btn-success btn-operation">A ∪ B</button><br>
                             <button id="btnOverlap" class="btn btn-primary btn-operation">A ∩ B</button><br>
                             <button id="btnSubtract" class="btn btn-warning btn-operation">A - B</button>
+                            <button id="btnSubtract2" class="btn btn-warning btn-operation">B - A</button>
                         </div>
                     </div>
                     <div class="col-md-5 col-lg-5">
@@ -192,6 +193,33 @@
                 var list2 = [];
                 var map = toMap(content1);
                 var list0 = content0.split('\n');
+                var len = list0.length;
+                var line;
+                for(var i = 0;i < len; i++) {
+                    line = list0[i];
+                    if(line && !map.hasOwnProperty(line)) {
+                        list2.push(line);
+                    }
+                }
+                editor2.setValue(list2.join('\n'));
+            }
+            $('#btnAsc2').show();
+            $('#btnDesc2').show();
+            $jw.saveStorage(storageKey0, content0);
+            $jw.saveStorage(storageKey1, content1);
+        });
+        $('#btnSubtract2').click(function(e){
+            $('#txtResultTitle').html('B - A');
+            var content0 = editor0.getValue();
+            var content1 = editor1.getValue();
+            if(!content0) {
+                editor2.setValue('');
+            } else if(!content1){
+                editor2.setValue(content0);
+            } else {
+                var list2 = [];
+                var map = toMap(content0);
+                var list0 = content1.split('\n');
                 var len = list0.length;
                 var line;
                 for(var i = 0;i < len; i++) {
