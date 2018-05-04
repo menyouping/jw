@@ -124,6 +124,7 @@
             var map = {};
             
             var lines = content.split('\n');
+            var len = lines.length;
             for (var n in lines) {
                 var line = lines[n];
                 if (!line) {
@@ -159,6 +160,9 @@
                 if(line == 'merge') {
                     continue;
                 }
+                if(line == 'optmize') {
+                    continue;
+                }
                 if (line.match(/(.*)authored(.*)/)) {
                     continue;
                 }
@@ -168,7 +172,7 @@
                 if (line.match(/\s*\d+\s*\w{3},\s*\d{4}/)) {
                     continue;
                 }
-                for (var i = 1; i < 9; i++) {
+                for (var i = 1; i < len + 10; i++) {
                     if (line.startsWith(i + ".")) {
                         line = line.replace(i + ".", "");
                         break;
@@ -177,6 +181,7 @@
                 if(map[line]) {
                     continue;
                 }
+                line = line.replace("<br>","");
                 map[line] = true;
                 result.push((row++) + "." + line.trim());
             }
