@@ -178,6 +178,8 @@ iframe {
                    preview.setValue(content);
                }
            });
+           
+           updatePreview();
        });
        
        function beautifulParam() {
@@ -258,7 +260,7 @@ iframe {
             }
             
           if(!editor.getValue()) {
-              preview.setValue(editor.getValue());
+              preview.setValue("");
           } else {
               var params = {'params':txtParam.getValue().trim(),'payload':editor.getValue().trim()};
               $jw.saveStorage(storageKey_tpl, params.params);
