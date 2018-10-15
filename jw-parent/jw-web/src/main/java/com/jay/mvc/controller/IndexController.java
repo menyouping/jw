@@ -1,27 +1,21 @@
 package com.jay.mvc.controller;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+
 import com.jay.aop.annotation.Log;
-import com.jay.mvc.dto.HttpRequestDto;
-import com.jay.mvc.dto.O3Dto;
 import com.jay.mvc.dto.UserDto;
 import com.jay.mvc.service.UserService;
-import com.jay.utils.ActionResult;
-import com.jay.utils.HttpUtils;
-import com.jay.utils.O3Utils;
 import com.jw.db.JwConnection;
 import com.jw.domain.annotation.Autowired;
 import com.jw.domain.annotation.Value;
 import com.jw.ui.Model;
 import com.jw.util.JwUtils;
 import com.jw.util.SessionContext;
-import com.jw.util.StringUtils;
 import com.jw.validation.ValidErrors;
 import com.jw.web.bind.annotation.Controller;
 import com.jw.web.bind.annotation.ModelAttribute;
@@ -99,81 +93,14 @@ public class IndexController {
         return "git_log";
     }
 
-    @RequestMapping(value = "/http")
-    public String http() {
-        return "http";
-    }
-
-    @RequestMapping(value = "/http/send", method = RequestMethod.POST)
-    @ResponseBody
-    public Object httpSend(@ModelAttribute("dto") HttpRequestDto dto) {
-        ActionResult result = dto.validate();
-        if (!result.isOK()) {
-            return result;
-        }
-
-        String contentType = "";
-        if ("JSON".equals(dto.getContentType())) {
-            contentType = "application/json";
-        } else if ("XML".equals(dto.getContentType())) {
-            contentType = "application/xml;charset=utf-8";
-        }
-        
-        Map<String, String> headers = null;
-        if(!StringUtils.isEmpty(dto.getHeader())) {
-            headers = new HashMap<>();
-            String[] list = dto.getHeader().split("\\s*;\\s*");
-            for(String header : list) {
-                if(header.isEmpty()) {
-                    continue;
-                }
-                String[] kv = header.split("\\s*=\\s*", 2);
-                if(kv != null && kv.length == 2) {
-                    headers.put(kv[0], kv[1]);
-                }
-            }
-        }
-        
-        if ("PUT".equals(dto.getMethod())) {
-            result = HttpUtils.put(dto.getUrl(), dto.getBody(), headers, contentType);
-            return result;
-        } else if ("POST".equals(dto.getMethod())) {
-            result = HttpUtils.post(dto.getUrl(), dto.getBody(), headers, contentType);
-            return result;
-        }
-        return ActionResult.fail("不应该到达此处");
-    }
-
     @RequestMapping(value = "/html5")
     public String html5() {
         return "html5";
     }
-
-    /**
-     * MSS O3
-     * 
-     * @return
-     */
-    @RequestMapping(value = "/o3")
-    public String o3() {
-        return "o3";
-    }
-
-    @RequestMapping(value = "/o3/sign")
-    @ResponseBody
-    public Object o3Sign(@ModelAttribute("dto") O3Dto o3Dto) {
-        Map<String, Object> result = JwUtils.newHashMap();
-
-        if (!StringUtils.isEmpty(o3Dto.getBody())) {
-            result.put("status", 200);
-            result.put("message", "SUCCESS");
-            result.put("body", O3Utils.calcSign(JSONObject.parseObject(o3Dto.getBody()), o3Dto.getSecretKey()));
-            return result;
-        }
-        result.put("status", 0);
-        result.put("message", "FAILED");
-        result.put("body", "{}");
-        return result;
+    
+    @RequestMapping(value = "/velocity")
+    public String velocity() {
+        return "velocity";
     }
 
     @RequestMapping("/list")

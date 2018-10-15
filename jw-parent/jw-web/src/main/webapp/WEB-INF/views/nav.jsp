@@ -27,6 +27,9 @@
                         <li id="menuSql" title="SQL格式化工具">
                             <a href="${root}/sql">SQL</a>
                         </li>
+                        <li id="menuVelocity" title="Velocity编辑工具">
+                            <a href="${root}/velocity">Velocity</a>
+                        </li>
                         <li id="menuSet" title="集合处理工具">
                             <a href="${root}/set">集合</a>
                         </li>
