@@ -16,19 +16,18 @@ import com.jw.web.bind.annotation.RequestMapping;
 import com.jw.web.bind.annotation.RequestMethod;
 import com.jw.web.bind.annotation.ResponseBody;
 
-@RequestMapping(value = "/http")
 @Controller
 public class HttpController {
 
     @Autowired
     HttpServletRequest request;
 
-    @RequestMapping(value = "/")
+    @RequestMapping(value = "/http")
     public String http() {
         return "http";
     }
 
-    @RequestMapping(value = "/send", method = RequestMethod.POST)
+    @RequestMapping(value = "/http/send", method = RequestMethod.POST)
     @ResponseBody
     public Object httpSend(@ModelAttribute("dto") HttpRequestDto dto) {
         ActionResult result = dto.validate();

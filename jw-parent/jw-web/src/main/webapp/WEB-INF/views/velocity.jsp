@@ -78,24 +78,23 @@ iframe {
                 <div class="row" style="padding-top: 10px;">
                     <div class="col-md-12 col-lg-12" style="margin-left: 15px; margin-right: 15px">
                             <label style="width: 50%;">
-                                <input type="radio" name="gpMode" id="rdoMode0" value="code" > 源码  
-                                <input type="radio" name="gpMode" id="rdoMode1" value="param" > 参数  
-                                <button id="btnGo" class="btn btn-success" disabled>美化</button>
+                                源码  
                             </label>
-                            <button id="btnPreview" class="btn btn-primary">渲染</button>
-                            <button id="btnGo2" class="btn btn-success">美化</button>
+                            <input type="radio" name="gpMode" id="rdoMode0" value="param" > 参数  
+                            <input type="radio" name="gpMode" id="rdoMode1" value="result" > 结果  
+                            <button id="btnPreview" class="btn btn-primary" disabled>渲染</button>
+                            <button id="btnGo" class="btn btn-success">美化</button>
                     </div>
                 </div>
                 <div class="row" style="padding-top: 10px;">
                     <div class="col-md-12 col-lg-12" style="margin-left: 15px; margin-right: 15px">
                          <textarea id="code" name="code" style="display:none"></textarea>
                          <textarea id="param" name="param" style="display:none"></textarea>
-                         <textarea id="preview" name="preview" ></textarea>
+                         <textarea id="preview" name="preview" style="display:none" ></textarea>
                     </div>
                 </div>
                 <div class="row" style="padding-top: 10px;">
-                    <div class="col-md-6 col-lg-6"
-                        style="margin-left: 15px; margin-right: 15px">
+                    <div class="col-md-6 col-lg-6 col-md-offset-6 col-lg-offset-6">
                         <div id="divMsg" class="alert alert-success"
                             style="display: none;"></div>
                     </div>
@@ -130,7 +129,6 @@ iframe {
     <script type="text/javascript">
         var storageKey_tpl = 'velocity_template';
         var storageKey_param = 'velocity_param';
-        var storageKey_mode = 'storageKey_mode';
         
         var editor;
         var txtParam;
@@ -138,28 +136,24 @@ iframe {
         var preview;
         $(function() {
             $("#menuVelocity").addClass("active");
-           var selected = $jw.readStorage(storageKey_mode);
-           if(selected) {
-               var tmpTargetMode = $('#' + selected).val();
-           }
+            
+            editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                mode: "application/xml",
+                matchTags: true,
+                autoCloseTags:true,
+                lineNumbers: true,
+                styleActiveLine: true,
+                indentUnit:4
+              });
+            editor.setValue($jw.readStorage(storageKey_tpl) || '');
+            
            $('input[type=radio]').click(function(e){
                var $that = $(this);
                targetMode = $that.val();
                changeMode();
-               var selectedId = $that.attr("id");
-               $jw.saveStorage(storageKey_mode, selectedId);
            });
            
-           $('#rdoMode0').click();
-           $('#rdoMode1').click();
-           if(selected) {
-               $('#' + selected).attr("checked","checked");
-               targetMode = tmpTargetMode;
-               changeMode();
-           } else {
-               $('#rdoMode0').attr("checked","checked");
-               changeMode();
-           }
+           $('#rdoMode0').attr("checked","checked").click();
            
            $('#btnPreview').click(function(){
                updatePreview();
@@ -167,19 +161,18 @@ iframe {
            
            $('#btnGo').click(
                 function(e) {
-                   beautifulParam();
+                	if(targetMode=='param') {
+	                   beautifulParam();
+                	} else {
+                		var content = preview.getValue().trim();
+                        var rs = validateXML(content);
+                        if(rs.error_code != 1) {
+                            content = $.format(content,{method:'xml'});
+                            preview.setValue(content);
+                        }
+                	}
              });
            
-           $('#btnGo2').click(function(e) {
-               var content = preview.getValue().trim();
-               var rs = validateXML(content);
-               if(rs.error_code != 1) {
-                   content = $.format(content,{method:'xml'});
-                   preview.setValue(content);
-               }
-           });
-           
-           updatePreview();
        });
        
        function beautifulParam() {
@@ -207,10 +200,7 @@ iframe {
         
        function changeMode() {
            if(targetMode == "param") {
-               if(editor) {
-                    $jw.saveStorage(storageKey_tpl, editor.getValue().trim());
-               }
-               $('#code').next().hide();
+               $('#preview').next().hide();
                if(!txtParam) {
                    txtParam = CodeMirror.fromTextArea(document.getElementById("param"), {
                        mode: "application/json",
@@ -224,26 +214,15 @@ iframe {
                    $('#param').next().show();
                }
                 txtParam.setValue($jw.readStorage(storageKey_param) || '');
-                $('#btnGo').removeAttr('disabled');
+                $('#btnPreview').attr('disabled',true);
            } else {
                if(txtParam) {
                     $jw.saveStorage(storageKey_param, txtParam.getValue().trim());
                }
                $('#param').next().hide();
-               if(!editor) {
-                   editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-                       mode: "application/xml",
-                       matchTags: true,
-                       autoCloseTags:true,
-                       lineNumbers: true,
-                       styleActiveLine: true,
-                       indentUnit:4
-                     });
-               } else {
-                   $('#code').next().show();
-               }
-               editor.setValue($jw.readStorage(storageKey_tpl) || '');
-               $('#btnGo').attr('disabled','disabled');
+               $('#preview').next().show();
+               $('#btnPreview').removeAttr('disabled');
+               updatePreview();
            }
        }
         
