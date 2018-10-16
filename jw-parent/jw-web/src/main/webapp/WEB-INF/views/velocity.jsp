@@ -116,6 +116,9 @@ iframe {
     <script src="${root}/plugin/codemirror/lib/codemirror.min.js"></script>
     <script src="${root}/plugin/codemirror/mode/javascript/javascript.min.js"></script>
     
+    <script src="${root}/plugin/codemirror/addon/edit/closebrackets.min.js"></script>
+    <script src="${root}/plugin/codemirror/addon/edit/matchbrackets.min.js"></script>
+    
     <script src="${root}/plugin/codemirror/addon/fold/xml-fold.min.js"></script>
     <script src="${root}/plugin/codemirror/addon/edit/closetag.min.js"></script>
     <script src="${root}/plugin/codemirror/addon/edit/matchtags.min.js"></script>
