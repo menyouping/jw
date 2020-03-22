@@ -65,10 +65,11 @@ public class CollectionUtils {
         return join(c.toArray(), ",");
     }
 
-    public static <T> String join(Collection<T> c, String split) {
-        if (c == null || c.isEmpty())
+    public static <T> String join(Collection<T> c, String delimiter) {
+        if (isEmpty(c)) {
             return "";
-        return join(c.toArray(), split);
+        }
+        return c.stream().map(String::valueOf).collect(Collectors.joining(delimiter));
     }
 
     public static <T extends Object> String join(T[] a) {
