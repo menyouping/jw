@@ -12,7 +12,7 @@ import com.jw.db.JwCallable;
 import com.jw.db.JwRunnable;
 import com.jw.db.JwTx;
 import com.jw.db.SQLUtils;
-import com.jw.util.JwUtils;
+import com.jw.util.CollectionUtils;
 import com.jw.web.bind.annotation.Repository;
 
 @Repository
@@ -35,7 +35,7 @@ public class WordRepository {
             @Override
             public Map<String, Object> call(Connection connection) throws Exception {
                 ResultSet rs = SQLUtils.query("select k,v, version from dict_word where id = ?", new Object[] { id });
-                return JwUtils.first(EntityUtils.toMaps(rs));
+                return CollectionUtils.first(EntityUtils.toMaps(rs));
             }
         });
     }
@@ -46,7 +46,7 @@ public class WordRepository {
             @Override
             public String call(Connection connection) throws Exception {
                 ResultSet rs = SQLUtils.query("select k from dict_word where id = ?", new Object[] { id });
-                return JwUtils.first(EntityUtils.toStrings(rs));
+                return CollectionUtils.first(EntityUtils.toStrings(rs));
             }
         });
     }

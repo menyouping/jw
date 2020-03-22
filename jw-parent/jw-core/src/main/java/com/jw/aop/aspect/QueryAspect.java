@@ -21,7 +21,7 @@ import com.jw.db.JwCallable;
 import com.jw.db.JwRunnable;
 import com.jw.db.JwTx;
 import com.jw.db.SQLUtils;
-import com.jw.util.JwUtils;
+import com.jw.util.CollectionUtils;
 import com.jw.util.StringUtils;
 
 @Aspect
@@ -81,9 +81,9 @@ public class QueryAspect {
                             return EntityUtils.toList(rs, modelClaze);
                         }
                         if (targetClaze.isAssignableFrom(Map.class)) {
-                            return JwUtils.first(EntityUtils.toMaps(rs));
+                            return CollectionUtils.first(EntityUtils.toMaps(rs));
                         }
-                        return JwUtils.first(EntityUtils.toList(rs, targetClaze));
+                        return CollectionUtils.first(EntityUtils.toList(rs, targetClaze));
                     }
                     return null;
                 }

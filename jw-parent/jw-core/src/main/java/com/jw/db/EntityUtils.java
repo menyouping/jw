@@ -22,6 +22,7 @@ import com.jw.domain.annotation.PrePersist;
 import com.jw.domain.annotation.PreRemove;
 import com.jw.domain.annotation.PreUpdate;
 import com.jw.domain.annotation.Table;
+import com.jw.util.CollectionUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.Pair;
 import com.jw.util.StringUtils;
@@ -47,7 +48,7 @@ public class EntityUtils {
     }
 
     public static void create(Class<?> claze, Map<String, Object> params) {
-        String sql = String.format(INSERT_SQL, getTableName(claze), JwUtils.join(params.keySet()),
+        String sql = String.format(INSERT_SQL, getTableName(claze), CollectionUtils.join(params.keySet()),
                 JwUtils.repeat('?', ',', params.size()));
         SQLUtils.update(sql, params.values().toArray());
     }
@@ -66,12 +67,12 @@ public class EntityUtils {
     }
 
     public static void delete(Class<?> claze, Map<String, Object> params) {
-        if (JwUtils.isEmpty(params))
+        if (CollectionUtils.isEmpty(params))
             return;
         StringBuilder sb = new StringBuilder();
         sb.append("DELETE FROM ").append(getTableName(claze)).append(" WHERE ");
 
-        String where = JwUtils.join(params.keySet(), "=? AND ") + "=?";
+        String where = CollectionUtils.join(params.keySet(), "=? AND ") + "=?";
         sb.append(where);
         SQLUtils.update(sb.toString(), params.values().toArray());
     }
@@ -99,12 +100,12 @@ public class EntityUtils {
     }
 
     public void update(Class<?> claze, Map<String, Object> params) {
-        if (JwUtils.isEmpty(params))
+        if (CollectionUtils.isEmpty(params))
             return;
         String primaryKey = getPrimaryKey(claze);
         Object primaryVal = params.remove(primaryKey);
 
-        String keys = JwUtils.join(params.keySet(), "=?,") + "=?";
+        String keys = CollectionUtils.join(params.keySet(), "=?,") + "=?";
         String sql = String.format(UPDATE_SQL, getTableName(claze), keys, primaryKey);
 
         List<Object> values = new ArrayList<Object>(params.values());
@@ -131,7 +132,7 @@ public class EntityUtils {
     }
 
     public static <T> T find(Class<T> claze, Map<String, Object> params) {
-        if (JwUtils.isEmpty(params))
+        if (CollectionUtils.isEmpty(params))
             return null;
         List<T> list = findList(claze, params);
         return list.isEmpty() ? null : list.get(0);
@@ -176,12 +177,12 @@ public class EntityUtils {
         StringBuilder sb = new StringBuilder();
         if (tableNameOrSql.length() <= 6 || !"SELECT".equals(tableNameOrSql.substring(0, 6).toUpperCase())) {
             List<String> fields = getColumnNames(dtoClaze);
-            sb.append("SELECT ").append(JwUtils.join(fields)).append(" FROM ").append(tableNameOrSql);
+            sb.append("SELECT ").append(CollectionUtils.join(fields)).append(" FROM ").append(tableNameOrSql);
         } else {
             sb.append(tableNameOrSql);
         }
 
-        String where = JwUtils.join(params.keySet(), "=? AND ") + "=?";
+        String where = CollectionUtils.join(params.keySet(), "=? AND ") + "=?";
         sb.append(" WHERE ").append(where);
         ResultSet rs = SQLUtils.query(sb.toString(), params.values().toArray());
         return toList(rs, dtoClaze);
@@ -189,7 +190,7 @@ public class EntityUtils {
 
     public static List<Map<String, Object>> findMaps(String tableName, String[] fields, Map<String, Object> params) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT ").append(JwUtils.join(fields)).append(" FROM ").append(tableName);
+        sb.append("SELECT ").append(CollectionUtils.join(fields)).append(" FROM ").append(tableName);
 
         return findMaps(sb.toString(), params);
     }
@@ -205,7 +206,7 @@ public class EntityUtils {
         StringBuilder sb = new StringBuilder();
         sb.append(sql).append(" WHERE ");
 
-        String where = JwUtils.join(params.keySet(), "=? AND ") + "=?";
+        String where = CollectionUtils.join(params.keySet(), "=? AND ") + "=?";
         sb.append(where);
         ResultSet rs = SQLUtils.query(sql, params);
 
@@ -225,12 +226,12 @@ public class EntityUtils {
     }
 
     public static <T> List<T> findList(Class<T> claze, Map<String, Object> params) {
-        if (JwUtils.isEmpty(params))
+        if (CollectionUtils.isEmpty(params))
             return null;
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT * FROM ").append(getTableName(claze)).append(" WHERE ");
 
-        String where = JwUtils.join(params.keySet(), "=? AND ") + "=?";
+        String where = CollectionUtils.join(params.keySet(), "=? AND ") + "=?";
         sb.append(where);
         ResultSet rs = SQLUtils.query(sb.toString(), params.values().toArray());
         return toList(rs, claze);
@@ -253,7 +254,7 @@ public class EntityUtils {
 
     public static <T> String getPrimaryKey(Class<T> claze) {
         Field[] fields = claze.getFields();
-        if (JwUtils.isEmpty(fields))
+        if (CollectionUtils.isEmpty(fields))
             return null;
 
         for (Field field : fields) {
@@ -273,7 +274,7 @@ public class EntityUtils {
         Class<?> claze = entity.getClass();
 
         Field[] fields = claze.getFields();
-        if (JwUtils.isEmpty(fields))
+        if (CollectionUtils.isEmpty(fields))
             return null;
 
         for (Field field : fields) {
@@ -291,10 +292,10 @@ public class EntityUtils {
     }
 
     public static <T> List<String> getColumnNames(Class<T> claze) {
-        List<String> colNames = JwUtils.newLinkedList();
+        List<String> colNames = CollectionUtils.newLinkedList();
 
         Field[] fields = claze.getFields();
-        if (JwUtils.isEmpty(fields))
+        if (CollectionUtils.isEmpty(fields))
             return null;
 
         for (Field field : fields) {
@@ -307,7 +308,7 @@ public class EntityUtils {
     }
 
     public static List<Map<String, Object>> toMaps(ResultSet rs) {
-        List<Map<String, Object>> list = JwUtils.newLinkedList();
+        List<Map<String, Object>> list = CollectionUtils.newLinkedList();
 
         try {
 
@@ -316,7 +317,7 @@ public class EntityUtils {
 
             Map<String, Object> t = null;
             while (rs.next()) {
-                t = JwUtils.newHashMap(count);
+                t = CollectionUtils.newHashMap(count);
                 for (int i = 1; i <= count; i++) {
                     t.put(metaData.getColumnLabel(i), rs.getObject(i));
                 }
@@ -427,7 +428,7 @@ public class EntityUtils {
         Class<?> claze = entity.getClass();
         Field[] fields = claze.getDeclaredFields();
 
-        Map<String, Object> map = JwUtils.newHashMap(fields.length);
+        Map<String, Object> map = CollectionUtils.newHashMap(fields.length);
         Transient ann = null;
         for (Field field : fields) {
             try {

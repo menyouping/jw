@@ -12,6 +12,7 @@ import com.jw.aop.annotation.Before;
 import com.jw.aop.annotation.Pointcut;
 import com.jw.aop.rule.JwRule;
 import com.jw.aop.rule.JwRuleFactory;
+import com.jw.util.CollectionUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.StringUtils;
 
@@ -34,7 +35,7 @@ public class JoinPoint {
 
     public JoinPoint(Class<?> aspectClaze) {
         List<Method> pointcutMethods = JwUtils.findMethods(aspectClaze, Pointcut.class);
-        if (JwUtils.isEmpty(pointcutMethods))
+        if (CollectionUtils.isEmpty(pointcutMethods))
             throw new IllegalArgumentException("There is no method with annotation Pointcut.class!");
 
         if (pointcutMethods.size() > 1)

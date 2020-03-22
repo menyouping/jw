@@ -15,6 +15,7 @@ import com.jw.cache.CacheUtils;
 import com.jw.cache.JwValueWrapper;
 import com.jw.cache.ValueWrapper;
 import com.jw.cache.annotation.Cacheable;
+import com.jw.util.CollectionUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.StringUtils;
 
@@ -35,7 +36,7 @@ public class CacheableAspect {
 
         String key = null;
         CacheManager manager = CacheManagerFactory.getManager();
-        if (!JwUtils.isEmpty(cacheNames)) {
+        if (!CollectionUtils.isEmpty(cacheNames)) {
             key = CacheUtils.getCacheKey(parameter, cacheNames, ann.prefix(), ann.join());
             if (StringUtils.isEmpty(key)) {
                 return null;
@@ -60,7 +61,7 @@ public class CacheableAspect {
         Object result = null;
         try {
             result = parameter.getProxy().invokeSuper(parameter.getObj(), parameter.getArgs());
-            if (!JwUtils.isEmpty(cacheNames)) {
+            if (!CollectionUtils.isEmpty(cacheNames)) {
                 for (String cacheName : cacheNames) {
                     Cache cache = manager.getCache(cacheName);
                     cache.put(key, result);

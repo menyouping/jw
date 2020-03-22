@@ -3,19 +3,19 @@ package com.jay.mvc.controller;
 import java.io.StringWriter;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSONObject;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.tools.generic.MathTool;
+import org.apache.velocity.tools.generic.NumberTool;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jay.mvc.dto.VelocityDto;
-import com.jw.util.JwUtils;
+import com.jw.util.CollectionUtils;
 import com.jw.util.StringUtils;
 import com.jw.web.bind.annotation.Controller;
 import com.jw.web.bind.annotation.ModelAttribute;
 import com.jw.web.bind.annotation.RequestMapping;
 import com.jw.web.bind.annotation.ResponseBody;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.tools.generic.MathTool;
-import org.apache.velocity.tools.generic.NumberTool;
 
 @RequestMapping(value = "/velocity")
 @Controller
@@ -29,7 +29,7 @@ public class VelocityController {
     @RequestMapping(value = "/render")
     @ResponseBody
     public Object render(@ModelAttribute("dto") VelocityDto dto) {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
 
         if (StringUtils.isEmpty(dto.getPayload())) {
             result.put("status", 200);

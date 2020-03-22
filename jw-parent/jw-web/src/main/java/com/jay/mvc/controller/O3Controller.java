@@ -3,10 +3,9 @@ package com.jay.mvc.controller;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-
 import com.jay.mvc.dto.O3Dto;
 import com.jay.utils.O3Utils;
-import com.jw.util.JwUtils;
+import com.jw.util.CollectionUtils;
 import com.jw.util.StringUtils;
 import com.jw.web.bind.annotation.Controller;
 import com.jw.web.bind.annotation.ModelAttribute;
@@ -30,7 +29,7 @@ public class O3Controller {
     @RequestMapping(value = "/sign")
     @ResponseBody
     public Object o3Sign(@ModelAttribute("dto") O3Dto o3Dto) {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
 
         if (!StringUtils.isEmpty(o3Dto.getBody())) {
             result.put("status", 200);

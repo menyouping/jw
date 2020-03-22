@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.Set;
 
 import com.jw.aop.annotation.Aspect;
+import com.jw.util.CollectionUtils;
 import com.jw.util.ConfigUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.PkgUtils;
 
 public class JwProxyRegistry {
-    private static final List<JoinPoint> JOIN_POINTS = JwUtils.newLinkedList();
+    private static final List<JoinPoint> JOIN_POINTS = CollectionUtils.newLinkedList();
 
     private JwProxyRegistry() {
     }
@@ -38,7 +39,7 @@ public class JwProxyRegistry {
     }
 
     public static List<JoinPoint> findMatchedAspects(Method targetMethod) {
-        List<JoinPoint> list = JwUtils.newLinkedList();
+        List<JoinPoint> list = CollectionUtils.newLinkedList();
         for (JoinPoint jp : JOIN_POINTS) {
             if (jp.match(targetMethod)) {
                 list.add(jp);

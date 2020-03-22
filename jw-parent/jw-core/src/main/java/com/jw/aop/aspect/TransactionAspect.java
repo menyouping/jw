@@ -16,7 +16,7 @@ import com.jw.db.JwCallable;
 import com.jw.db.JwConnection;
 import com.jw.db.JwRunnable;
 import com.jw.db.JwTx;
-import com.jw.util.JwUtils;
+import com.jw.util.CollectionUtils;
 import com.jw.util.StringUtils;
 
 @Aspect
@@ -70,7 +70,7 @@ public class TransactionAspect {
 
     private void setConnection(JointPointParameter parameter, Connection connection) {
         Object[] args = parameter.getArgs();
-        if (!JwUtils.isEmpty(args)) {
+        if (!CollectionUtils.isEmpty(args)) {
             Object arg = null;
             for (int i = 0; i < args.length; i++) {
                 arg = args[i];

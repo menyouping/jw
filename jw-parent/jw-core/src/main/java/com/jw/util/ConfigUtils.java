@@ -13,10 +13,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * 配置工具类
+ * @author jay
+ *
+ */
 public class ConfigUtils {
     private static Properties config = new Properties();
 
-    static {
+    public static void init() {
         List<File> files = FileUtils.findFiles(".properties");
         Properties prop = null;
         for (File file : files) {
@@ -28,10 +33,6 @@ public class ConfigUtils {
                 e.printStackTrace();
             }
         }
-    }
-
-    public static void init() {
-
     }
 
     public static Properties getProperties() {

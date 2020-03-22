@@ -17,7 +17,7 @@ public class PkgUtils {
 
     /**
      * 
-     * @param pkgName 支持多folder, 以";"分隔
+     * @param pkgName   支持多folder, 以";"分隔
      * @param annoClaze
      * @return
      * @throws Exception
@@ -25,19 +25,22 @@ public class PkgUtils {
     @SuppressWarnings({ "rawtypes" })
     public static <A extends Annotation> Set<Class<?>> findClazesByAnnotation(String pkgName, Class<A> annoClaze)
             throws Exception {
-        if(StringUtils.isEmpty(pkgName))
+        if (StringUtils.isEmpty(pkgName)) {
             return null;
+        }
         Set<Class<?>> list = new LinkedHashSet<Class<?>>();
-        
+
         Set<Class<?>> clazes = null;
         String[] pkgs = pkgName.split("\\s*;\\s*");
-        for(String pkg : pkgs) {
-            if(pkg.isEmpty())
+        for (String pkg : pkgs) {
+            if (pkg.isEmpty()) {
                 continue;
+            }
             clazes = getClazes(pkg);
             for (Class claze : clazes) {
-                if (claze.isAnnotation())
+                if (claze.isAnnotation()) {
                     continue;
+                }
                 if (JwUtils.isAnnotated(claze, annoClaze)) {
                     list.add(claze);
                 }
@@ -57,8 +60,9 @@ public class PkgUtils {
         String pkgDirName = pkg.replace('.', '/');
         try {
             URL url = PkgUtils.class.getClassLoader().getResource(pkgDirName);
-            if(url == null)
+            if (url == null) {
                 return classes;
+            }
             String protocol = url.getProtocol();
             if ("file".equals(protocol)) {// 如果是以文件的形式保存在服务器上
                 String filePath = URLDecoder.decode(url.getFile(), "UTF-8");// 获取包的物理路径
@@ -76,8 +80,9 @@ public class PkgUtils {
 
     public static void findClazesByFile(String pkgName, String pkgPath, final boolean recursive, Set<Class<?>> clazes) {
         File dir = new File(pkgPath);
-        if (!dir.exists() || !dir.isDirectory())
+        if (!dir.exists() || !dir.isDirectory()) {
             return;
+        }
         File[] dirfiles = dir.listFiles(new FileFilter() {
             public boolean accept(File file) {
                 return (recursive && file.isDirectory()) || (file.getName().endsWith(".class"));

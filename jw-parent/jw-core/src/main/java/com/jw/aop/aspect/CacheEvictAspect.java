@@ -13,7 +13,7 @@ import com.jw.cache.CacheManager;
 import com.jw.cache.CacheManagerFactory;
 import com.jw.cache.CacheUtils;
 import com.jw.cache.annotation.CacheEvict;
-import com.jw.util.JwUtils;
+import com.jw.util.CollectionUtils;
 
 @Aspect
 public class CacheEvictAspect {
@@ -33,7 +33,7 @@ public class CacheEvictAspect {
             CacheEvict ann = parameter.getMethod().getAnnotation(CacheEvict.class);
             String[] cacheNames = ann.value();
 
-            if (!JwUtils.isEmpty(cacheNames)) {
+            if (!CollectionUtils.isEmpty(cacheNames)) {
                 String key = CacheUtils.getCacheKey(parameter, cacheNames, ann.prefix(), ann.join());
                 CacheManager manager = CacheManagerFactory.getManager();
                 for (String cacheName : cacheNames) {

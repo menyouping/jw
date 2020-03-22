@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jw.util.CollectionUtils;
 import com.jw.util.JwUtils;
 import com.jw.web.bind.annotation.Component;
 
@@ -22,7 +23,7 @@ public class JwProxy implements MethodInterceptor {
         if (JwUtils.isAnnotated(method.getDeclaringClass(), Component.class)) {
             jps = JwProxyRegistry.findMatchedAspects(method);
         }
-        if (JwUtils.isEmpty(jps)) {
+        if (CollectionUtils.isEmpty(jps)) {
             result = proxy.invokeSuper(obj, args);
         } else {
             JointPointParameter parameter = new JointPointParameter(obj, method, args, proxy);

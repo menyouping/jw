@@ -79,12 +79,14 @@ public class StringUtils {
      * @return
      */
     public static String upperFirst(String str) {
-        if (StringUtils.isEmpty(str))
+        if (StringUtils.isEmpty(str)) {
             return str;
+        }
 
         char ch = str.charAt(0);
-        if (ch < 'a' || ch > 'z')
+        if (ch < 'a' || ch > 'z') {
             return str;
+        }
 
         char[] cs = str.toCharArray();
         cs[0] = Character.toUpperCase(ch);
@@ -98,12 +100,14 @@ public class StringUtils {
      * @return
      */
     public static String lowerFirst(String str) {
-        if (StringUtils.isEmpty(str))
+        if (StringUtils.isEmpty(str)) {
             return str;
+        }
 
         char ch = str.charAt(0);
-        if (ch < 'A' || ch > 'Z')
+        if (ch < 'A' || ch > 'Z') {
             return str;
+        }
 
         char[] cs = str.toCharArray();
         cs[0] = Character.toLowerCase(ch);

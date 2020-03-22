@@ -28,6 +28,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jw.ui.JwModel;
 import com.jw.ui.Model;
+import com.jw.util.CollectionUtils;
 import com.jw.util.ConfigUtils;
 import com.jw.util.FileUtils;
 import com.jw.util.JwUtils;
@@ -73,8 +74,9 @@ public class DispatcherServlet extends HttpServlet {
 
         String path = request.getRequestURI().substring(appName.length());
         // handle static resource, e.g. css, js, html...
-        if (isStaticResource(response, path))
+        if (isStaticResource(response, path)) {
             return;
+        }
         // remove the last /
         if (path.length() > 1 && path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
@@ -89,19 +91,19 @@ public class DispatcherServlet extends HttpServlet {
         // build context
         SessionContext.buildContext().set(SessionContext.REQUEST, request).set(SessionContext.RESPONSE, response)
                 .set(SessionContext.SESSION, request.getSession()).set("requestUrl", path);
-        // upload file
-        if (ServletFileUpload.isMultipartContent(request)) {
-            SessionContext.getContext().set(SessionContext.FILE_UPLOAD_PARAMETERS,
-                    FileUtils.uploadFiles(this, request));
-        }
-        // invork method
-        Method method = urlMapping.getMethod();
-        Object[] paras = null;
         try {
+            // upload file
+            if (ServletFileUpload.isMultipartContent(request)) {
+                SessionContext.getContext().set(SessionContext.FILE_UPLOAD_PARAMETERS,
+                        FileUtils.uploadFiles(this, request));
+            }
+            // invork method
+            Method method = urlMapping.getMethod();
+            Object[] paras = null;
             Object controller = AppContext.getBean(urlMapping.getClaze());
 
             List<Method> modelAttributeMethods = JwUtils.findMethods(urlMapping.getClaze(), ModelAttribute.class);
-            if (!JwUtils.isEmpty(modelAttributeMethods)) {
+            if (!CollectionUtils.isEmpty(modelAttributeMethods)) {
                 for (Method modelAttributeMethod : modelAttributeMethods) {
                     paras = autowireParameters(null, modelAttributeMethod);
                     modelAttributeMethod.invoke(controller, paras);
@@ -138,6 +140,8 @@ public class DispatcherServlet extends HttpServlet {
             LOGGER.error("Error raised in DispatcherServlet.", e);
             showError(request, response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
+        } finally {
+            SessionContext.removeContext();
         }
     }
 
@@ -251,7 +255,7 @@ public class DispatcherServlet extends HttpServlet {
                 if (name.isEmpty())
                     continue;
                 Cookie[] cookies = SessionContext.getRequest().getCookies();
-                if (!JwUtils.isEmpty(cookies)) {
+                if (!CollectionUtils.isEmpty(cookies)) {
                     for (Cookie cookie : cookies) {
                         if (name.equals(cookie.getName())) {
                             value = cookie.getValue();

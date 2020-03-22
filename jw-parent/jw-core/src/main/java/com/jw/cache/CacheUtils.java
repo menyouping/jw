@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jw.aop.JointPointParameter;
 import com.jw.cache.annotation.CacheKey;
-import com.jw.util.JwUtils;
+import com.jw.util.CollectionUtils;
 import com.jw.util.StringUtils;
 
 public class CacheUtils {
@@ -20,12 +20,12 @@ public class CacheUtils {
 
     public static String getCacheKey(final JointPointParameter parameter, String[] cacheNames, String prefix,
             String join) {
-        if (JwUtils.count(parameter.getArgs()) == 1) {
+        if (CollectionUtils.count(parameter.getArgs()) == 1) {
             return prefix + parameter.getArgs()[0].toString();
         } else {
             Map<String, Object> params = new LinkedHashMap<>();
             Annotation[][] methodParamAnnos = parameter.getMethod().getParameterAnnotations();
-            if (!JwUtils.isEmpty(methodParamAnnos)) {
+            if (!CollectionUtils.isEmpty(methodParamAnnos)) {
                 Annotation[] paramAnnos;
                 for (int i = 0; i < methodParamAnnos.length; i++) {
                     paramAnnos = methodParamAnnos[i];

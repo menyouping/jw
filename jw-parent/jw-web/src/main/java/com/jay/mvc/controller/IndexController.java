@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-
 import com.jay.aop.annotation.Log;
 import com.jay.mvc.dto.UserDto;
 import com.jay.mvc.service.UserService;
@@ -14,7 +13,7 @@ import com.jw.db.JwConnection;
 import com.jw.domain.annotation.Autowired;
 import com.jw.domain.annotation.Value;
 import com.jw.ui.Model;
-import com.jw.util.JwUtils;
+import com.jw.util.CollectionUtils;
 import com.jw.util.SessionContext;
 import com.jw.validation.ValidErrors;
 import com.jw.web.bind.annotation.Controller;
@@ -112,7 +111,7 @@ public class IndexController {
     @RequestMapping("/upload-file")
     @ResponseBody
     public Object uploadFile() {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         result.put("body", SessionContext.getContext().get(SessionContext.FILE_UPLOAD_PARAMETERS));
@@ -122,7 +121,7 @@ public class IndexController {
     @RequestMapping("/health-check")
     @ResponseBody
     public Object healthCheck(@RequestParam("maxConn") int maxConn) {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         JSONObject body = new JSONObject();
@@ -134,7 +133,7 @@ public class IndexController {
     @RequestMapping("/rest/{user}/{age}")
     @ResponseBody
     public Object rest(@PathVariable("user") String user, @PathVariable("age") int age) {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         JSONObject body = new JSONObject();
@@ -148,7 +147,7 @@ public class IndexController {
     @ResponseBody
     public Object rest(@PathVariable("user") String user, @PathVariable("age") int age,
             @PathVariable("sex") Boolean sex) {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         JSONObject body = new JSONObject();
@@ -163,7 +162,7 @@ public class IndexController {
     @RequestMapping(value = "/model")
     @ResponseBody
     public Object model(@ModelAttribute("dto") UserDto userDto) {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         result.put("body", JSONObject.parse(JSON.toJSONString(userDto)));
@@ -173,7 +172,7 @@ public class IndexController {
     @RequestMapping(value = "/form", method = RequestMethod.POST)
     @ResponseBody
     public Object form(@ModelAttribute("dto") UserDto userDto) {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         result.put("body", JSONObject.parse(JSON.toJSONString(userDto)));
@@ -183,7 +182,7 @@ public class IndexController {
     @RequestMapping(value = "/request")
     @ResponseBody
     public Object doRequest() {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         result.put("body", request.getServletPath());
@@ -193,7 +192,7 @@ public class IndexController {
     @RequestMapping(value = "/tx")
     @ResponseBody
     public Object tx() {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         result.put("body", service.find(JwConnection.create(), 1));
@@ -203,7 +202,7 @@ public class IndexController {
     @RequestMapping(value = "/query")
     @ResponseBody
     public Object query() {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         result.put("body", service.findById(1));
@@ -213,7 +212,7 @@ public class IndexController {
     @RequestMapping(value = "/save")
     @ResponseBody
     public Object save() {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         return result;
@@ -222,7 +221,7 @@ public class IndexController {
     @RequestMapping(value = "/cache")
     @ResponseBody
     public Object cache() {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         result.put("body", service.findUser(1));
@@ -232,7 +231,7 @@ public class IndexController {
     @RequestMapping(value = "/cache2")
     @ResponseBody
     public Object cache2() {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         result.put("body", service.findUser("jay", 30));
@@ -242,7 +241,7 @@ public class IndexController {
     @RequestMapping(value = "/clearCache")
     @ResponseBody
     public Object clearCache() {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         result.put("message", "SUCCESS");
         service.deleteUser(1);
@@ -252,7 +251,7 @@ public class IndexController {
     @RequestMapping(value = "/valid")
     @ResponseBody
     public Object valid(@Valid @ModelAttribute("dto") UserDto dto, ValidErrors error) {
-        Map<String, Object> result = JwUtils.newHashMap();
+        Map<String, Object> result = CollectionUtils.newHashMap();
         result.put("status", 200);
         if (error == null) {
             result.put("message", "SUCCESS");

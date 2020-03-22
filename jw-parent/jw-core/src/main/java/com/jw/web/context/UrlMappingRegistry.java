@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.jw.util.CollectionUtils;
 import com.jw.util.ConfigUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.PkgUtils;
@@ -32,7 +33,7 @@ public class UrlMappingRegistry {
     /**
      * Store url with path variable
      */
-    private static final List<UrlMapping> pathUrls = JwUtils.newArrayList();
+    private static final List<UrlMapping> pathUrls = CollectionUtils.newArrayList();
 
     private UrlMappingRegistry() {
     }
@@ -66,7 +67,7 @@ public class UrlMappingRegistry {
 
         if (JwUtils.isAnnotated(controller, RequestMapping.class)) {
             urls = controller.getAnnotation(RequestMapping.class).value();
-            if (JwUtils.isEmpty(urls) || urls.length > 1) {
+            if (CollectionUtils.isEmpty(urls) || urls.length > 1) {
                 LOGGER.error("RequestMapping on class {} is invalid.", controller.getName());
                 return;
             } else {
@@ -106,8 +107,8 @@ public class UrlMappingRegistry {
         url = StringUtils.replaceConfig(url);
         if (StringUtils.PATTERN_PATH_VARIABLE.matcher(url).find()) {
             Annotation[][] methodParamAnnos = method.getParameterAnnotations();
-            if (!JwUtils.isEmpty(methodParamAnnos)) {
-                Map<String, Integer> pathVariableMap = JwUtils.newHashMap();
+            if (!CollectionUtils.isEmpty(methodParamAnnos)) {
+                Map<String, Integer> pathVariableMap = CollectionUtils.newHashMap();
                 Annotation[] paramAnnos = null;
                 Class<?>[] paramTypes = method.getParameterTypes();
                 Class<?> paramType;
@@ -162,8 +163,8 @@ public class UrlMappingRegistry {
      */
     public static UrlMapping match(String requestMethod, String path) {
         Collection<UrlMapping> urlMappings = urlMap.get(path);
-        if (JwUtils.isEmpty(urlMappings)) {
-            if (!JwUtils.isEmpty(pathUrls)) {
+        if (CollectionUtils.isEmpty(urlMappings)) {
+            if (!CollectionUtils.isEmpty(pathUrls)) {
                 for (UrlMapping urlMapping : pathUrls) {
                     if (urlMapping.getUrlPattern().matcher(path).find()) {
                         urlMappings = urlMap.get(urlMapping.getUrl());
@@ -172,14 +173,14 @@ public class UrlMappingRegistry {
                 }
             }
         }
-        if (JwUtils.isEmpty(urlMappings)) {
+        if (CollectionUtils.isEmpty(urlMappings)) {
             return null;
         }
         RequestMethod[] allowedActions;
         for (UrlMapping urlMapping : urlMappings) {
             allowedActions = urlMapping.getMethod().getAnnotation(RequestMapping.class).method();
 
-            if (JwUtils.isEmpty(allowedActions))
+            if (CollectionUtils.isEmpty(allowedActions))
                 return urlMapping;
 
             for (RequestMethod allowedAction : allowedActions) {
