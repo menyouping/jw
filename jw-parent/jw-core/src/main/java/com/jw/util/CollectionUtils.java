@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CollectionUtils {
 
@@ -37,7 +38,6 @@ public class CollectionUtils {
     public static <T> boolean isEmpty(T[] arr) {
         return arr == null || arr.length == 0;
     }
-
 
     public static <T, V> Map<T, V> newHashMap() {
         return new HashMap<T, V>();
@@ -75,23 +75,13 @@ public class CollectionUtils {
         return join(a, ",");
     }
 
-    public static <T extends Object> String join(T[] a, String split) {
-        if (a == null || a.length == 0) {
+    public static <T extends Object> String join(T[] array, String delimiter) {
+        if (isEmpty(array)) {
             return "";
         }
-        StringBuilder sb = new StringBuilder();
-        boolean flag = false;
-        for (T t : a) {
-            if (flag) {
-                sb.append(split);
-            } else {
-                flag = true;
-            }
-            sb.append(String.valueOf(t));
-        }
-        return sb.toString();
+        return Arrays.stream(array).map(String::valueOf).collect(Collectors.joining(delimiter));
     }
-    
+
     public static void main(String[] args) {
         System.out.println(CollectionUtils.join(Arrays.asList(1, 2, 3)));
         System.out.println(CollectionUtils.join(Arrays.asList(1, 2, 3), "-"));
