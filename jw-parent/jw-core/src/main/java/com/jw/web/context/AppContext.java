@@ -8,6 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jw.aop.JwHttpServletRequest;
 import com.jw.aop.JwHttpServletResponse;
 import com.jw.aop.JwHttpSession;
@@ -15,6 +18,7 @@ import com.jw.aop.JwProxyFactory;
 import com.jw.domain.annotation.Autowired;
 import com.jw.domain.annotation.Value;
 import com.jw.util.AnnotationUtils;
+import com.jw.util.CollectionUtils;
 import com.jw.util.ConfigUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.PkgUtils;
@@ -22,6 +26,8 @@ import com.jw.util.StringUtils;
 import com.jw.web.bind.annotation.Component;
 
 public class AppContext {
+    private static final Logger LOG = LoggerFactory.getLogger(AppContext.class);
+
     private static final Map<String, String> clazeMap = new ConcurrentHashMap<String, String>();
 
     private static final Map<String, Object> beanMap = new ConcurrentHashMap<String, Object>();
@@ -31,29 +37,23 @@ public class AppContext {
      */
     private static final boolean IS_AOP_ENABLE = ConfigUtils.getBoolean("aop.enable", false);
 
-    static {
-        Set<Class<?>> clazes = null;
-
-        try {
-            clazes = PkgUtils.findClazesByAnnotation(ConfigUtils.getProperty("package.scan"), Component.class);
-            for (Class<?> claze : clazes) {
-                clazeMap.put(StringUtils.lowerFirst(claze.getSimpleName()), claze.getName());
-            }
-            clazeMap.put("httpServletRequest", HttpServletRequest.class.getName());
-            beanMap.put("httpServletRequest", new JwHttpServletRequest());
-
-            clazeMap.put("httpServletResponse", HttpServletResponse.class.getName());
-            beanMap.put("httpServletResponse", new JwHttpServletResponse());
-
-            clazeMap.put("httpSession", HttpServletResponse.class.getName());
-            beanMap.put("httpSession", new JwHttpSession());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void init() {
+        String pkg = ConfigUtils.getProperty("package.scan");
+        Set<Class<?>> clazes = PkgUtils.findClazesByAnnotation(pkg, Component.class);
+        if (CollectionUtils.isEmpty(clazes)) {
+            return;
+        }
+        for (Class<?> claze : clazes) {
+            clazeMap.put(StringUtils.lowerFirst(claze.getSimpleName()), claze.getName());
+        }
+        clazeMap.put("httpServletRequest", HttpServletRequest.class.getName());
+        beanMap.put("httpServletRequest", new JwHttpServletRequest());
 
+        clazeMap.put("httpServletResponse", HttpServletResponse.class.getName());
+        beanMap.put("httpServletResponse", new JwHttpServletResponse());
+
+        clazeMap.put("httpSession", HttpServletResponse.class.getName());
+        beanMap.put("httpSession", new JwHttpSession());
     }
 
     private AppContext() {
@@ -88,7 +88,7 @@ public class AppContext {
         try {
             claze = (Class<T>) Class.forName(clazeName);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            LOG.error(String.format("加载类%s失败", clazeName), e);
             return null;
         }
         return getBean(claze);
@@ -98,19 +98,28 @@ public class AppContext {
     @SuppressWarnings("unchecked")
     public static <T> T getBean(Class<T> claze) {
         String clazeName = StringUtils.lowerFirst(claze.getSimpleName());
-        if (beanMap.containsKey(clazeName))
+        if (beanMap.containsKey(clazeName)) {
             return (T) beanMap.get(clazeName);
+        }
 
         try {
             T entity = autowireClaze(claze);
             beanMap.put(clazeName, entity);
             return entity;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(String.format("装配类%s实例失败", clazeName), e);
         }
         return null;
     }
 
+    /**
+     * 自动装配Bean
+     * 
+     * @param <T>
+     * @param claze
+     * @return
+     * @throws Exception
+     */
     private static <T> T autowireClaze(Class<T> claze) throws Exception {
         boolean isComponent = AnnotationUtils.isAnnotated(claze, Component.class);
         T entity = IS_AOP_ENABLE && isComponent ? JwProxyFactory.getProxyInstance(claze) : claze.newInstance();
@@ -127,20 +136,22 @@ public class AppContext {
     private static <T> Object autowireField(T entity, Field field) throws Exception {
         if (AnnotationUtils.isAnnotated(field, Autowired.class)) {
             Object value = AppContext.getBean(StringUtils.lowerFirst(field.getType().getSimpleName()));
-            if (value == null && field.getAnnotation(Autowired.class).required())
-                throw new Exception(String.format("Field %s in %s is not found the autowired bean.", field.getName(),
-                        entity.getClass().getName()));
+            if (value == null && field.getAnnotation(Autowired.class).required()) {
+                throw new Exception(String.format("类%s字段%s未找到实例.", entity.getClass().getName(), field.getName()));
+            }
             field.setAccessible(true);
             field.set(entity, value);
             return value;
         }
 
         Value ann = field.getAnnotation(Value.class);
-        if (ann == null)
+        if (ann == null) {
             return null;
+        }
         String key = ann.value();
-        if (StringUtils.isEmpty(key))
+        if (StringUtils.isEmpty(key)) {
             return key;
+        }
 
         String value = key;
         if (JwUtils.isBindKey(key)) {
@@ -152,8 +163,7 @@ public class AppContext {
             field.set(entity, targetValue);
             return targetValue;
         }
-        throw new Exception(String.format("Field %s in %s is not support autowired.", field.getName(),
-                entity.getClass().getName()));
+        throw new Exception(String.format("类%s字段%s不支持Autowired.", entity.getClass().getName(), field.getName()));
     }
 
 }

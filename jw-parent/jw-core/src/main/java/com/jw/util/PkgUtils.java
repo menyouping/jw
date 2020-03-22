@@ -33,8 +33,7 @@ public class PkgUtils {
      * @throws Exception
      */
     @SuppressWarnings({ "rawtypes" })
-    public static <A extends Annotation> Set<Class<?>> findClazesByAnnotation(String pkgName, Class<A> annoClaze)
-            throws Exception {
+    public static <A extends Annotation> Set<Class<?>> findClazesByAnnotation(String pkgName, Class<A> annoClaze) {
         ArgumentChecker.notEmpty(pkgName);
 
         Set<Class<?>> set = new LinkedHashSet<Class<?>>();
@@ -150,7 +149,7 @@ public class PkgUtils {
             if (fullClazeName.endsWith(".class")) {
                 fullClazeName = fullClazeName.substring(0, fullClazeName.length() - 6);
             }
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 LOG.info("加载类{}", fullClazeName);
             }
             return Class.forName(fullClazeName);

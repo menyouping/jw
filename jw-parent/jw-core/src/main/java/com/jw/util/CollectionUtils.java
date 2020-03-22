@@ -55,14 +55,15 @@ public class CollectionUtils {
         return new LinkedList<T>();
     }
 
-    public static <T> List<T> newArrayList(int len) {
-        return new ArrayList<T>(len);
+    public static <T> List<T> newArrayList(int initialCapacity) {
+        return new ArrayList<T>(initialCapacity);
     }
 
     public static <T> String join(Collection<T> c) {
-        if (c == null || c.isEmpty())
+        if (isEmpty(c)) {
             return "";
-        return join(c.toArray(), ",");
+        }
+        return join(c, ",");
     }
 
     public static <T> String join(Collection<T> c, String delimiter) {

@@ -24,7 +24,7 @@ import com.jw.web.bind.annotation.RequestMethod;
 
 public class UrlMappingRegistry {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UrlMappingRegistry.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UrlMappingRegistry.class);
 
     /**
      * store common url
@@ -38,24 +38,20 @@ public class UrlMappingRegistry {
     private UrlMappingRegistry() {
     }
 
-    static {
-        Set<Class<?>> clazes = null;
-
+    public static void init() {
         try {
-            clazes = PkgUtils.findClazesByAnnotation(ConfigUtils.getProperty("package.scan"), Controller.class);
+            String pkg = ConfigUtils.getProperty("package.scan");
+            Set<Class<?>> clazes = PkgUtils.findClazesByAnnotation(pkg, Controller.class);
             register(clazes);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("注册Controller失败", e);
         }
     }
 
-    public static void init() {
-
-    }
-
     public static void register(Collection<Class<?>> controllers) {
-        if (controllers == null || controllers.isEmpty())
+        if (controllers == null || controllers.isEmpty()) {
             return;
+        }
         for (Class<?> controller : controllers) {
             register(controller);
         }
@@ -68,7 +64,7 @@ public class UrlMappingRegistry {
         if (AnnotationUtils.isAnnotated(controller, RequestMapping.class)) {
             urls = controller.getAnnotation(RequestMapping.class).value();
             if (CollectionUtils.isEmpty(urls) || urls.length > 1) {
-                LOGGER.error("RequestMapping on class {} is invalid.", controller.getName());
+                LOG.error("类{}的RequestMapping配置不正确.", controller.getName());
                 return;
             } else {
                 clazeUrl = urls[0];
@@ -80,19 +76,16 @@ public class UrlMappingRegistry {
 
         boolean flag = false;
         for (Method method : methods) {
-            if (!AnnotationUtils.isAnnotated(method, RequestMapping.class))
+            if (!AnnotationUtils.isAnnotated(method, RequestMapping.class)) {
                 continue;
+            }
             method.setAccessible(true);
             urls = method.getAnnotation(RequestMapping.class).value();
             flag = false;
             for (String url : urls) {
-                try {
-                    urlMapping = buildUrlMapping(method, clazeUrl, url);
-                    urlMap.put(clazeUrl + url, urlMapping);
-                    flag = true;
-                } catch (Exception e) {
-                    LOGGER.error("Error raised when building urlMapping, url is " + url, e);
-                }
+                urlMapping = buildUrlMapping(method, clazeUrl, url);
+                urlMap.put(clazeUrl + url, urlMapping);
+                flag = true;
             }
             if (!flag) {
                 urlMapping = new UrlMapping(method);
@@ -105,59 +98,62 @@ public class UrlMappingRegistry {
         UrlMapping urlMapping = new UrlMapping(method);
 
         url = StringUtils.replaceConfig(url);
-        if (StringUtils.PATTERN_PATH_VARIABLE.matcher(url).find()) {
-            Annotation[][] methodParamAnnos = method.getParameterAnnotations();
-            if (!CollectionUtils.isEmpty(methodParamAnnos)) {
-                Map<String, Integer> pathVariableMap = CollectionUtils.newHashMap();
-                Annotation[] paramAnnos = null;
-                Class<?>[] paramTypes = method.getParameterTypes();
-                Class<?> paramType;
-                int index = 1;// the regex index in url
-                String key, exp = null;
-                String urlExpression = url;
-                for (int i = 0; i < methodParamAnnos.length; i++) {
-                    paramAnnos = methodParamAnnos[i];
-                    for (Annotation anno : paramAnnos) {
-                        if (PathVariable.class.equals(anno.annotationType())) {
-                            paramType = paramTypes[i];
-                            key = ((PathVariable) anno).value();
-                            pathVariableMap.put(key, index);
-                            if (String.class.equals(paramType)) {
-                                exp = "([^/]+)";
-                            } else if (Integer.TYPE.equals(paramType) || Integer.class.equals(paramType)
-                                    || Long.TYPE.equals(paramType) || Long.class.equals(paramType)) {
-                                exp = "([-+]?\\d+)";
-                            } else if (Double.TYPE.equals(paramType) || Double.class.equals(paramType)
-                                    || Float.TYPE.equals(paramType) || Float.class.equals(paramType)) {
-                                exp = "([-+]?\\d+(\\.\\d+)?)";
-                                index++;
-                            } else if (Boolean.TYPE.equals(paramType) || Boolean.class.equals(paramType)) {
-                                exp = "(true|false|y|n|yes|no|1|0)";
-                            }
-                            index++;
-                            urlExpression = urlExpression.replace("{" + key + "}", exp);
-                            break;
-                        }
-                    }
-                }
-                urlMapping.setUrl(clazeUrl + url);
-                urlMapping.setUrlExpression("^" + clazeUrl + urlExpression + "$");
-                urlMapping.setPathVariableMap(pathVariableMap);
-                pathUrls.add(urlMapping);
-            }
-        } else {
+        if (!StringUtils.PATTERN_PATH_VARIABLE.matcher(url).find()) {
             urlMapping.setUrl(clazeUrl + url);
             urlMapping.setUrlExpression("^" + clazeUrl + url + "$");
             pathUrls.add(urlMapping);
+            return urlMapping;
         }
+
+        Annotation[][] methodParamAnnos = method.getParameterAnnotations();
+        if (CollectionUtils.isEmpty(methodParamAnnos)) {
+            return urlMapping;
+        }
+
+        Map<String, Integer> pathVariableMap = CollectionUtils.newHashMap();
+        Annotation[] paramAnnos = null;
+        Class<?>[] paramTypes = method.getParameterTypes();
+        Class<?> paramType;
+        int index = 1;// the regex index in url
+        String key, exp = null;
+        String urlExpression = url;
+        for (int i = 0; i < methodParamAnnos.length; i++) {
+            paramAnnos = methodParamAnnos[i];
+            for (Annotation anno : paramAnnos) {
+                if (PathVariable.class != anno.annotationType()) {
+                    continue;
+                }
+                paramType = paramTypes[i];
+                key = ((PathVariable) anno).value();
+                pathVariableMap.put(key, index);
+                if (String.class.equals(paramType)) {
+                    exp = "([^/]+)";
+                } else if (Integer.TYPE.equals(paramType) || Integer.class.equals(paramType)
+                        || Long.TYPE.equals(paramType) || Long.class.equals(paramType)) {
+                    exp = "([-+]?\\d+)";
+                } else if (Double.TYPE.equals(paramType) || Double.class.equals(paramType)
+                        || Float.TYPE.equals(paramType) || Float.class.equals(paramType)) {
+                    exp = "([-+]?\\d+(\\.\\d+)?)";
+                    index++;
+                } else if (Boolean.TYPE.equals(paramType) || Boolean.class.equals(paramType)) {
+                    exp = "(true|false|y|n|yes|no|1|0)";
+                }
+                index++;
+                urlExpression = urlExpression.replace("{" + key + "}", exp);
+                break;
+            }
+        }
+        urlMapping.setUrl(clazeUrl + url);
+        urlMapping.setUrlExpression("^" + clazeUrl + urlExpression + "$");
+        urlMapping.setPathVariableMap(pathVariableMap);
+        pathUrls.add(urlMapping);
         return urlMapping;
     }
 
     /**
      * 根据用户请求的路径，查找对应的Java class和method
      * 
-     * @param requestMethod
-     *            GET,POST,PUT,DELETE, ...
+     * @param requestMethod GET,POST,PUT,DELETE, ...
      * @param path
      * @return
      */

@@ -80,8 +80,9 @@ public class UrlMapping {
     }
 
     public String getPathVariable(String realUrl, String pathVariableName) {
-        if (!hasPathVariable)
+        if (!hasPathVariable) {
             return null;
+        }
         Matcher m = urlPattern.matcher(realUrl);
         if (m.find()) {
             int index = pathVariableMap.get(pathVariableName);
