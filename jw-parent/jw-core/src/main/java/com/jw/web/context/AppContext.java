@@ -14,6 +14,7 @@ import com.jw.aop.JwHttpSession;
 import com.jw.aop.JwProxyFactory;
 import com.jw.domain.annotation.Autowired;
 import com.jw.domain.annotation.Value;
+import com.jw.util.AnnotationUtils;
 import com.jw.util.ConfigUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.PkgUtils;
@@ -111,7 +112,7 @@ public class AppContext {
     }
 
     private static <T> T autowireClaze(Class<T> claze) throws Exception {
-        boolean isComponent = JwUtils.isAnnotated(claze, Component.class);
+        boolean isComponent = AnnotationUtils.isAnnotated(claze, Component.class);
         T entity = IS_AOP_ENABLE && isComponent ? JwProxyFactory.getProxyInstance(claze) : claze.newInstance();
         if (isComponent) {
             Field[] fields = claze.getDeclaredFields();
@@ -124,7 +125,7 @@ public class AppContext {
     }
 
     private static <T> Object autowireField(T entity, Field field) throws Exception {
-        if (JwUtils.isAnnotated(field, Autowired.class)) {
+        if (AnnotationUtils.isAnnotated(field, Autowired.class)) {
             Object value = AppContext.getBean(StringUtils.lowerFirst(field.getType().getSimpleName()));
             if (value == null && field.getAnnotation(Autowired.class).required())
                 throw new Exception(String.format("Field %s in %s is not found the autowired bean.", field.getName(),

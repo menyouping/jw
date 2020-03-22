@@ -22,9 +22,11 @@ import com.jw.domain.annotation.PrePersist;
 import com.jw.domain.annotation.PreRemove;
 import com.jw.domain.annotation.PreUpdate;
 import com.jw.domain.annotation.Table;
+import com.jw.util.AnnotationUtils;
 import com.jw.util.CollectionUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.Pair;
+import com.jw.util.ReflectionUtils;
 import com.jw.util.StringUtils;
 
 public class EntityUtils {
@@ -38,12 +40,12 @@ public class EntityUtils {
 
     public static Object create(Object entity) {
         Class<?> claze = entity.getClass();
-        JwUtils.runMethodWithAnnotation(claze, entity, PrePersist.class);
+        ReflectionUtils.runMethodWithAnnotation(claze, entity, PrePersist.class);
 
         Map<String, Object> map = convert2Map(entity);
         create(claze, map);
 
-        JwUtils.runMethodWithAnnotation(claze, entity, PostPersist.class);
+        ReflectionUtils.runMethodWithAnnotation(claze, entity, PostPersist.class);
         return entity;
     }
 
@@ -57,13 +59,13 @@ public class EntityUtils {
 
     public static void delete(Object entity) {
         Class<?> claze = entity.getClass();
-        JwUtils.runMethodWithAnnotation(claze, entity, PreRemove.class);
+        ReflectionUtils.runMethodWithAnnotation(claze, entity, PreRemove.class);
 
         Pair pair = getPrimaryKey(entity);
         String sql = String.format(DELETE_SQL, getTableName(entity), pair.getKey());
         SQLUtils.update(sql, new Object[] { pair.getValue() });
 
-        JwUtils.runMethodWithAnnotation(claze, entity, PostRemove.class);
+        ReflectionUtils.runMethodWithAnnotation(claze, entity, PostRemove.class);
     }
 
     public static void delete(Class<?> claze, Map<String, Object> params) {
@@ -91,12 +93,12 @@ public class EntityUtils {
 
     public void update(Object entity) {
         Class<?> claze = entity.getClass();
-        JwUtils.runMethodWithAnnotation(claze, entity, PreUpdate.class);
+        ReflectionUtils.runMethodWithAnnotation(claze, entity, PreUpdate.class);
 
         Map<String, Object> map = convert2Map(entity);
         update(entity.getClass(), map);
 
-        JwUtils.runMethodWithAnnotation(claze, entity, PostUpdate.class);
+        ReflectionUtils.runMethodWithAnnotation(claze, entity, PostUpdate.class);
     }
 
     public void update(Class<?> claze, Map<String, Object> params) {
@@ -258,7 +260,7 @@ public class EntityUtils {
             return null;
 
         for (Field field : fields) {
-            if (!JwUtils.isAnnotated(field, Id.class))
+            if (!AnnotationUtils.isAnnotated(field, Id.class))
                 continue;
             try {
                 return StringUtils.toColumnName(field.getName());
@@ -278,7 +280,7 @@ public class EntityUtils {
             return null;
 
         for (Field field : fields) {
-            if (!JwUtils.isAnnotated(field, Id.class))
+            if (!AnnotationUtils.isAnnotated(field, Id.class))
                 continue;
             try {
                 field.setAccessible(true);
@@ -299,7 +301,7 @@ public class EntityUtils {
             return null;
 
         for (Field field : fields) {
-            if (!JwUtils.isAnnotated(field, Id.class))
+            if (!AnnotationUtils.isAnnotated(field, Id.class))
                 continue;
             colNames.add(StringUtils.toColumnName(field.getName()));
         }

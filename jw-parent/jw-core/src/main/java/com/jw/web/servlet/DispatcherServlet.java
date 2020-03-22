@@ -28,11 +28,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jw.ui.JwModel;
 import com.jw.ui.Model;
+import com.jw.util.AnnotationUtils;
 import com.jw.util.CollectionUtils;
 import com.jw.util.ConfigUtils;
 import com.jw.util.FileUtils;
 import com.jw.util.JwUtils;
 import com.jw.util.MimeUtils;
+import com.jw.util.ReflectionUtils;
 import com.jw.util.SessionContext;
 import com.jw.util.StringUtils;
 import com.jw.validation.ConstraintValidatorManager;
@@ -102,7 +104,7 @@ public class DispatcherServlet extends HttpServlet {
             Object[] paras = null;
             Object controller = AppContext.getBean(urlMapping.getClaze());
 
-            List<Method> modelAttributeMethods = JwUtils.findMethods(urlMapping.getClaze(), ModelAttribute.class);
+            List<Method> modelAttributeMethods = ReflectionUtils.findMethods(urlMapping.getClaze(), ModelAttribute.class);
             if (!CollectionUtils.isEmpty(modelAttributeMethods)) {
                 for (Method modelAttributeMethod : modelAttributeMethods) {
                     paras = autowireParameters(null, modelAttributeMethod);
@@ -110,7 +112,7 @@ public class DispatcherServlet extends HttpServlet {
                 }
             }
             paras = autowireParameters(urlMapping, urlMapping.getMethod());
-            if (JwUtils.isAnnotated(method, ResponseBody.class)) {
+            if (AnnotationUtils.isAnnotated(method, ResponseBody.class)) {
                 Object result = method.invoke(controller, paras);
                 response.setHeader("Content-type", "application/json;charset=UTF-8");
                 response.getWriter().write(JSON.toJSONString(result));
@@ -294,7 +296,7 @@ public class DispatcherServlet extends HttpServlet {
                     }
                     dto = json.toJavaObject(paramClaze);
                     // validation
-                    if (JwUtils.contains(paramAnnos, Valid.class)) {
+                    if (AnnotationUtils.contains(paramAnnos, Valid.class)) {
                         ValidErrors errors = ConstraintValidatorManager.validate(dto);
                         if (errors != null) {
                             SessionContext.getContext().set(SessionContext.VALID_ERRORS, errors);

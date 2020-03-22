@@ -6,8 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jw.util.AnnotationUtils;
 import com.jw.util.CollectionUtils;
-import com.jw.util.JwUtils;
 import com.jw.web.bind.annotation.Component;
 
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -20,8 +20,8 @@ public class JwProxy implements MethodInterceptor {
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
         Object result = null;
         List<JoinPoint> jps = null;
-        if (JwUtils.isAnnotated(method.getDeclaringClass(), Component.class)) {
-            jps = JwProxyRegistry.findMatchedAspects(method);
+        if (AnnotationUtils.isAnnotated(method.getDeclaringClass(), Component.class)) {
+            jps = JwProxyRegistry.match(method);
         }
         if (CollectionUtils.isEmpty(jps)) {
             result = proxy.invokeSuper(obj, args);

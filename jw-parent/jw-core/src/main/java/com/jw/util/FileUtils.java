@@ -1,14 +1,12 @@
 package com.jw.util;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,6 +18,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletRequestContext;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,49 +30,49 @@ import org.slf4j.LoggerFactory;
  */
 public class FileUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
 
-    public static List<File> findFiles(final String fileExtension) {
-        List<File> files = new LinkedList<File>();
+    private static final String FILE_PROTOCOL = "file";
+
+    /**
+     * 查找以fileExtension为后缀的文件
+     * 
+     * @param fileExtension
+     * @return
+     */
+    public static File[] findFiles(final String fileExtension) {
+        ArgumentChecker.notEmpty(fileExtension);
         try {
             URL url = FileUtils.class.getResource("/");
-            if (url == null) {
-                return files;
+            if (url == null || !FILE_PROTOCOL.equals(url.getProtocol())) {
+                return null;
             }
-            String protocol = url.getProtocol();
-            if ("file".equals(protocol)) {
-                // 获取包的物理路径
-                String filePath = URLDecoder.decode(url.getFile(), "UTF-8");
-                File dir = new File(filePath);
-                if (!dir.exists() || !dir.isDirectory()) {
-                    return files;
-                }
-                File[] targetFiles = dir.listFiles(new FileFilter() {
-                    public boolean accept(File file) {
-                        return file.getName().endsWith(fileExtension);
-                    }
-                });
-                if (!CollectionUtils.isEmpty(targetFiles)) {
-                    files.addAll(Arrays.asList(targetFiles));
-                }
+            // 获取包的物理路径
+            String filePath = URLDecoder.decode(url.getFile(), "UTF-8");
+            File dir = new File(filePath);
+            if (!dir.exists() || !dir.isDirectory()) {
+                return null;
             }
+            return dir.listFiles(file -> file.getName().endsWith(fileExtension));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(String.format("查找后缀为%s的文件产生了异常", fileExtension), e);
+            return null;
         }
-        return files;
     }
 
+    /**
+     * 读取文件，输出到流中
+     * 
+     * @param file
+     * @param out
+     * @throws IOException
+     */
     public static void copy(String file, OutputStream out) throws IOException {
-        FileInputStream in = new FileInputStream(file);
-        int c;
-        byte buffer[] = new byte[1024];
-        while ((c = in.read(buffer)) != -1) {
-            for (int i = 0; i < c; i++) {
-                out.write(buffer[i]);
-            }
+        try (InputStream in = new FileInputStream(file)) {
+            IOUtils.copy(in, out);
+        } finally {
+            IOUtils.closeQuietly(out);
         }
-        in.close();
-        out.close();
     }
 
     /**
@@ -85,7 +84,7 @@ public class FileUtils {
     public static Map<String, Object> uploadFiles(HttpServlet servlet, HttpServletRequest request) {
         Map<String, Object> map = CollectionUtils.newHashMap();
         Map<String, String> fileMap = CollectionUtils.newHashMap();
-        map.put("file", fileMap);
+        map.put(FILE_PROTOCOL, fileMap);
 
         DiskFileItemFactory factory = new DiskFileItemFactory();// 创建工厂
         factory.setSizeThreshold(1024 * 1024 * 30);// 设置最大缓冲区为30M
@@ -127,7 +126,7 @@ public class FileUtils {
                     if (index > -1 && index < fileName.length() - 1) {
                         String ext = fileName.substring(index + 1).toLowerCase();
                         if (!ConfigUtils.getString("web.files.upload.extension").contains(";" + ext + ";")) {
-                            LOGGER.warn("The file {} is not allowed to upload.", fileName);
+                            LOG.warn("The file {} is not allowed to upload.", fileName);
                             continue;
                         }
                     }

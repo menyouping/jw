@@ -5,47 +5,42 @@ import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jw.util.JwUtils;
+import com.jw.util.AnnotationUtils;
 
 public class JwAnnotationRule extends JwRule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JwAnnotationRule.class);
-
+    /**
+     * 匹配@annotation(xxx)
+     */
     public static final Pattern RULE_PATTERN = Pattern.compile("@annotation\\(([^)]+)\\)");
 
-    private Class<Annotation> annotation = null;
+    private Class<Annotation> ann = null;
 
     @SuppressWarnings("unchecked")
     private JwAnnotationRule(String rule) {
         super(rule);
         Matcher m = matcher(rule);
-        if(!m.find()) {
-            isValid = false;
-            LOGGER.error("Error raised when parse rule" + rule);
-            return;
+        if (!m.find()) {
+            throw new IllegalArgumentException(String.format("切点规则%s编译失败", rule));
         }
         try {
             String clazeName = m.group(1);
-            annotation = (Class<Annotation>) Class.forName(clazeName);
+            ann = (Class<Annotation>) Class.forName(clazeName);
         } catch (ClassNotFoundException e) {
-            isValid = false;
-            LOGGER.error("Error raised when parse rule" + rule, e);
+            throw new IllegalArgumentException(String.format("切点规则%s编译失败", rule));
         }
     }
 
     public static JwAnnotationRule parse(String rule) {
         JwAnnotationRule result = new JwAnnotationRule(rule);
-        return result.isValid ? result : null;
+        return result;
     }
 
     public boolean match(Method targetMethod) {
-        return JwUtils.isAnnotated(targetMethod, annotation);
+        return AnnotationUtils.isAnnotated(targetMethod, ann);
     }
 
     public Class<Annotation> getAnnotation() {
-        return annotation;
+        return ann;
     }
 
     public static Matcher matcher(CharSequence rule) {

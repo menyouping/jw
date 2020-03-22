@@ -4,12 +4,7 @@ import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class JwExecutionRule extends JwRule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JwExecutionRule.class);
-
     public static final Pattern RULE_PATTERN = Pattern.compile("execution\\((.*)\\)");
 
     private Pattern EXP_PATTERN = Pattern.compile("(.*)\\((.*)\\)");
@@ -40,26 +35,21 @@ public class JwExecutionRule extends JwRule {
     private void init() {
         Matcher m = matcher(rule);
         if (!m.find()) {
-            isValid = false;
-            LOGGER.error("Error raised when parse rule" + rule);
-            return;
+            throw new IllegalArgumentException(String.format("切点规则%s编译失败", rule));
         }
 
         String r = m.group(1);
-        String[] parts = r.split("\\s+", 3);
-        if (parts.length < 2) {
-            isValid = false;
-            LOGGER.error("Rule is invalid: " + rule);
-            return;
+        // 配置通常3部分
+        String[] parts = r.split("\\s+");
+        if (parts.length < 2 || parts.length > 3) {
+            throw new IllegalArgumentException(String.format("切点规则%s编译失败", rule));
         }
         int i = 0;
         if (parts.length == 3) {
             try {
                 modifier = MethodModifier.valueOf(parts[0]);
             } catch (Exception e) {
-                isValid = false;
-                LOGGER.error("Error raised when parse rule" + rule, e);
-                return;
+                throw new IllegalArgumentException(String.format("切点规则%s编译失败", rule));
             }
             i++;
         }
@@ -67,18 +57,14 @@ public class JwExecutionRule extends JwRule {
         String exp = parts[i + 1];
         m = EXP_PATTERN.matcher(exp);
         if (!m.find()) {
-            isValid = false;
-            LOGGER.error("Error raised when parse rule" + rule);
-            return;
+            throw new IllegalArgumentException(String.format("切点规则%s编译失败", rule));
         }
         String strParamClazes = m.group(2).trim();
         paramClazes = strParamClazes.isEmpty() ? new String[0] : strParamClazes.split("\\s*,\\s*");
         String clazeName = m.group(1);
         int index = clazeName.lastIndexOf(".");
         if (index < 1 || index == clazeName.length() - 1 || '.' == clazeName.charAt(index - 1)) {
-            isValid = false;
-            LOGGER.error("Error raised when parse rule" + rule);
-            return;
+            throw new IllegalArgumentException(String.format("切点规则%s编译失败", rule));
         }
         clazeName = clazeName.replace("*", "([\\w]*)");
         clazeName = clazeName.replace("..", "([.\\w]*)");
@@ -88,8 +74,7 @@ public class JwExecutionRule extends JwRule {
     }
 
     public static JwExecutionRule parse(String rule) {
-        JwExecutionRule result = new JwExecutionRule(rule);
-        return result.isValid ? result : null;
+        return new JwExecutionRule(rule);
     }
 
     public boolean match(Method targetMethod) {

@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.jw.util.AnnotationUtils;
 import com.jw.util.CollectionUtils;
 import com.jw.util.ConfigUtils;
-import com.jw.util.JwUtils;
 import com.jw.util.PkgUtils;
 import com.jw.util.StringUtils;
 import com.jw.web.bind.annotation.Controller;
@@ -65,7 +65,7 @@ public class UrlMappingRegistry {
         String[] urls = null;
         String clazeUrl = "";
 
-        if (JwUtils.isAnnotated(controller, RequestMapping.class)) {
+        if (AnnotationUtils.isAnnotated(controller, RequestMapping.class)) {
             urls = controller.getAnnotation(RequestMapping.class).value();
             if (CollectionUtils.isEmpty(urls) || urls.length > 1) {
                 LOGGER.error("RequestMapping on class {} is invalid.", controller.getName());
@@ -80,7 +80,7 @@ public class UrlMappingRegistry {
 
         boolean flag = false;
         for (Method method : methods) {
-            if (!JwUtils.isAnnotated(method, RequestMapping.class))
+            if (!AnnotationUtils.isAnnotated(method, RequestMapping.class))
                 continue;
             method.setAccessible(true);
             urls = method.getAnnotation(RequestMapping.class).value();

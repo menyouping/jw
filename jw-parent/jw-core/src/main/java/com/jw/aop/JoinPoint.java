@@ -12,12 +12,12 @@ import com.jw.aop.annotation.Before;
 import com.jw.aop.annotation.Pointcut;
 import com.jw.aop.rule.JwRule;
 import com.jw.aop.rule.JwRuleFactory;
-import com.jw.util.CollectionUtils;
-import com.jw.util.JwUtils;
+import com.jw.util.ArgumentChecker;
+import com.jw.util.ReflectionUtils;
 import com.jw.util.StringUtils;
 
 public class JoinPoint {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JoinPoint.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JoinPoint.class);
 
     private Class<?> aspectClaze = null;
 
@@ -34,32 +34,26 @@ public class JoinPoint {
     private JwRule rule = null;
 
     public JoinPoint(Class<?> aspectClaze) {
-        List<Method> pointcutMethods = JwUtils.findMethods(aspectClaze, Pointcut.class);
-        if (CollectionUtils.isEmpty(pointcutMethods))
-            throw new IllegalArgumentException("There is no method with annotation Pointcut.class!");
-
-        if (pointcutMethods.size() > 1)
-            throw new IllegalArgumentException("There are more than one method annotated with Pointcut.class!");
+        List<Method> pointcutMethods = ReflectionUtils.findMethods(aspectClaze, Pointcut.class);
+        ArgumentChecker.notEmpty(pointcutMethods);
+        ArgumentChecker.notTrue(pointcutMethods.size() > 1);
 
         this.aspectClaze = aspectClaze;
         try {
             this.aspectInstance = aspectClaze.newInstance();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error(String.format("类%s创建对象失败", aspectClaze.getName()), e);
         }
         this.pointcutMethod = pointcutMethods.get(0);
 
-        Pointcut ann;
-        ann = pointcutMethod.getAnnotation(Pointcut.class);
+        Pointcut ann = pointcutMethod.getAnnotation(Pointcut.class);
         if (!StringUtils.isEmpty(ann.value())) {
             rule = JwRuleFactory.parse(ann.value());
             if (rule == null) {
-                throw new IllegalArgumentException("The value of Pointcut.class is invalid!");
+                throw new IllegalArgumentException("切点配置不正确!");
             }
         } else {
-            throw new IllegalArgumentException("The value of Pointcut.class is empty!");
+            throw new IllegalArgumentException("切点配置不能为空!");
         }
         String pointcutMethodName = pointcutMethod.getName() + "()";
         Method[] mds = aspectClaze.getDeclaredMethods();
@@ -94,7 +88,7 @@ public class JoinPoint {
             Object[] adviceArgs = new Object[] { this, parameter };
             beforeMethod.invoke(aspectInstance, adviceArgs);
         } catch (Throwable e) {
-            LOGGER.error("Error raised when call beforeMethod", e);
+            LOG.error("Error raised when call beforeMethod", e);
         }
     }
 
@@ -107,7 +101,7 @@ public class JoinPoint {
             Object[] adviceArgs = new Object[] { this, parameter };
             result = aroundMethod.invoke(aspectInstance, adviceArgs);
         } catch (Throwable e) {
-            LOGGER.error("Error raised when call targgetMethod", e);
+            LOG.error("Error raised when call targgetMethod", e);
         }
         return result;
     }
@@ -120,7 +114,7 @@ public class JoinPoint {
             Object[] adviceArgs = new Object[] { this, parameter };
             afterMethod.invoke(aspectInstance, adviceArgs);
         } catch (Throwable e) {
-            LOGGER.error("Error raised when call targgetMethod", e);
+            LOG.error("Error raised when call targgetMethod", e);
         }
     }
 
