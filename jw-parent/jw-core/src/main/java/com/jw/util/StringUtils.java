@@ -7,8 +7,14 @@ import java.util.regex.Pattern;
 
 public class StringUtils {
 
+    /**
+     * ${xxx}
+     */
     public static final Pattern PATTERN_CONFIG = Pattern.compile("(\\$\\{([^}]+)\\})");
 
+    /**
+     * {xxx}
+     */
     public static final Pattern PATTERN_PATH_VARIABLE = Pattern.compile("(\\{([^}]+)\\})");
 
     public static boolean isBlank(String str) {
@@ -123,8 +129,9 @@ public class StringUtils {
      */
     public static String replaceConfig(String url) {
         Matcher m = PATTERN_CONFIG.matcher(url);
-        if (!m.find())
+        if (!m.find()) {
             return url;
+        }
         String key, value;
         int start = 0, offset = 0;
         StringBuilder sb = new StringBuilder(url);

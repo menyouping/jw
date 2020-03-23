@@ -10,9 +10,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.jw.util.AnnotationUtils;
 import com.jw.util.CollectionUtils;
 import com.jw.util.ConfigUtils;
 import com.jw.util.PkgUtils;
@@ -29,11 +26,11 @@ public class UrlMappingRegistry {
     /**
      * store common url
      */
-    private static final Multimap<String, UrlMapping> urlMap = ArrayListMultimap.create();
+    private static final Map<String, UrlMapping> urlMap = CollectionUtils.newHashMap();
     /**
      * Store url with path variable
      */
-    private static final List<UrlMapping> pathUrls = CollectionUtils.newArrayList();
+    private static final List<UrlMapping> pathUrls = CollectionUtils.newLinkedList();
 
     private UrlMappingRegistry() {
     }
@@ -49,7 +46,7 @@ public class UrlMappingRegistry {
     }
 
     public static void register(Collection<Class<?>> controllers) {
-        if (controllers == null || controllers.isEmpty()) {
+        if (CollectionUtils.isEmpty(controllers)) {
             return;
         }
         for (Class<?> controller : controllers) {
@@ -61,33 +58,37 @@ public class UrlMappingRegistry {
         String[] urls = null;
         String clazeUrl = "";
 
-        if (AnnotationUtils.isAnnotated(controller, RequestMapping.class)) {
-            urls = controller.getAnnotation(RequestMapping.class).value();
+        // 扫描类注解
+        RequestMapping ann = controller.getAnnotation(RequestMapping.class);
+        if (ann != null) {
+            urls = ann.value();
             if (CollectionUtils.isEmpty(urls) || urls.length > 1) {
-                LOG.error("类{}的RequestMapping配置不正确.", controller.getName());
-                return;
-            } else {
-                clazeUrl = urls[0];
+                throw new IllegalArgumentException(String.format("类%s的RequestMapping配置不正确.", controller.getName()));
             }
+            clazeUrl = urls[0];
         }
 
+        // 扫描方法注解
         Method[] methods = controller.getMethods();
         UrlMapping urlMapping = null;
 
-        boolean flag = false;
+        boolean isUrlSetted = false;
         for (Method method : methods) {
-            if (!AnnotationUtils.isAnnotated(method, RequestMapping.class)) {
+            ann = method.getAnnotation(RequestMapping.class);
+            if (ann == null) {
                 continue;
             }
-            method.setAccessible(true);
-            urls = method.getAnnotation(RequestMapping.class).value();
-            flag = false;
-            for (String url : urls) {
-                urlMapping = buildUrlMapping(method, clazeUrl, url);
-                urlMap.put(clazeUrl + url, urlMapping);
-                flag = true;
+            urls = ann.value();
+            isUrlSetted = false;
+            if (!CollectionUtils.isEmpty(urls)) {
+                for (String url : urls) {
+                    urlMapping = buildUrlMapping(method, clazeUrl, url);
+                    urlMap.put(clazeUrl + url, urlMapping);
+                    isUrlSetted = true;
+                }
             }
-            if (!flag) {
+            if (!isUrlSetted) {
+                // 默认方法名作为路径名
                 urlMapping = new UrlMapping(method);
                 urlMap.put(clazeUrl + method.getName(), urlMapping);
             }
@@ -158,31 +159,29 @@ public class UrlMappingRegistry {
      * @return
      */
     public static UrlMapping match(String requestMethod, String path) {
-        Collection<UrlMapping> urlMappings = urlMap.get(path);
-        if (CollectionUtils.isEmpty(urlMappings)) {
-            if (!CollectionUtils.isEmpty(pathUrls)) {
-                for (UrlMapping urlMapping : pathUrls) {
-                    if (urlMapping.getUrlPattern().matcher(path).find()) {
-                        urlMappings = urlMap.get(urlMapping.getUrl());
-                        break;
-                    }
+        UrlMapping targetMapping = null;
+        if (urlMap.containsKey(path)) {
+            targetMapping = urlMap.get(path);
+        } else if (!CollectionUtils.isEmpty(pathUrls)) {
+            for (UrlMapping urlMapping : pathUrls) {
+                if (urlMapping.getUrlPattern().matcher(path).find()) {
+                    targetMapping = urlMap.get(urlMapping.getUrl());
+                    break;
                 }
             }
         }
-        if (CollectionUtils.isEmpty(urlMappings)) {
+        if (targetMapping == null) {
             return null;
         }
-        RequestMethod[] allowedActions;
-        for (UrlMapping urlMapping : urlMappings) {
-            allowedActions = urlMapping.getMethod().getAnnotation(RequestMapping.class).method();
 
-            if (CollectionUtils.isEmpty(allowedActions))
-                return urlMapping;
+        RequestMethod[] allowedActions = targetMapping.getMethod().getAnnotation(RequestMapping.class).method();
+        if (CollectionUtils.isEmpty(allowedActions)) {
+            return targetMapping;
+        }
 
-            for (RequestMethod allowedAction : allowedActions) {
-                if (allowedAction.name().equals(requestMethod)) {
-                    return urlMapping;
-                }
+        for (RequestMethod allowedAction : allowedActions) {
+            if (allowedAction.name().equals(requestMethod)) {
+                return targetMapping;
             }
         }
 
